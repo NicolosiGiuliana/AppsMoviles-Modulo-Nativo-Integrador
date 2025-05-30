@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "6094837551",
-    "project_id": "appsmoviles-modulo-nativo",
-    "storage_bucket": "appsmoviles-modulo-nativo.firebasestorage.app"
+    "project_number": "842320329417",
+    "project_id": "com-unaj-tpintegrador",
+    "storage_bucket": "com-unaj-tpintegrador.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:6094837551:android:c2ae5a3d5347ac8b7ab3da",
+        "mobilesdk_app_id": "1:842320329417:android:873cc6694bcbfbe1baab18",
         "android_client_info": {
           "package_name": "com.example.trabajointegradornativo"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAStcioU5roTBvkPEs5QqiUgLtZ1TuriFo"
+          "current_key": "AIzaSyAWvfvyjLT0daJXIiYKKPVOvY9-JThhHHo"
         }
       ],
       "services": {
