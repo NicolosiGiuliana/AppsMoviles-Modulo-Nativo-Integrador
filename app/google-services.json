@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "6094837551",
+    "project_id": "appsmoviles-modulo-nativo",
+    "storage_bucket": "appsmoviles-modulo-nativo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:6094837551:android:c2ae5a3d5347ac8b7ab3da",
+        "android_client_info": {
+          "package_name": "com.example.trabajointegradornativo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAStcioU5roTBvkPEs5QqiUgLtZ1TuriFo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
