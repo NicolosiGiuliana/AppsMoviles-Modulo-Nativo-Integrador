@@ -1,24 +1,27 @@
 package com.example.trabajointegradornativo
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.example.trabajointegradornativo.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Configurar el binding
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // Usar el layout existente sin binding
+        setContentView(R.layout.activity_main)
+
+        // Inicializar SharedPreferences
+        sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
         // Obtener el NavController del NavHostFragment
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -30,15 +33,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkUserStatus() {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser == null) {
-            // Si no está logueado, permanecer en LoginFragment
-            navController.navigate(R.id.loginFragment)
+        val isLoggedInPrefs = sharedPreferences.getBoolean("is_logged_in", false)
 
+        // Verificar tanto Firebase Auth como SharedPreferences
+        if (currentUser != null && isLoggedInPrefs) {
+            // Usuario está logueado, ir a la app principal
+            navigateToMainApp()
         } else {
-            // Si el usuario está logueado, navegar al InicioFragment
-            val intent = Intent(this, ItemDetailHostActivity::class.java)
-            startActivity(intent)
-            finish() // opcional pero recomendado para no volver a esta actividad
+            // Usuario no está logueado, mostrar pantalla de login
+            navController.navigate(R.id.loginFragment)
         }
+    }
+
+    private fun navigateToMainApp() {
+        val intent = Intent(this, ItemDetailHostActivity::class.java)
+        startActivity(intent)
+        finish() // Cerrar MainActivity para que no pueda volver con back
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Verificar el estado del usuario cada vez que la actividad se reanuda
+        checkUserStatus()
     }
 }
