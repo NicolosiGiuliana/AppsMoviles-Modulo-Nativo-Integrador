@@ -1,10 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Primary Colors -->
+    <color name="primary_blue">#6278E0</color>
+    <color name="button_primary">#2d3748</color>
+    <color name="button_primary_hover">#1a202c</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#2d3748</color>
+    <color name="text_secondary">#718096</color>
+    <color name="text_tertiary">#a0aec0</color>
+
+    <!-- Background Colors -->
+    <color name="white">#ffffff</color>
+    <color name="background_gradient">#f5f7fa</color>
+    <color name="background_light">#fafafa</color>
+    <color name="background_lighter">#f7fafc</color>
+    <color name="background_section">#edf2f7</color>
+
+    <!-- Input Colors -->
+    <color name="input_background">#fafafa</color>
+    <color name="input_stroke">#e2e8f0</color>
+    <color name="input_focus">#667eea</color>
+
+    <!-- Status Colors -->
+    <color name="success_green">#48bb78</color>
+    <color name="success_light">#f0fff4</color>
+    <color name="success_border">#9ae6b4</color>
+
+    <color name="error_red">#e53e3e</color>
+    <color name="error_light">#fff5f5</color>
+    <color name="error_border">#feb2b2</color>
+
+    <!-- Utility Colors -->
+    <color name="transparent">#00000000</color>
+    <color name="shadow">#0a000000</color>
+    <color name="divider">#f1f5f9</color>
 </resources>

@@ -7,7 +7,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Desafio+"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TrabajoIntegradorNativo"
@@ -18,7 +18,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.TrabajoIntegradorNativo">
+            android:theme="@style/Theme.TrabajoIntegradorNativo.NoActionBar">
 
             <!-- Filtro de intención para que sea la actividad inicial -->
             <intent-filter>
@@ -34,5 +34,6 @@
             android:label="@string/title_activity_item_detail_host"
             android:resizeableActivity="true"
             tools:targetApi="24" />
+
     </application>
 </manifest>
