@@ -3,37 +3,23 @@ package com.example.trabajointegradornativo
 import android.content.ClipData
 import android.os.Bundle
 import android.view.DragEvent
-import androidx.fragment.app.Fragment
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
-import com.example.trabajointegradornativo.placeholder.PlaceholderContent
+import androidx.cardview.widget.CardView
+import androidx.fragment.app.Fragment
 import com.example.trabajointegradornativo.databinding.FragmentItemDetailBinding
+import com.example.trabajointegradornativo.placeholder.PlaceholderContent
 
-/**
- * A fragment representing a single Item detail screen.
- * This fragment is either contained in a [ItemListFragment]
- * in two-pane mode (on larger screen devices) or self-contained
- * on handsets.
- */
 class ItemDetailFragment : Fragment() {
 
-    /**
-     * The placeholder content this fragment is presenting.
-     */
     private var item: PlaceholderContent.PlaceholderItem? = null
-
-    lateinit var itemDetailTextView: TextView
-    private var toolbarLayout: CollapsingToolbarLayout? = null
-
-private var _binding: FragmentItemDetailBinding? = null
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    private var _binding: FragmentItemDetailBinding? = null
     private val binding get() = _binding!!
 
-    private val dragListener = View.OnDragListener { v, event ->
+    private val dragListener = View.OnDragListener { _, event ->
         if (event.action == DragEvent.ACTION_DROP) {
             val clipDataItem: ClipData.Item = event.clipData.getItemAt(0)
             val dragData = clipDataItem.text
@@ -48,9 +34,6 @@ private var _binding: FragmentItemDetailBinding? = null
 
         arguments?.let {
             if (it.containsKey(ARG_ITEM_ID)) {
-                // Load the placeholder content specified by the fragment
-                // arguments. In a real-world scenario, use a Loader
-                // to load content from a content provider.
                 item = PlaceholderContent.ITEM_MAP[it.getString(ARG_ITEM_ID)]
             }
         }
@@ -59,38 +42,57 @@ private var _binding: FragmentItemDetailBinding? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
-      _binding = FragmentItemDetailBinding.inflate(inflater, container, false)
-      val rootView = binding.root
-
-        toolbarLayout = binding.toolbarLayout
-        itemDetailTextView = binding.itemDetail
-
-        updateContent()
+    ): View {
+        _binding = FragmentItemDetailBinding.inflate(inflater, container, false)
+        val rootView = binding.root
         rootView.setOnDragListener(dragListener)
 
+        updateContent()
         return rootView
     }
 
     private fun updateContent() {
-        toolbarLayout?.title = item?.content
-
-        // Show the placeholder content as text in a TextView.
         item?.let {
-            itemDetailTextView.text = it.details
+            val currentDay = it.id.toIntOrNull() ?: 1
+            val totalDays = 75
+            val completedDays = currentDay
+
+            val percentage = (completedDays * 100) / totalDays
+            binding.circularProgress!!.progress = percentage
+            binding.progressText!!.text = "$completedDays/$totalDays"
+            binding.progressTitle!!.text = "Excelente progreso"
+            binding.progressSubtitle!!.text = "$completedDays días completados\nconsecutivamente"
+
+            // Agregar dinámicamente días del 1 al 30
+            val dayListContainer = binding.root.findViewById<LinearLayout>(R.id.day_list_container)
+            dayListContainer.removeAllViews()
+
+            val inflater = LayoutInflater.from(context)
+            for (day in 1..30) {
+                val dayCard = inflater.inflate(R.layout.day_card, dayListContainer, false)
+
+                val title = dayCard.findViewById<TextView>(R.id.day_title)
+                val subtitle = dayCard.findViewById<TextView>(R.id.day_subtitle)
+
+                title.text = "Día $day"
+
+                subtitle.text = when {
+                    day == currentDay -> "Hoy • Completado"
+                    day == currentDay - 1 -> "Ayer • Completado"
+                    day < currentDay -> "Completado"
+                    else -> "Pendiente"
+                }
+
+                dayListContainer.addView(dayCard)
+            }
         }
     }
 
     companion object {
-        /**
-         * The fragment argument representing the item ID that this fragment
-         * represents.
-         */
         const val ARG_ITEM_ID = "item_id"
     }
 
-override fun onDestroyView() {
+    override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }

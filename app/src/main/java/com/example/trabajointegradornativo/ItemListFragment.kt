@@ -83,14 +83,9 @@ private var _binding: FragmentItemListBinding? = null
         setupRecyclerView(recyclerView, itemDetailFragmentContainer)
     }
 
-    private fun setupRecyclerView(
-        recyclerView: RecyclerView,
-        itemDetailFragmentContainer: View?
-    ) {
-
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(
-            PlaceholderContent.ITEMS, itemDetailFragmentContainer
-        )
+    private fun setupRecyclerView(recyclerView: RecyclerView, itemDetailFragmentContainer: View?) {
+        PlaceholderContent.initializeContent(requireContext()) // Asegúrate de inicializar con el contexto actual
+        recyclerView.adapter = SimpleItemRecyclerViewAdapter(PlaceholderContent.ITEMS, itemDetailFragmentContainer)
     }
 
     class SimpleItemRecyclerViewAdapter(

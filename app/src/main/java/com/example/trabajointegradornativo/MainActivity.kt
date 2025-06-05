@@ -1,5 +1,6 @@
 package com.example.trabajointegradornativo
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -56,4 +57,18 @@ class MainActivity : AppCompatActivity() {
         // Verificar el estado del usuario cada vez que la actividad se reanuda
         checkUserStatus()
     }
+
+    class App : Application() {
+        override fun onCreate() {
+            super.onCreate()
+            instance = this
+        }
+
+        companion object {
+            private var instance: App? = null
+            val context: Context
+                get() = instance?.applicationContext ?: throw IllegalStateException("Application is not initialized.")
+        }
+    }
+
 }
