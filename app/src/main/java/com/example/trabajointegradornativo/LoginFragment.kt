@@ -460,8 +460,182 @@ class LoginFragment : Fragment() {
         )
 
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        // Crear el documento del usuario
         db.collection("usuarios").document(user.uid).set(userData)
+            .addOnSuccessListener {
+                // Una vez creado el usuario, crear la subcolección "desafios"
+                createInitialChallengesCollection(db, user.uid, objective, onSuccess, onError)
+            }
+            .addOnFailureListener { e -> onError(e) }
+    }
+
+    private fun createInitialChallengesCollection(
+        db: com.google.firebase.firestore.FirebaseFirestore,
+        userId: String,
+        objective: String,
+        onSuccess: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val challenges = getDefaultChallengesForObjective(objective)
+        val batch = db.batch()
+        val challengesRef = db.collection("usuarios").document(userId).collection("desafios")
+
+        // Agregar todos los desafíos en un batch para mejor rendimiento
+        challenges.forEach { challenge ->
+            val newChallengeRef = challengesRef.document()
+            batch.set(newChallengeRef, challenge)
+        }
+
+        batch.commit()
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { e -> onError(e) }
+    }
+
+    private fun getDefaultChallengesForObjective(objective: String): List<HashMap<String, Any>> {
+        val currentTime = com.google.firebase.Timestamp.now()
+
+        return when (objective) {
+            "Bienestar digital" -> listOf(
+                hashMapOf(
+                    "nombre" to "Descanso digital",
+                    "descripcion" to "Desconéctate de dispositivos 1 hora antes de dormir",
+                    "tipo" to "digital",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "duracion" to 60
+                ),
+                hashMapOf(
+                    "nombre" to "Límite de redes sociales",
+                    "descripcion" to "Usa redes sociales máximo 30 minutos al día",
+                    "tipo" to "digital",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "tiempoMaximo" to 30
+                ),
+                hashMapOf(
+                    "nombre" to "Día sin pantallas",
+                    "descripcion" to "Dedica 2 horas del día a actividades sin pantallas",
+                    "tipo" to "digital",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "duracion" to 120
+                )
+            )
+
+            "Desarrollo personal" -> listOf(
+                hashMapOf(
+                    "nombre" to "Lectura diaria",
+                    "descripcion" to "Lee al menos 20 minutos de un libro de desarrollo personal",
+                    "tipo" to "aprendizaje",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "duracion" to 20
+                ),
+                hashMapOf(
+                    "nombre" to "Reflexión personal",
+                    "descripcion" to "Escribe 3 cosas por las que te sientes agradecido hoy",
+                    "tipo" to "reflexion",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "cantidad" to 3
+                ),
+                hashMapOf(
+                    "nombre" to "Aprender algo nuevo",
+                    "descripcion" to "Dedica 15 minutos a aprender una nueva habilidad",
+                    "tipo" to "aprendizaje",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "duracion" to 15
+                )
+            )
+
+            "Salud mental" -> listOf(
+                hashMapOf(
+                    "nombre" to "Meditación diaria",
+                    "descripcion" to "Practica meditación o mindfulness durante 10 minutos",
+                    "tipo" to "mindfulness",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "duracion" to 10
+                ),
+                hashMapOf(
+                    "nombre" to "Respiración profunda",
+                    "descripcion" to "Realiza 5 respiraciones profundas cuando te sientas estresado",
+                    "tipo" to "respiracion",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "repeticiones" to 5
+                ),
+                hashMapOf(
+                    "nombre" to "Contacto social",
+                    "descripcion" to "Conecta con un amigo o familiar que no has visto en un tiempo",
+                    "tipo" to "social",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime
+                )
+            )
+
+            "Salud física" -> listOf(
+                hashMapOf(
+                    "nombre" to "Ejercicio diario",
+                    "descripcion" to "Realiza 30 minutos de actividad física moderada",
+                    "tipo" to "ejercicio",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "duracion" to 30
+                ),
+                hashMapOf(
+                    "nombre" to "Hidratación",
+                    "descripcion" to "Bebe al menos 8 vasos de agua durante el día",
+                    "tipo" to "hidratacion",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "meta" to 8
+                ),
+                hashMapOf(
+                    "nombre" to "Sueño reparador",
+                    "descripcion" to "Duerme entre 7-8 horas de sueño de calidad",
+                    "tipo" to "descanso",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime,
+                    "horas" to 8
+                )
+            )
+
+            "Otro" -> listOf(
+                hashMapOf(
+                    "nombre" to "Establece tu meta",
+                    "descripcion" to "Define qué objetivo específico quieres lograr esta semana",
+                    "tipo" to "planificacion",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime
+                ),
+                hashMapOf(
+                    "nombre" to "Pequeño paso",
+                    "descripcion" to "Realiza una acción pequeña hacia tu objetivo personal",
+                    "tipo" to "general",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime
+                ),
+                hashMapOf(
+                    "nombre" to "Autoevaluación",
+                    "descripcion" to "Reflexiona sobre qué te motiva y qué te detiene",
+                    "tipo" to "reflexion",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime
+                )
+            )
+
+            else -> listOf(
+                hashMapOf(
+                    "nombre" to "Desafío de bienvenida",
+                    "descripcion" to "¡Bienvenido! Comienza definiendo tu objetivo principal",
+                    "tipo" to "general",
+                    "completado" to false,
+                    "fechaCreacion" to currentTime
+                )
+            )
+        }
     }
 }

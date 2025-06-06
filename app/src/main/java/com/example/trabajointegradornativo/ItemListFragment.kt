@@ -1,10 +1,6 @@
 package com.example.trabajointegradornativo
 
-import android.content.ClipData
-import android.content.ClipDescription
-import android.os.Build
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,172 +8,106 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.trabajointegradornativo.placeholder.PlaceholderContent;
 import com.example.trabajointegradornativo.databinding.FragmentItemListBinding
 import com.example.trabajointegradornativo.databinding.ItemListContentBinding
-
-/**
- * A Fragment representing a list of Pings. This fragment
- * has different presentations for handset and larger screen devices. On
- * handsets, the fragment presents a list of items, which when touched,
- * lead to a {@link ItemDetailFragment} representing
- * item details. On larger screens, the Navigation controller presents the list of items and
- * item details side-by-side using two vertical panes.
- */
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ItemListFragment : Fragment() {
 
-    /**
-     * Method to intercept global key events in the
-     * item list fragment to trigger keyboard shortcuts
-     * Currently provides a toast when Ctrl + Z and Ctrl + F
-     * are triggered
-     */
-    private val unhandledKeyEventListenerCompat = ViewCompat.OnUnhandledKeyEventListenerCompat { v, event ->
-        if (event.keyCode == KeyEvent.KEYCODE_Z && event.isCtrlPressed) {
-            Toast.makeText(
-                v.context,
-                "Undo (Ctrl + Z) shortcut triggered",
-                Toast.LENGTH_LONG
-            ).show()
-            true
-        } else if (event.keyCode == KeyEvent.KEYCODE_F && event.isCtrlPressed) {
-            Toast.makeText(
-                v.context,
-                "Find (Ctrl + F) shortcut triggered",
-                Toast.LENGTH_LONG
-            ).show()
-            true
-        }
-        false
-    }
-
-private var _binding: FragmentItemListBinding? = null
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    private var _binding: FragmentItemListBinding? = null
     private val binding get() = _binding!!
+
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
-      _binding = FragmentItemListBinding.inflate(inflater, container, false)
-      return binding.root
-
+    ): View {
+        _binding = FragmentItemListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        ViewCompat.addOnUnhandledKeyEventListener(view, unhandledKeyEventListenerCompat)
+        ViewCompat.addOnUnhandledKeyEventListener(view) { _, _ -> false }
 
-        val recyclerView: RecyclerView = binding.itemList
+        binding.itemList.layoutManager = LinearLayoutManager(requireContext())
+        cargarDesafios()
 
-        // Leaving this not using view binding as it relies on if the view is visible the current
-        // layout configuration (layout, layout-sw600dp)
-        val itemDetailFragmentContainer: View? = view.findViewById(R.id.item_detail_nav_container)
-
-        setupRecyclerView(recyclerView, itemDetailFragmentContainer)
+        // Navegar al fragmento de creación
+        binding.fab!!.setOnClickListener {
+            findNavController().navigate(R.id.action_itemListFragment_to_createDesafioFragment)
+        }
     }
 
-    private fun setupRecyclerView(recyclerView: RecyclerView, itemDetailFragmentContainer: View?) {
-        PlaceholderContent.initializeContent(requireContext()) // Asegúrate de inicializar con el contexto actual
-        recyclerView.adapter = SimpleItemRecyclerViewAdapter(PlaceholderContent.ITEMS, itemDetailFragmentContainer)
+    data class Desafio(
+        val nombre: String = "",
+        val descripcion: String = "",
+        val dias: Int = 0,
+        val creadoPor: String = "",
+        val id: String = "" // ID de documento Firestore
+    )
+
+    private fun cargarDesafios() {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .get()
+            .addOnSuccessListener { result ->
+                val desafios = result.map { doc ->
+                    Desafio(
+                        nombre = doc.getString("nombre") ?: "",
+                        descripcion = doc.getString("descripcion") ?: "",
+                        dias = doc.getLong("dias")?.toInt() ?: 0,
+                        creadoPor = uid,
+                        id = doc.id
+                    )
+                }
+                binding.itemList.adapter = DesafioAdapter(desafios)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error al cargar desafíos: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
-    class SimpleItemRecyclerViewAdapter(
-        private val values: List<PlaceholderContent.PlaceholderItem>,
-        private val itemDetailFragmentContainer: View?
-    ) :
-        RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
+
+    inner class DesafioAdapter(private val values: List<Desafio>) :
+        RecyclerView.Adapter<DesafioAdapter.ViewHolder>() {
+
+        inner class ViewHolder(val binding: ItemListContentBinding) :
+            RecyclerView.ViewHolder(binding.root) {
+            val contentView: TextView = binding.content
+        }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
-    val binding = ItemListContentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    return ViewHolder(binding)
-
+            val binding = ItemListContentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return ViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = values[position]
-//            holder.idView.text = item.id
-            holder.contentView.text = item.content
+            val desafio = values[position]
+            holder.contentView.text = desafio.nombre
 
-            with(holder.itemView) {
-                tag = item
-                setOnClickListener{ itemView ->
-                    val item = itemView.tag as PlaceholderContent.PlaceholderItem
-                    val bundle = Bundle()
-                    bundle.putString(
-                        ItemDetailFragment.ARG_ITEM_ID,
-                        item.id
-                    )
-                    if (itemDetailFragmentContainer != null) {
-                        itemDetailFragmentContainer.findNavController()
-                            .navigate(R.id.fragment_item_detail, bundle)
-                    } else {
-                        itemView.findNavController().navigate(R.id.show_item_detail, bundle)
-                    }
+            holder.itemView.setOnClickListener {
+                val bundle = Bundle().apply {
+                    putString(ItemDetailFragment.ARG_ITEM_ID, desafio.id)
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    /**
-                     * Context click listener to handle Right click events
-                     * from mice and trackpad input to provide a more native
-                     * experience on larger screen devices
-                     */
-                    setOnContextClickListener { v ->
-                        val item = v.tag as PlaceholderContent.PlaceholderItem
-                        Toast.makeText(
-                            v.context,
-                            "Context click of item " + item.id,
-                            Toast.LENGTH_LONG
-                        ).show()
-                        true
-                    }
-                }
-
-                setOnLongClickListener { v ->
-                    // Setting the item id as the clip data so that the drop target is able to
-                    // identify the id of the content
-                    val clipItem = ClipData.Item(item.id)
-                    val dragData = ClipData(
-                        v.tag as? CharSequence,
-                        arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
-                        clipItem
-                    )
-
-                    if (Build.VERSION.SDK_INT >= 24) {
-                        v.startDragAndDrop(
-                            dragData,
-                            View.DragShadowBuilder(v),
-                            null,
-                            0
-                        )
-                    } else {
-                        v.startDrag(
-                            dragData,
-                            View.DragShadowBuilder(v),
-                            null,
-                            0
-                        )
-                    }
-                }
+                findNavController().navigate(R.id.show_item_detail, bundle)
             }
         }
 
         override fun getItemCount() = values.size
-
-    inner class ViewHolder(binding: ItemListContentBinding) : RecyclerView.ViewHolder(binding.root) {
-      val idView: TextView = binding.idText
-      val contentView: TextView = binding.content
     }
 
-    }
-
-override fun onDestroyView() {
+    override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }

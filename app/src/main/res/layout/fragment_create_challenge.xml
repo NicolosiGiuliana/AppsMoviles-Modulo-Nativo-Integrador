@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Título -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crear nuevo desafío"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Nombre del desafío -->
+        <EditText
+            android:id="@+id/inputChallengeName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nombre del desafío"
+            android:inputType="textCapWords"
+            android:backgroundTint="#4CAF50"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Descripción del desafío -->
+        <EditText
+            android:id="@+id/inputChallengeDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Descripción"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:backgroundTint="#4CAF50"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Cantidad de días -->
+        <EditText
+            android:id="@+id/inputChallengeDays"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Duración en días (ej: 30)"
+            android:inputType="number"
+            android:backgroundTint="#4CAF50"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Botón de crear -->
+        <Button
+            android:id="@+id/buttonCreateChallenge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Crear desafío"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:padding="14dp" />
+
+    </LinearLayout>
+</ScrollView>

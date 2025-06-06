@@ -25,6 +25,9 @@
         <action
             android:id="@+id/show_item_detail"
             app:destination="@id/itemDetailFragment" />
+        <action
+            android:id="@+id/action_itemListFragment_to_createDesafioFragment"
+            app:destination="@id/createDesafioFragment" />
     </fragment>
 
     <!-- Detalle del desafío -->
@@ -50,6 +53,17 @@
         <argument
             android:name="day_number"
             app:argType="integer" />
+    </fragment>
+
+    <!-- Crear desafío -->
+    <fragment
+        android:id="@+id/createDesafioFragment"
+        android:name="com.example.trabajointegradornativo.CreateChallengeFragment"
+        android:label="Crear Desafío"
+        tools:layout="@layout/fragment_create_challenge">
+        <action
+            android:id="@+id/action_createDesafioFragment_to_itemListFragment"
+            app:destination="@id/itemListFragment" />
     </fragment>
 
 </navigation>
