@@ -4,6 +4,7 @@
     android:background="#F5F5F5">
 
     <LinearLayout
+        android:id="@+id/day_detail_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -260,6 +261,7 @@
 
         <!-- Botón completar día -->
         <Button
+            android:id="@+id/complete_day_button"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Marcar día como completado"

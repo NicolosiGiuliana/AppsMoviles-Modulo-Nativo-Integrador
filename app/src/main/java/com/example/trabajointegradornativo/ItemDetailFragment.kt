@@ -1,6 +1,7 @@
 package com.example.trabajointegradornativo
 
 import android.content.ClipData
+import android.content.Context
 import android.os.Bundle
 import android.view.DragEvent
 import android.view.LayoutInflater
@@ -9,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.trabajointegradornativo.databinding.FragmentItemDetailBinding
@@ -55,9 +55,19 @@ class ItemDetailFragment : Fragment() {
 
     private fun updateContent() {
         item?.let {
-            val currentDay = it.id.toIntOrNull() ?: 1
+            val context = requireContext()
+            val prefs = context.getSharedPreferences("completed_days", Context.MODE_PRIVATE)
+
             val totalDays = 75
-            val completedDays = currentDay
+            val totalVisibleDays = 30
+            var completedDays = 0
+
+            // Contar cuántos días fueron marcados como completados (de los visibles)
+            for (day in 1..totalVisibleDays) {
+                if (prefs.getBoolean("day_completed_$day", false)) {
+                    completedDays++
+                }
+            }
 
             val percentage = (completedDays * 100) / totalDays
             binding.circularProgress!!.progress = percentage
@@ -70,7 +80,9 @@ class ItemDetailFragment : Fragment() {
             dayListContainer.removeAllViews()
 
             val inflater = LayoutInflater.from(context)
-            for (day in 1..30) {
+            val currentDay = it.id.toIntOrNull() ?: 1
+
+            for (day in 1..totalVisibleDays) {
                 val dayCard = inflater.inflate(R.layout.day_card, dayListContainer, false)
 
                 val title = dayCard.findViewById<TextView>(R.id.day_title)
@@ -79,16 +91,18 @@ class ItemDetailFragment : Fragment() {
 
                 title.text = "Día $day"
 
+                val isCompleted = prefs.getBoolean("day_completed_$day", false)
+
                 when {
-                    day == currentDay -> {
+                    isCompleted && day == currentDay -> {
                         subtitle.text = "Hoy • Completado"
                         checkIcon.visibility = View.VISIBLE
                     }
-                    day == currentDay - 1 -> {
+                    isCompleted && day == currentDay - 1 -> {
                         subtitle.text = "Ayer • Completado"
                         checkIcon.visibility = View.VISIBLE
                     }
-                    day < currentDay -> {
+                    isCompleted -> {
                         subtitle.text = "Completado"
                         checkIcon.visibility = View.VISIBLE
                     }
@@ -104,11 +118,11 @@ class ItemDetailFragment : Fragment() {
                     }
                     findNavController().navigate(R.id.action_item_detail_fragment_to_dayDetailFragment, bundle)
                 }
+
                 dayListContainer.addView(dayCard)
             }
         }
     }
-
 
     companion object {
         const val ARG_ITEM_ID = "item_id"

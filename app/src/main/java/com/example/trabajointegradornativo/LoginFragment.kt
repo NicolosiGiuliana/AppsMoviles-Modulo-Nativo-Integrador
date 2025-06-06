@@ -358,6 +358,7 @@ class LoginFragment : Fragment() {
                     Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }
             }
+
     }
 
     private fun registerUser(email: String, password: String, username: String, birthDate: String, objective: String) {
@@ -377,17 +378,19 @@ class LoginFragment : Fragment() {
 
                     user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileTask ->
                         if (profileTask.isSuccessful) {
-                            // Guardar datos en SharedPreferences incluyendo los nuevos campos
-                            saveUserToPreferences(
+                            saveUserToFirestore(
                                 email = email,
                                 username = username,
                                 birthDate = birthDate,
                                 objective = objective,
-                                isLoggedIn = true
+                                onSuccess = {
+                                    Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                                    navigateToMainApp()
+                                },
+                                onError = { e ->
+                                    Toast.makeText(context, "Error al guardar datos: ${e.message}", Toast.LENGTH_LONG).show()
+                                }
                             )
-
-                            Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
-                            navigateToMainApp()
                         }
                     }
                 } else {
@@ -436,5 +439,29 @@ class LoginFragment : Fragment() {
         val intent = Intent(requireContext(), ItemDetailHostActivity::class.java)
         startActivity(intent)
         activity?.finish()
+    }
+
+    private fun saveUserToFirestore(
+        email: String,
+        username: String,
+        birthDate: String = "",
+        objective: String = "",
+        onSuccess: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+
+        val userData = hashMapOf(
+            "uid" to user.uid,
+            "email" to email,
+            "nombre" to username,
+            "fechaNacimiento" to birthDate,
+            "objetivo" to objective
+        )
+
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        db.collection("usuarios").document(user.uid).set(userData)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { e -> onError(e) }
     }
 }
