@@ -6,10 +6,12 @@ import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.trabajointegradornativo.databinding.FragmentItemDetailBinding
 import com.example.trabajointegradornativo.placeholder.PlaceholderContent
 
@@ -73,20 +75,40 @@ class ItemDetailFragment : Fragment() {
 
                 val title = dayCard.findViewById<TextView>(R.id.day_title)
                 val subtitle = dayCard.findViewById<TextView>(R.id.day_subtitle)
+                val checkIcon = dayCard.findViewById<ImageView>(R.id.day_check_icon)
 
                 title.text = "Día $day"
 
-                subtitle.text = when {
-                    day == currentDay -> "Hoy • Completado"
-                    day == currentDay - 1 -> "Ayer • Completado"
-                    day < currentDay -> "Completado"
-                    else -> "Pendiente"
+                when {
+                    day == currentDay -> {
+                        subtitle.text = "Hoy • Completado"
+                        checkIcon.visibility = View.VISIBLE
+                    }
+                    day == currentDay - 1 -> {
+                        subtitle.text = "Ayer • Completado"
+                        checkIcon.visibility = View.VISIBLE
+                    }
+                    day < currentDay -> {
+                        subtitle.text = "Completado"
+                        checkIcon.visibility = View.VISIBLE
+                    }
+                    else -> {
+                        subtitle.text = "Pendiente"
+                        checkIcon.visibility = View.GONE
+                    }
                 }
 
+                dayCard.setOnClickListener {
+                    val bundle = Bundle().apply {
+                        putInt("day_number", day)
+                    }
+                    findNavController().navigate(R.id.action_item_detail_fragment_to_dayDetailFragment, bundle)
+                }
                 dayListContainer.addView(dayCard)
             }
         }
     }
+
 
     companion object {
         const val ARG_ITEM_ID = "item_id"

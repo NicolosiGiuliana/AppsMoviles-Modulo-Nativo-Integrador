@@ -41,10 +41,12 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/day_check_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_check"
             android:contentDescription="Completado"
-            app:tint="#4CAF50" />
+            app:tint="#4CAF50"
+            android:visibility="gone" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

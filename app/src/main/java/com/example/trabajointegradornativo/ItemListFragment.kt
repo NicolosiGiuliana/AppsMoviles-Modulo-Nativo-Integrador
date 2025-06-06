@@ -103,7 +103,7 @@ private var _binding: FragmentItemListBinding? = null
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = values[position]
-            holder.idView.text = item.id
+//            holder.idView.text = item.id
             holder.contentView.text = item.content
 
             with(holder.itemView) {

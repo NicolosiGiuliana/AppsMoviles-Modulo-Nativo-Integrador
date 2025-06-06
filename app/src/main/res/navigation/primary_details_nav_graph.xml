@@ -5,14 +5,17 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/item_list_fragment">
 
+    <!-- Lista de desafíos -->
     <fragment
         android:id="@+id/item_list_fragment"
         android:name="com.example.trabajointegradornativo.ItemListFragment"
-        android:label="ItemListFragment" >
+        android:label="ItemListFragment">
         <action
             android:id="@+id/show_item_detail"
             app:destination="@id/item_detail_fragment" />
     </fragment>
+
+    <!-- Detalle del desafío -->
     <fragment
         android:id="@+id/item_detail_fragment"
         android:name="com.example.trabajointegradornativo.ItemDetailFragment"
@@ -22,5 +25,20 @@
             android:name="item_id"
             app:argType="string"
             android:defaultValue="" />
+        <action
+            android:id="@+id/action_item_detail_fragment_to_dayDetailFragment"
+            app:destination="@id/day_detail_fragment" />
     </fragment>
+
+    <!-- Detalle del día -->
+    <fragment
+        android:id="@+id/day_detail_fragment"
+        android:name="com.example.trabajointegradornativo.DayDetailFragment"
+        android:label="Detalle del día"
+        tools:layout="@layout/fragment_day_detail">
+        <argument
+            android:name="day_number"
+            app:argType="integer" />
+    </fragment>
+
 </navigation>
