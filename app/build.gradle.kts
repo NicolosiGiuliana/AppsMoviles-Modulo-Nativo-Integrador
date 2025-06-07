@@ -53,6 +53,9 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.google.firebase.firestore.ktx)
 
+    // LÍNEA CORREGIDA - agregadas las comillas
+    implementation("androidx.cardview:cardview:1.0.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

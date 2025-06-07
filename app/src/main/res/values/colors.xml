@@ -2,6 +2,9 @@
 <resources>
     <!-- Primary Colors -->
     <color name="primary_blue">#6278E0</color>
+    <color name="primary_green">#4CAF50</color>
+    <color name="green_button">#48BB78</color>
+    <color name="green_light">#E6F4EA</color>
     <color name="button_primary">#2d3748</color>
     <color name="button_primary_hover">#1a202c</color>
 
@@ -9,13 +12,17 @@
     <color name="text_primary">#2d3748</color>
     <color name="text_secondary">#718096</color>
     <color name="text_tertiary">#a0aec0</color>
+    <color name="text_dark">#1a202c</color>
+    <color name="text_green">#48BB78</color>
 
     <!-- Background Colors -->
     <color name="white">#ffffff</color>
+    <color name="background_main">#f8f9fa</color>
     <color name="background_gradient">#f5f7fa</color>
     <color name="background_light">#fafafa</color>
     <color name="background_lighter">#f7fafc</color>
     <color name="background_section">#edf2f7</color>
+    <color name="card_background">#ffffff</color>
 
     <!-- Input Colors -->
     <color name="input_background">#fafafa</color>
@@ -31,8 +38,13 @@
     <color name="error_light">#fff5f5</color>
     <color name="error_border">#feb2b2</color>
 
+    <!-- Progress Colors -->
+    <color name="progress_green">#4CAF50</color>
+    <color name="progress_background">#E0E0E0</color>
+
     <!-- Utility Colors -->
     <color name="transparent">#00000000</color>
     <color name="shadow">#0a000000</color>
     <color name="divider">#f1f5f9</color>
+    <color name="border_light">#e2e8f0</color>
 </resources>
