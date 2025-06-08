@@ -113,7 +113,7 @@ class ItemListFragment : Fragment() {
         // Setup current day card click
         binding.currentDayCard?.setOnClickListener {
             // Navigate to today's screen
-            // findNavController().navigate(R.id.action_to_today_fragment)
+             findNavController().navigate(R.id.action_to_today_fragment)
             Toast.makeText(context, "Navegar a pantalla de hoy", Toast.LENGTH_SHORT).show()
         }
     }

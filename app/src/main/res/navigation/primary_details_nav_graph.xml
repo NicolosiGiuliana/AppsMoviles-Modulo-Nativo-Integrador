@@ -10,12 +10,18 @@
         android:id="@+id/item_list_fragment"
         android:name="com.example.trabajointegradornativo.ItemListFragment"
         android:label="ItemListFragment">
+
         <action
             android:id="@+id/show_item_detail"
             app:destination="@id/item_detail_fragment" />
+
         <action
             android:id="@+id/action_itemListFragment_to_createDesafioFragment"
             app:destination="@id/createDesafioFragment" />
+
+        <action
+            android:id="@+id/action_to_today_fragment"
+            app:destination="@id/today_fragment" />
     </fragment>
 
     <!-- Detalle del desafío -->
@@ -54,5 +60,12 @@
             android:id="@+id/action_createDesafioFragment_to_itemListFragment"
             app:destination="@id/itemListFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/today_fragment"
+        android:name="com.example.trabajointegradornativo.TodayFragment"
+        android:label="Hoy"
+        tools:layout="@layout/action_to_today_fragment" />
+
 
 </navigation>
