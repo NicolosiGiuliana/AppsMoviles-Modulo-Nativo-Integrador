@@ -210,7 +210,7 @@ class CreateChallengeFragment : Fragment() {
         val desafio = mapOf(
             "nombre" to nombre,
             "habitos" to habitos,
-            "duracionDias" to duracionSeleccionada,
+            "dias" to duracionSeleccionada,
             "ubicacion" to ubicacionSeleccionada,
             "creadoPor" to uid,
             "fechaCreacion" to com.google.firebase.Timestamp.now(),

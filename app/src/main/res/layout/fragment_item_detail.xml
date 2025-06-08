@@ -125,14 +125,14 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_today"
-                android:contentDescription="Hoy"
+                android:src="@drawable/add_home"
+                android:contentDescription="Home"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hoy"
+                android:text="Home"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -150,43 +150,17 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_add"
-                android:contentDescription="Nuevo"
-                app:tint="#BBBBBB" />
+                android:src="@drawable/ic_today"
+                android:contentDescription="Hoy"
+                app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nuevo"
+                android:text="Hoy"
                 android:textSize="12sp"
-                android:textColor="#BBBBBB"
+                android:textColor="#333333"
                 android:layout_marginTop="4dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="8dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_stats"
-                android:contentDescription="Stats"
-                app:tint="#BBBBBB" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Stats"
-                android:textSize="12sp"
-                android:textColor="#BBBBBB"
-                android:layout_marginTop="4dp" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -201,13 +175,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_settings"
-                android:contentDescription="Ajustes"
+                android:contentDescription="Configuración"
                 app:tint="#BBBBBB" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ajustes"
+                android:text="Configuración"
                 android:textSize="12sp"
                 android:textColor="#BBBBBB"
                 android:layout_marginTop="4dp" />

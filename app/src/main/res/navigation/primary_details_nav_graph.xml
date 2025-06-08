@@ -2,52 +2,67 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
-    app:startDestination="@id/item_list_fragment">
+    android:id="@+id/primary_details_nav_graph"
+    app:startDestination="@id/itemListFragment">
 
-    <!-- Lista de desafíos -->
+    <!-- Lista de desafíos (Home) -->
     <fragment
-        android:id="@+id/item_list_fragment"
+        android:id="@+id/itemListFragment"
         android:name="com.example.trabajointegradornativo.ItemListFragment"
-        android:label="ItemListFragment">
+        android:label="Home"
+        tools:layout="@layout/fragment_item_list">
 
         <action
             android:id="@+id/show_item_detail"
-            app:destination="@id/item_detail_fragment" />
+            app:destination="@id/itemDetailFragment" />
 
         <action
             android:id="@+id/action_itemListFragment_to_createDesafioFragment"
             app:destination="@id/createDesafioFragment" />
 
+        <!-- ACCIÓN PARA NAVEGAR A HOY -->
         <action
-            android:id="@+id/action_to_today_fragment"
-            app:destination="@id/today_fragment" />
+            android:id="@+id/action_itemListFragment_to_dayDetailFragment"
+            app:destination="@id/dayDetailFragment" />
     </fragment>
 
     <!-- Detalle del desafío -->
     <fragment
-        android:id="@+id/item_detail_fragment"
+        android:id="@+id/itemDetailFragment"
         android:name="com.example.trabajointegradornativo.ItemDetailFragment"
-        android:label="item_detail"
+        android:label="Detalle del desafío"
         tools:layout="@layout/fragment_item_detail">
+
         <argument
             android:name="item_id"
-            app:argType="string"
-            android:defaultValue="" />
+            app:argType="string" />
+
         <action
-            android:id="@+id/action_item_detail_fragment_to_dayDetailFragment"
-            app:destination="@id/day_detail_fragment" />
+            android:id="@+id/action_itemDetailFragment_to_dayDetailFragment"
+            app:destination="@id/dayDetailFragment" />
+
+        <!-- ACCIÓN PARA VOLVER A HOME -->
+        <action
+            android:id="@+id/action_itemDetailFragment_to_itemListFragment"
+            app:destination="@id/itemListFragment" />
     </fragment>
 
-    <!-- Detalle del día -->
+    <!-- Detalle del día (Hoy) -->
     <fragment
-        android:id="@+id/day_detail_fragment"
+        android:id="@+id/dayDetailFragment"
         android:name="com.example.trabajointegradornativo.DayDetailFragment"
-        android:label="Detalle del día"
+        android:label="Hoy"
         tools:layout="@layout/fragment_day_detail">
+
         <argument
             android:name="day_number"
-            app:argType="integer" />
+            app:argType="integer"
+            android:defaultValue="1" />
+
+        <!-- ACCIÓN PARA VOLVER A HOME -->
+        <action
+            android:id="@+id/action_dayDetailFragment_to_itemListFragment"
+            app:destination="@id/itemListFragment" />
     </fragment>
 
     <!-- Crear desafío -->
@@ -56,16 +71,10 @@
         android:name="com.example.trabajointegradornativo.CreateChallengeFragment"
         android:label="Crear Desafío"
         tools:layout="@layout/fragment_create_challenge">
+
         <action
             android:id="@+id/action_createDesafioFragment_to_itemListFragment"
             app:destination="@id/itemListFragment" />
     </fragment>
-
-    <fragment
-        android:id="@+id/today_fragment"
-        android:name="com.example.trabajointegradornativo.TodayFragment"
-        android:label="Hoy"
-        tools:layout="@layout/action_to_today_fragment" />
-
 
 </navigation>

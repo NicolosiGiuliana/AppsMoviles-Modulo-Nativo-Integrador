@@ -28,6 +28,10 @@
         <action
             android:id="@+id/action_itemListFragment_to_createDesafioFragment"
             app:destination="@id/createDesafioFragment" />
+        <!-- NUEVA ACCIÓN AGREGADA -->
+        <action
+            android:id="@+id/action_itemListFragment_to_dayDetailFragment"
+            app:destination="@id/dayDetailFragment" />
     </fragment>
 
     <!-- Detalle del desafío -->
@@ -53,6 +57,10 @@
         <argument
             android:name="day_number"
             app:argType="integer" />
+        <!-- NUEVA ACCIÓN AGREGADA PARA VOLVER A HOME -->
+        <action
+            android:id="@+id/action_dayDetailFragment_to_itemListFragment"
+            app:destination="@id/itemListFragment" />
     </fragment>
 
     <!-- Crear desafío -->
