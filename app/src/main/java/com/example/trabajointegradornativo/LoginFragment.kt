@@ -49,12 +49,12 @@ class LoginFragment : Fragment() {
     private lateinit var actionButton: Button
     private lateinit var toggleModeButton: Button
 
-    // Data
+    // Data - Actualizados los 4 objetivos principales
     private val objectives = arrayOf(
-        "Bienestar digital",
-        "Desarrollo personal",
-        "Salud mental",
-        "Salud física",
+        "Fitness",
+        "Lectura",
+        "Mindfulness",
+        "Hidratación",
         "Otro"
     )
 
@@ -399,25 +399,6 @@ class LoginFragment : Fragment() {
             }
     }
 
-    private fun logoutUser() {
-        auth.signOut()
-
-        // Limpiar SharedPreferences
-        saveUserToPreferences(
-            email = "",
-            username = "",
-            birthDate = "",
-            objective = "",
-            isLoggedIn = false
-        )
-
-        Toast.makeText(context, "Sesión cerrada", Toast.LENGTH_SHORT).show()
-
-        // Opcional: recargar el fragment para mostrar la pantalla de login
-//        clearInputs()
-        updateUIMode()
-    }
-
     private fun saveUserToPreferences(
         email: String,
         username: String,
@@ -464,99 +445,128 @@ class LoginFragment : Fragment() {
         // Crear el documento del usuario
         db.collection("usuarios").document(user.uid).set(userData)
             .addOnSuccessListener {
-                // Una vez creado el usuario, crear la subcolección "desafios"
-                createInitialChallengesCollection(db, user.uid, objective, onSuccess, onError)
+                // Solo crear el desafío inicial si NO eligió "Otro"
+                if (objective != "Otro") {
+                    createInitialChallenge(db, user.uid, objective, onSuccess, onError)
+                } else {
+                    onSuccess()
+                }
             }
             .addOnFailureListener { e -> onError(e) }
     }
 
-    private fun createInitialChallengesCollection(
+    private fun createInitialChallenge(
         db: com.google.firebase.firestore.FirebaseFirestore,
         userId: String,
         objective: String,
         onSuccess: () -> Unit,
         onError: (Exception) -> Unit
     ) {
-        val challenges = getDefaultChallengesForObjective(objective)
-        val batch = db.batch()
+        val challenge = getInitialChallengeForObjective(objective)
         val challengesRef = db.collection("usuarios").document(userId).collection("desafios")
 
-        // Agregar todos los desafíos en un batch para mejor rendimiento
-        challenges.forEach { challenge ->
-            val newChallengeRef = challengesRef.document()
-            batch.set(newChallengeRef, challenge)
-        }
-
-        batch.commit()
+        challengesRef.add(challenge)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { e -> onError(e) }
     }
 
-    private fun getDefaultChallengesForObjective(objective: String): List<HashMap<String, Any>> {
+    private fun getInitialChallengeForObjective(objective: String): HashMap<String, Any> {
         val currentTime = com.google.firebase.Timestamp.now()
 
         return when (objective) {
-            "Bienestar digital" -> listOf(
-                hashMapOf(
-                    "nombre" to "Descanso digital (Hardcodeado)",
-                    "descripcion" to "Desconéctate de dispositivos 1 hora antes de dormir",
-                    "tipo" to "digital",
-                    "completado" to false,
-                    "fechaCreacion" to currentTime,
-                    "dias" to 60
-                ),
+            "Fitness" -> hashMapOf(
+                "nombre" to "Rutina de Fitness",
+                "descripcion" to "Desafío de 30 días para mejorar tu condición física",
+                "tipo" to "fitness",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 30,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 5,
+                "habitos" to listOf(
+                    mapOf("nombre" to "30 minutos de ejercicio", "completado" to false),
+                    mapOf("nombre" to "10 flexiones", "completado" to false),
+                    mapOf("nombre" to "15 sentadillas", "completado" to false),
+                    mapOf("nombre" to "Caminar 5000 pasos", "completado" to false),
+                    mapOf("nombre" to "Estiramientos", "completado" to false)
+                )
             )
 
-            "Desarrollo personal" -> listOf(
-                hashMapOf(
-                    "nombre" to "Lectura diaria (Hardcodeado)",
-                    "descripcion" to "Lee al menos 20 minutos de un libro de desarrollo personal",
-                    "tipo" to "aprendizaje",
-                    "completado" to false,
-                    "fechaCreacion" to currentTime,
-                    "dias" to 20
-                ),
+            "Lectura" -> hashMapOf(
+                "nombre" to "Hábito de Lectura",
+                "descripcion" to "Desafío de 21 días para crear el hábito de lectura diaria",
+                "tipo" to "lectura",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 21,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 5,
+                "habitos" to listOf(
+                    mapOf("nombre" to "Leer 20 minutos", "completado" to false),
+                    mapOf("nombre" to "Elegir libro del día", "completado" to false),
+                    mapOf("nombre" to "Tomar notas importantes", "completado" to false),
+                    mapOf("nombre" to "Buscar lugar cómodo para leer", "completado" to false),
+                    mapOf("nombre" to "Reflexionar sobre lo leído", "completado" to false)
+                )
             )
 
-            "Salud mental" -> listOf(
-                hashMapOf(
-                    "nombre" to "Meditación diaria (Hardcodeado)",
-                    "descripcion" to "Practica meditación o mindfulness durante 10 minutos",
-                    "tipo" to "mindfulness",
-                    "completado" to false,
-                    "fechaCreacion" to currentTime,
-                    "dias" to 10
-                ),
+            "Mindfulness" -> hashMapOf(
+                "nombre" to "Mindfulness Diario",
+                "descripcion" to "Desafío de 30 días de meditación y mindfulness",
+                "tipo" to "mindfulness",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 30,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 5,
+                "habitos" to listOf(
+                    mapOf("nombre" to "10 minutos de meditación", "completado" to false),
+                    mapOf("nombre" to "Respiración consciente", "completado" to false),
+                    mapOf("nombre" to "Gratitud del día", "completado" to false),
+                    mapOf("nombre" to "Momento presente", "completado" to false),
+                    mapOf("nombre" to "Reflexión personal", "completado" to false)
+                )
             )
 
-            "Salud física" -> listOf(
-                hashMapOf(
-                    "nombre" to "Ejercicio diario (Hardcodeado)",
-                    "descripcion" to "Realiza 30 minutos de actividad física moderada",
-                    "tipo" to "ejercicio",
-                    "completado" to false,
-                    "fechaCreacion" to currentTime,
-                    "dias" to 30
-                ),
+            "Hidratación" -> hashMapOf(
+                "nombre" to "Hidratación Saludable",
+                "descripcion" to "Desafío de 15 días para mejorar tus hábitos de hidratación",
+                "tipo" to "hidratacion",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 15,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 5,
+                "habitos" to listOf(
+                    mapOf("nombre" to "2 litros de agua", "completado" to false),
+                    mapOf("nombre" to "Vaso al despertar", "completado" to false),
+                    mapOf("nombre" to "Agua antes de cada comida", "completado" to false),
+                    mapOf("nombre" to "Evitar bebidas azucaradas", "completado" to false),
+                    mapOf("nombre" to "Infusión nocturna", "completado" to false)
+                )
             )
 
-            "Otro" -> listOf(
-                hashMapOf(
-                    "nombre" to "Establece tu meta (Hardcodeado)",
-                    "descripcion" to "Define qué objetivo específico quieres lograr esta semana",
-                    "tipo" to "planificacion",
-                    "completado" to false,
-                    "fechaCreacion" to currentTime
-                ),
-            )
-
-            else -> listOf(
-                hashMapOf(
-                    "nombre" to "Desafío de bienvenida",
-                    "descripcion" to "¡Bienvenido! Comienza definiendo tu objetivo principal",
-                    "tipo" to "general",
-                    "completado" to false,
-                    "fechaCreacion" to currentTime
+            else -> hashMapOf(
+                "nombre" to "Desafío Personal",
+                "descripcion" to "Define tu propio desafío personal",
+                "tipo" to "general",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 7,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 1,
+                "habitos" to listOf(
+                    mapOf("nombre" to "Define tu meta", "completado" to false)
                 )
             )
         }

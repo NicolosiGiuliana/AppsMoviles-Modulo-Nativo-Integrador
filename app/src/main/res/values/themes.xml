@@ -8,7 +8,7 @@
     <style name="Theme.TrabajoIntegradorNativo.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:statusBarColor">@color/text_primary</item>
+        <item name="android:statusBarColor">@color/primary_green</item>
     </style>
 
     <style name="Theme.TrabajoIntegradorNativo.AppBarOverlay"

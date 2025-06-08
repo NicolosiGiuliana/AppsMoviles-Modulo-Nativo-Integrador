@@ -116,7 +116,8 @@ class ItemDetailFragment : Fragment() {
                     val bundle = Bundle().apply {
                         putInt("day_number", day)
                     }
-                    findNavController().navigate(R.id.action_item_detail_fragment_to_dayDetailFragment, bundle)
+                    // Usar la acción correcta del nav_graph
+                    findNavController().navigate(R.id.action_itemDetailFragment_to_dayDetailFragment, bundle)
                 }
 
                 dayListContainer.addView(dayCard)

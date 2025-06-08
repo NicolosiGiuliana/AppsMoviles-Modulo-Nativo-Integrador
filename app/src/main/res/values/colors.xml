@@ -5,18 +5,17 @@
     <color name="primary_green">#4CAF50</color>
     <color name="green_button">#48BB78</color>
     <color name="green_light">#E6F4EA</color>
-    <color name="button_primary">#2d3748</color>
-    <color name="button_primary_hover">#1a202c</color>
 
     <!-- Text Colors -->
-    <color name="text_primary">#2d3748</color>
-    <color name="text_secondary">#718096</color>
-    <color name="text_tertiary">#a0aec0</color>
+    <color name="text_primary">#2A432B</color>
+    <color name="text_secondary">#6C8E6D</color>
+    <color name="text_tertiary">#A7BDA7</color>
     <color name="text_dark">#1a202c</color>
     <color name="text_green">#48BB78</color>
 
     <!-- Background Colors -->
     <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
     <color name="background_main">#f8f9fa</color>
     <color name="background_gradient">#f5f7fa</color>
     <color name="background_light">#fafafa</color>
@@ -26,8 +25,8 @@
 
     <!-- Input Colors -->
     <color name="input_background">#fafafa</color>
-    <color name="input_stroke">#e2e8f0</color>
-    <color name="input_focus">#667eea</color>
+    <color name="input_stroke">#E2EDE2</color>
+    <color name="input_focus">#62E267</color>
 
     <!-- Status Colors -->
     <color name="success_green">#48bb78</color>
@@ -45,6 +44,6 @@
     <!-- Utility Colors -->
     <color name="transparent">#00000000</color>
     <color name="shadow">#0a000000</color>
-    <color name="divider">#f1f5f9</color>
-    <color name="border_light">#e2e8f0</color>
+    <color name="divider">#F4FBF4</color>
+    <color name="border_light">#DFEDE0</color>
 </resources>

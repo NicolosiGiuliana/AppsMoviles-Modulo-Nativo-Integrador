@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_gradient">
+    android:background="@color/white">
     <!--    tools:context=".LoginActivity"-->
 
     <!-- Header -->
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:letterSpacing="-0.02"
             android:text="Desafío+"
-            android:textColor="@color/text_primary"
+            android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -54,27 +54,23 @@
             android:paddingBottom="24dp">
 
             <!-- Logo Icon -->
+
+            <!-- Welcome Title -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/logoIcon"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
+                android:layout_marginTop="8dp"
                 app:cardBackgroundColor="@color/text_primary"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:drawableTop="@mipmap/ic_launcher"
-                    android:gravity="center"
-                    android:paddingBottom="15dp" />
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Welcome Title -->
             <TextView
                 android:id="@+id/welcomeTitle"
                 android:layout_width="wrap_content"
@@ -111,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:text="NOMBRE COMPLETO"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
@@ -155,7 +151,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="FECHA DE NACIMIENTO"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:visibility="gone"
@@ -190,7 +186,7 @@
                     android:inputType="date"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="10dp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/primary_green"
                     android:textColorHint="@color/text_secondary"
                     android:textSize="16sp" />
 
@@ -238,7 +234,7 @@
                     android:inputType="none"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="10dp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/primary_green"
                     android:textColorHint="@color/text_secondary"
                     android:textSize="16sp" />
 
@@ -251,7 +247,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="CORREO ELECTRÓNICO"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
@@ -295,7 +291,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="CONTRASEÑA"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
@@ -374,7 +370,7 @@
                     android:longClickable="false"
                     android:paddingHorizontal="14dp"
                     android:paddingTop="10dp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/primary_green"
                     android:textColorHint="@color/text_secondary"
                     android:textIsSelectable="false"
                     android:textSize="16sp" />
@@ -390,7 +386,7 @@
                 android:layout_width="250dp"
                 android:layout_height="56dp"
                 android:layout_marginTop="26dp"
-                android:backgroundTint="@color/button_primary"
+                android:backgroundTint="@color/primary_green"
                 android:letterSpacing="-0.01"
                 android:text="Iniciar Sesión"
                 android:textColor="@color/white"
@@ -410,11 +406,20 @@
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
                 android:text="¿No tenes cuenta? Regístrate"
-                android:textColor="@color/button_primary"
+                android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/actionButton" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawableTop="@mipmap/ic_launcher"
+                android:gravity="center"
+                android:paddingBottom="15dp"
+                tools:layout_editor_absoluteX="234dp"
+                tools:layout_editor_absoluteY="64dp" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
