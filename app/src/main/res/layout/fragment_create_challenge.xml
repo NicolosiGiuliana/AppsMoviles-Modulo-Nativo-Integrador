@@ -3,67 +3,243 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
-    android:background="#F5F5F5">
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Título -->
+        <!-- Título principal -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Crear nuevo desafío"
-            android:textSize="20sp"
+            android:text="Nuevo Desafío"
+            android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#333333"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Subtítulo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crea tu rutina personalizada"
+            android:textSize="14sp"
+            android:textColor="#999999"
             android:layout_marginBottom="24dp" />
 
         <!-- Nombre del desafío -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre del desafío"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
         <EditText
             android:id="@+id/inputChallengeName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nombre del desafío"
+            android:layout_height="48dp"
+            android:hint="Ej: Mi rutina matutina"
             android:inputType="textCapWords"
-            android:backgroundTint="#4CAF50"
+            android:background="@drawable/edittext_background"
             android:padding="12dp"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Descripción del desafío -->
-        <EditText
-            android:id="@+id/inputChallengeDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Descripción"
-            android:inputType="textMultiLine"
-            android:minLines="3"
-            android:backgroundTint="#4CAF50"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Cantidad de días -->
-        <EditText
-            android:id="@+id/inputChallengeDays"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Duración en días (ej: 30)"
-            android:inputType="number"
-            android:backgroundTint="#4CAF50"
-            android:padding="12dp"
+            android:textColorHint="#CCCCCC"
             android:layout_marginBottom="24dp" />
 
-        <!-- Botón de crear -->
+        <!-- Duración -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Duración"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Opciones de duración -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/option30Days"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="30 días"
+                android:textSize="14sp"
+                android:textColor="#4CAF50"
+                android:background="@drawable/duration_selected_background"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:gravity="center"
+                android:layout_marginRight="12dp" />
+
+            <TextView
+                android:id="@+id/option45Days"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="45 días"
+                android:textSize="14sp"
+                android:textColor="#999999"
+                android:background="@drawable/duration_unselected_background"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:gravity="center"
+                android:layout_marginRight="12dp" />
+
+            <TextView
+                android:id="@+id/option75Days"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="75 días"
+                android:textSize="14sp"
+                android:textColor="#999999"
+                android:background="@drawable/duration_unselected_background"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Hábitos diarios -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hábitos diarios (3-5)"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Contenedor de hábitos -->
+        <LinearLayout
+            android:id="@+id/habitosContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Hábito 1 -->
+            <EditText
+                android:id="@+id/inputHabit1"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="Hábito 1"
+                android:inputType="textCapWords"
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                android:textColorHint="#CCCCCC"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Hábito 2 -->
+            <EditText
+                android:id="@+id/inputHabit2"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="Hábito 2"
+                android:inputType="textCapWords"
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                android:textColorHint="#CCCCCC"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Hábito 3 -->
+            <EditText
+                android:id="@+id/inputHabit3"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="Hábito 3"
+                android:inputType="textCapWords"
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                android:textColorHint="#CCCCCC"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Botón agregar hábito -->
+            <TextView
+                android:id="@+id/buttonAddHabit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+ Agregar hábito"
+                android:textSize="14sp"
+                android:textColor="#4CAF50"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:layout_marginBottom="24dp" />
+
+        </LinearLayout>
+
+        <!-- Ubicación (opcional) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ubicación (opcional)"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Seleccionar ubicación -->
+        <LinearLayout
+            android:id="@+id/layoutSelectLocation"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/location_background"
+            android:padding="12dp"
+            android:layout_marginBottom="32dp">
+
+            <TextView
+                android:layout_width="12dp"
+                android:layout_height="16dp"
+                android:text="📍"
+                android:textSize="14sp"
+                android:layout_marginRight="12dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Seleccionar ubicación en mapa"
+                android:textSize="14sp"
+                android:textColor="#999999" />
+
+        </LinearLayout>
+
+        <!-- Botón crear desafío -->
         <Button
             android:id="@+id/buttonCreateChallenge"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Crear desafío"
+            android:layout_height="48dp"
+            android:text="Crear Desafío"
             android:backgroundTint="#4CAF50"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:padding="14dp" />
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Botón cancelar -->
+        <TextView
+            android:id="@+id/buttonCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancelar"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:layout_gravity="center"
+            android:padding="8dp" />
 
     </LinearLayout>
 </ScrollView>
