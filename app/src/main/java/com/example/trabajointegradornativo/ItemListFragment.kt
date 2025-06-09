@@ -3,6 +3,7 @@ package com.example.trabajointegradornativo
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Parcelable
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.core.content.ContextCompat
+import kotlinx.parcelize.Parcelize
 
 class ItemListFragment : Fragment() {
 
@@ -167,7 +169,7 @@ class ItemListFragment : Fragment() {
             navigateToToday()
         }
     }
-
+    @Parcelize
     data class Desafio(
         val nombre: String = "",
         val descripcion: String = "",
@@ -177,7 +179,7 @@ class ItemListFragment : Fragment() {
         val diaActual: Int = 0,
         val completados: Int = 0,
         val totalHabitos: Int = 5
-    )
+    ) : Parcelable
 
     data class DefaultChallenge(
         val title: String,
@@ -269,7 +271,7 @@ class ItemListFragment : Fragment() {
 
             holder.itemView.setOnClickListener {
                 val bundle = Bundle().apply {
-                    putString("ITEM_ID", challenge.id)
+                    putParcelable("desafio", challenge)
                 }
                 findNavController().navigate(R.id.show_item_detail, bundle)
             }

@@ -3,6 +3,7 @@ package com.example.trabajointegradornativo
 import android.content.ClipData
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,7 @@ class ItemDetailFragment : Fragment() {
     private var item: PlaceholderContent.PlaceholderItem? = null
     private var _binding: FragmentItemDetailBinding? = null
     private val binding get() = _binding!!
+    private lateinit var desafio: ItemListFragment.Desafio
 
     private val dragListener = View.OnDragListener { _, event ->
         if (event.action == DragEvent.ACTION_DROP) {
@@ -35,11 +37,23 @@ class ItemDetailFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
+            desafio = it.getParcelable("desafio") ?: throw IllegalStateException("Desafio no encontrado en los argumentos")
             if (it.containsKey(ARG_ITEM_ID)) {
-                item = PlaceholderContent.ITEM_MAP[it.getString(ARG_ITEM_ID)]
+                val id = it.getString(ARG_ITEM_ID)
+                Log.d("ItemDetailFragment", "ARG_ITEM_ID recibido: $id")
+
+                item = PlaceholderContent.ITEM_MAP[id]
+                if (item != null) {
+                    Log.d("ItemDetailFragment", "Item encontrado: ${item!!.content}")
+                } else {
+                    Log.d("ItemDetailFragment", "No se encontró item con ID: $id en ITEM_MAP")
+                }
+            } else {
+                Log.d("ItemDetailFragment", "ARG_ITEM_ID no recibido")
             }
         }
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,81 +63,73 @@ class ItemDetailFragment : Fragment() {
         val rootView = binding.root
         rootView.setOnDragListener(dragListener)
 
+        Log.d("ItemDetailFragment", "onCreateView: Llamando a updateContent")
+        updateContent()
+        Log.d("ItemDetailFragment", "onCreateView: updateContent terminado")
+
         updateContent()
         return rootView
     }
 
     private fun updateContent() {
-        item?.let {
-            val context = requireContext()
-            val prefs = context.getSharedPreferences("completed_days", Context.MODE_PRIVATE)
-
-            val totalDays = 75
-            val totalVisibleDays = 30
-            var completedDays = 0
-
-            // Contar cuántos días fueron marcados como completados (de los visibles)
-            for (day in 1..totalVisibleDays) {
-                if (prefs.getBoolean("day_completed_$day", false)) {
-                    completedDays++
-                }
-            }
-
-            val percentage = (completedDays * 100) / totalDays
-            binding.circularProgress!!.progress = percentage
-            binding.progressText!!.text = "$completedDays/$totalDays"
-            binding.progressTitle!!.text = "Excelente progreso"
-            binding.progressSubtitle!!.text = "$completedDays días completados\nconsecutivamente"
-
-            // Agregar dinámicamente días del 1 al 30
-            val dayListContainer = binding.root.findViewById<LinearLayout>(R.id.day_list_container)
-            dayListContainer.removeAllViews()
-
-            val inflater = LayoutInflater.from(context)
-            val currentDay = it.id.toIntOrNull() ?: 1
-
-            for (day in 1..totalVisibleDays) {
-                val dayCard = inflater.inflate(R.layout.day_card, dayListContainer, false)
-
-                val title = dayCard.findViewById<TextView>(R.id.day_title)
-                val subtitle = dayCard.findViewById<TextView>(R.id.day_subtitle)
-                val checkIcon = dayCard.findViewById<ImageView>(R.id.day_check_icon)
-
-                title.text = "Día $day"
-
-                val isCompleted = prefs.getBoolean("day_completed_$day", false)
-
-                when {
-                    isCompleted && day == currentDay -> {
-                        subtitle.text = "Hoy • Completado"
-                        checkIcon.visibility = View.VISIBLE
-                    }
-                    isCompleted && day == currentDay - 1 -> {
-                        subtitle.text = "Ayer • Completado"
-                        checkIcon.visibility = View.VISIBLE
-                    }
-                    isCompleted -> {
-                        subtitle.text = "Completado"
-                        checkIcon.visibility = View.VISIBLE
-                    }
-                    else -> {
-                        subtitle.text = "Pendiente"
-                        checkIcon.visibility = View.GONE
-                    }
-                }
-
-                dayCard.setOnClickListener {
-                    val bundle = Bundle().apply {
-                        putInt("day_number", day)
-                    }
-                    // Usar la acción correcta del nav_graph
-                    findNavController().navigate(R.id.action_itemDetailFragment_to_dayDetailFragment, bundle)
-                }
-
-                dayListContainer.addView(dayCard)
-            }
+        // Validar que los días del desafío sean mayores a 0
+        if (desafio.dias <= 0) {
+            Log.e("ItemDetailFragment", "El desafío '${desafio.nombre}' no tiene días válidos (${desafio.dias}).")
+            return
         }
+
+        Log.d("ItemDetailFragment", "Ejecutando updateContent() para: ${desafio.nombre}")
+
+        // Configurar el progreso
+        val percentage = if (desafio.dias > 0) {
+            (desafio.completados * 100) / desafio.dias
+        } else {
+            0
+        }
+
+        binding.circularProgress!!.progress = percentage
+        binding.progressText!!.text = "${desafio.completados}/${desafio.dias}"
+        binding.progressTitle!!.text = desafio.nombre
+        binding.progressSubtitle!!.text = "${desafio.completados} días completados"
+
+        // Configurar los días dinámicamente
+        val dayListContainer = binding.root.findViewById<LinearLayout>(R.id.day_list_container)
+        dayListContainer.removeAllViews()
+
+        val inflater = LayoutInflater.from(requireContext())
+        for (day in 1..desafio.dias) {
+            Log.d("ItemDetailFragment", "Generando tarjeta para el Día $day")
+
+            val dayCard = inflater.inflate(R.layout.day_card, dayListContainer, false)
+
+            val title = dayCard.findViewById<TextView>(R.id.day_title)
+            val subtitle = dayCard.findViewById<TextView>(R.id.day_subtitle)
+            val checkIcon = dayCard.findViewById<ImageView>(R.id.day_check_icon)
+
+            title.text = "Día $day"
+
+            if (day <= desafio.completados) {
+                subtitle.text = "Completado"
+                checkIcon.visibility = View.VISIBLE
+            } else {
+                subtitle.text = "Pendiente"
+                checkIcon.visibility = View.GONE
+            }
+
+            dayCard.setOnClickListener {
+                val bundle = Bundle().apply {
+                    putInt("day_number", day)
+                }
+                findNavController().navigate(R.id.action_itemDetailFragment_to_dayDetailFragment, bundle)
+            }
+
+            dayListContainer.addView(dayCard)
+        }
+
+        // Log de verificación final
+        Log.d("ItemDetailFragment", "Total de días generados: ${dayListContainer.childCount}")
     }
+
 
     companion object {
         const val ARG_ITEM_ID = "item_id"
