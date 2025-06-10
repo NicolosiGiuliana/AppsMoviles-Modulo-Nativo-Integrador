@@ -207,14 +207,13 @@ class CreateChallengeFragment : Fragment() {
         val habitos = recopilarHabitos()
         val uid = auth.currentUser?.uid!!
 
-        val desafio = mapOf(
+        val desafioBase = mapOf(
             "nombre" to nombre,
-            "habitos" to habitos,
             "dias" to duracionSeleccionada,
             "ubicacion" to ubicacionSeleccionada,
             "creadoPor" to uid,
             "fechaCreacion" to com.google.firebase.Timestamp.now(),
-            "estado" to "activo", // activo, completado, abandonado
+            "estado" to "activo",
             "progreso" to mapOf(
                 "diasCompletados" to 0,
                 "habitosCompletadosHoy" to emptyList<String>(),
@@ -222,27 +221,46 @@ class CreateChallengeFragment : Fragment() {
             )
         )
 
-        // Mostrar progreso
         crearButton.isEnabled = false
         crearButton.text = "Creando..."
 
+        // 1. Crear el desafío
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
-            .add(desafio)
-            .addOnSuccessListener { documentReference ->
-                Toast.makeText(context, "¡Desafío creado exitosamente!", Toast.LENGTH_SHORT).show()
+            .add(desafioBase)
+            .addOnSuccessListener { documentRef ->
 
-                // Volver a la pantalla anterior
-                startActivity(Intent(requireContext(), ItemDetailHostActivity::class.java))
-                activity?.finish()
-            }
-            .addOnFailureListener { e ->
+                val batch = firestore.batch()
+
+                // 2. Crear los días dentro del desafío con sus hábitos
+                for (i in 1..duracionSeleccionada) {
+                    val diaRef = documentRef.collection("dias").document("dia$i")
+                    val dataDia = mapOf(
+                        "habitos" to habitos,
+                        "completado" to false
+                    )
+                    batch.set(diaRef, dataDia)
+                }
+
+                // 3. Commit de batch
+                batch.commit().addOnSuccessListener {
+                    Toast.makeText(context, "¡Desafío creado exitosamente!", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(requireContext(), ItemDetailHostActivity::class.java))
+                    activity?.finish()
+                }.addOnFailureListener { e ->
+                    Toast.makeText(context, "Error al crear los días: ${e.message}", Toast.LENGTH_LONG).show()
+                    crearButton.isEnabled = true
+                    crearButton.text = "Crear Desafío"
+                }
+
+            }.addOnFailureListener { e ->
                 Toast.makeText(context, "Error al crear desafío: ${e.message}", Toast.LENGTH_LONG).show()
                 crearButton.isEnabled = true
                 crearButton.text = "Crear Desafío"
             }
     }
+
 
     private fun cancelarCreacion() {
         // Mostrar diálogo de confirmación si hay datos ingresados
