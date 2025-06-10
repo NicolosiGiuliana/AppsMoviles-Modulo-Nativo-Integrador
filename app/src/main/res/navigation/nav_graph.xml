@@ -28,7 +28,6 @@
         <action
             android:id="@+id/action_itemListFragment_to_createDesafioFragment"
             app:destination="@id/createDesafioFragment" />
-        <!-- NUEVA ACCIÓN AGREGADA -->
         <action
             android:id="@+id/action_itemListFragment_to_dayDetailFragment"
             app:destination="@id/dayDetailFragment" />
@@ -49,6 +48,9 @@
         <action
             android:id="@+id/action_itemDetailFragment_to_dayDetailFragment"
             app:destination="@id/dayDetailFragment" />
+        <action
+            android:id="@+id/action_itemDetailFragment_to_todayFragment"
+            app:destination="@id/todayFragment" />
     </fragment>
 
     <!-- Detalle del día -->
@@ -60,7 +62,6 @@
         <argument
             android:name="day_number"
             app:argType="integer" />
-        <!-- NUEVA ACCIÓN AGREGADA PARA VOLVER A HOME -->
         <action
             android:id="@+id/action_dayDetailFragment_to_itemListFragment"
             app:destination="@id/itemListFragment" />
@@ -77,10 +78,15 @@
             app:destination="@id/itemListFragment" />
     </fragment>
 
+    <!-- Fragment Today -->
     <fragment
         android:id="@+id/todayFragment"
         android:name="com.example.trabajointegradornativo.TodayFragment"
         android:label="Hoy"
-        tools:layout="@layout/action_to_today_fragment" />
+        tools:layout="@layout/action_to_today_fragment">
+        <action
+            android:id="@+id/action_todayFragment_to_itemListFragment"
+            app:destination="@id/itemListFragment" />
+    </fragment>
 
 </navigation>

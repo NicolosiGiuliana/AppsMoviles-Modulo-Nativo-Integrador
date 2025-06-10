@@ -11,6 +11,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.trabajointegradornativo.databinding.FragmentItemDetailBinding
@@ -70,6 +72,7 @@ class ItemDetailFragment : Fragment() {
 
         Log.d("ItemDetailFragment", "onCreateView: Llamando a updateContent")
         cargarDiasCompletados()
+        setupBottomNavigation()
         return rootView
     }
 
@@ -159,6 +162,105 @@ class ItemDetailFragment : Fragment() {
 
         // Log de verificación final
         Log.d("ItemDetailFragment", "Total de días generados: ${dayListContainer.childCount}")
+    }
+
+    private fun setupBottomNavigation() {
+        // Home
+        val homeLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
+            ?.getChildAt(0) as? LinearLayout
+        homeLayout?.setOnClickListener {
+            navigateToHome()
+        }
+
+        // Hoy
+        val todayLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
+            ?.getChildAt(1) as? LinearLayout
+        todayLayout?.setOnClickListener {
+            navigateToToday()
+        }
+
+        // Configuración (deshabilitado por ahora)
+        val settingsLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
+            ?.getChildAt(2) as? LinearLayout
+        settingsLayout?.setOnClickListener {
+            Toast.makeText(context, "Configuración próximamente", Toast.LENGTH_SHORT).show()
+        }
+
+        // Establecer colores iniciales (ninguna activa en detalle)
+        updateBottomNavigationColors("detalle")
+    }
+
+    private fun navigateToHome() {
+        try {
+            findNavController().navigate(R.id.action_itemDetailFragment_to_itemListFragment)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error al navegar a Home: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun navigateToToday() {
+        try {
+            val bundle = Bundle().apply {
+                putInt(DayDetailFragment.ARG_DAY_NUMBER, getCurrentDayNumber())
+            }
+            findNavController().navigate(R.id.action_itemListFragment_to_todayFragment, bundle)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error al navegar: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun getCurrentDayNumber(): Int {
+        // Obtener el día actual del desafío
+        return desafio.diaActual
+    }
+
+    private fun updateBottomNavigationColors(activeTab: String) {
+        val bottomNav = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        // Home
+        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
+        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
+        val homeText = homeLayout?.getChildAt(1) as? TextView
+
+        // Hoy
+        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
+        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
+        val todayText = todayLayout?.getChildAt(1) as? TextView
+
+        // Configuración
+        val settingsLayout = bottomNav?.getChildAt(2) as? LinearLayout
+        val settingsIcon = settingsLayout?.getChildAt(0) as? ImageView
+        val settingsText = settingsLayout?.getChildAt(1) as? TextView
+
+        // Colores
+        val activeColor = ContextCompat.getColor(requireContext(), R.color.primary_green)
+        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
+        val disabledColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+
+        when (activeTab) {
+            "home" -> {
+                homeIcon?.setColorFilter(activeColor)
+                homeText?.setTextColor(activeColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+            }
+            "today" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(activeColor)
+                todayText?.setTextColor(activeColor)
+            }
+            "detalle" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+            }
+        }
+
+        // Configuración siempre deshabilitada
+        settingsIcon?.setColorFilter(disabledColor)
+        settingsText?.setTextColor(disabledColor)
     }
 
     companion object {

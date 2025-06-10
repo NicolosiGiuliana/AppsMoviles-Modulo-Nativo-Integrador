@@ -186,7 +186,7 @@
                     android:inputType="date"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="10dp"
-                    android:textColor="@color/primary_green"
+                    android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_secondary"
                     android:textSize="16sp" />
 
@@ -199,7 +199,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="OBJETIVO"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:visibility="gone"
@@ -234,7 +234,7 @@
                     android:inputType="none"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="10dp"
-                    android:textColor="@color/primary_green"
+                    android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_secondary"
                     android:textSize="16sp" />
 
@@ -335,7 +335,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="CONFIRMAR CONTRASEÑA"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:visibility="gone"
@@ -370,7 +370,7 @@
                     android:longClickable="false"
                     android:paddingHorizontal="14dp"
                     android:paddingTop="10dp"
-                    android:textColor="@color/primary_green"
+                    android:textColor="@color/text_primary"
                     android:textColorHint="@color/text_secondary"
                     android:textIsSelectable="false"
                     android:textSize="16sp" />
