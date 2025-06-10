@@ -206,25 +206,40 @@ class CreateChallengeFragment : Fragment() {
         val nombre = nombreInput.text.toString().trim()
         val habitos = recopilarHabitos()
         val uid = auth.currentUser?.uid!!
+        val currentTime = com.google.firebase.Timestamp.now()
 
-        val desafioBase = mapOf(
+        // Crear estructura similar a getInitialChallengeForObjective
+        val desafioBase = hashMapOf(
             "nombre" to nombre,
+            "descripcion" to "Desafío personalizado de $duracionSeleccionada días",
+            "tipo" to "personalizado",
+            "completado" to false,
+            "fechaCreacion" to currentTime,
+            "fechaInicio" to currentTime,
             "dias" to duracionSeleccionada,
+            "diaActual" to 1,
+            "completados" to 0,
+            "totalHabitos" to habitos.size,
             "ubicacion" to ubicacionSeleccionada,
             "creadoPor" to uid,
-            "fechaCreacion" to com.google.firebase.Timestamp.now(),
             "estado" to "activo",
+            "habitos" to habitos.map { habito ->
+                mapOf(
+                    "nombre" to habito,
+                    "completado" to false
+                )
+            },
             "progreso" to mapOf(
                 "diasCompletados" to 0,
                 "habitosCompletadosHoy" to emptyList<String>(),
-                "ultimaActualizacion" to com.google.firebase.Timestamp.now()
+                "ultimaActualizacion" to currentTime
             )
         )
 
         crearButton.isEnabled = false
         crearButton.text = "Creando..."
 
-        // 1. Crear el desafío
+        // 1. Crear el desafío con la estructura completa
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -234,11 +249,21 @@ class CreateChallengeFragment : Fragment() {
                 val batch = firestore.batch()
 
                 // 2. Crear los días dentro del desafío con sus hábitos
-                for (i in 1..duracionSeleccionada) {
-                    val diaRef = documentRef.collection("dias").document("dia$i")
-                    val dataDia = mapOf(
-                        "habitos" to habitos,
+                // Convertir hábitos a la estructura con completado = false
+                val habitosParaDias = habitos.map { habito ->
+                    mapOf(
+                        "nombre" to habito,
                         "completado" to false
+                    )
+                }
+
+                for (i in 1..duracionSeleccionada) {
+                    val diaRef = documentRef.collection("dias").document("dia_$i")
+                    val dataDia = hashMapOf(
+                        "dia" to i,
+                        "habitos" to habitosParaDias,
+                        "completado" to false,
+                        "fecha_creacion" to currentTime
                     )
                     batch.set(diaRef, dataDia)
                 }

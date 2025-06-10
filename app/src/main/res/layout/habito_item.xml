@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    android:background="?android:attr/selectableItemBackground"
+    android:layout_marginBottom="8dp">
+
+    <ImageView
+        android:id="@+id/habito_icono"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_circle_empty"
+        android:layout_marginEnd="16dp"
+        app:tint="@color/primary_green" />
+
+    <TextView
+        android:id="@+id/habito_nombre"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Nombre del hábito"
+        android:textSize="16sp"
+        android:textColor="@color/text_dark"
+        android:textStyle="normal" />
+
+</LinearLayout>

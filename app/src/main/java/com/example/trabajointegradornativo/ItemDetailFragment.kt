@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.trabajointegradornativo.databinding.FragmentItemDetailBinding
 import com.example.trabajointegradornativo.placeholder.PlaceholderContent
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ItemDetailFragment : Fragment() {
 
@@ -22,6 +24,10 @@ class ItemDetailFragment : Fragment() {
     private var _binding: FragmentItemDetailBinding? = null
     private val binding get() = _binding!!
     private lateinit var desafio: ItemListFragment.Desafio
+
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+    private var diasCompletados = mutableSetOf<Int>()
 
     private val dragListener = View.OnDragListener { _, event ->
         if (event.action == DragEvent.ACTION_DROP) {
@@ -54,7 +60,6 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,11 +69,34 @@ class ItemDetailFragment : Fragment() {
         rootView.setOnDragListener(dragListener)
 
         Log.d("ItemDetailFragment", "onCreateView: Llamando a updateContent")
-        updateContent()
-        Log.d("ItemDetailFragment", "onCreateView: updateContent terminado")
-
-        updateContent()
+        cargarDiasCompletados()
         return rootView
+    }
+
+    private fun cargarDiasCompletados() {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias_completados")
+            .get()
+            .addOnSuccessListener { result ->
+                diasCompletados.clear()
+                for (document in result) {
+                    val dia = document.getLong("dia")?.toInt() ?: 0
+                    if (dia > 0) {
+                        diasCompletados.add(dia)
+                    }
+                }
+                Log.d("ItemDetailFragment", "Días completados cargados: $diasCompletados")
+                updateContent()
+            }
+            .addOnFailureListener { e ->
+                Log.e("ItemDetailFragment", "Error al cargar días completados: ${e.message}")
+                updateContent() // Continuar sin días completados
+            }
     }
 
     private fun updateContent() {
@@ -80,17 +108,18 @@ class ItemDetailFragment : Fragment() {
 
         Log.d("ItemDetailFragment", "Ejecutando updateContent() para: ${desafio.nombre}")
 
-        // Configurar el progreso
+        // Configurar el progreso basado en días completados reales
+        val diasCompletadosCount = diasCompletados.size
         val percentage = if (desafio.dias > 0) {
-            (desafio.completados * 100) / desafio.dias
+            (diasCompletadosCount * 100) / desafio.dias
         } else {
             0
         }
 
         binding.circularProgress!!.progress = percentage
-        binding.progressText!!.text = "${desafio.completados}/${desafio.dias}"
+        binding.progressText!!.text = "$diasCompletadosCount/${desafio.dias}"
         binding.progressTitle!!.text = desafio.nombre
-        binding.progressSubtitle!!.text = "${desafio.completados} días completados"
+        binding.progressSubtitle!!.text = "$diasCompletadosCount días completados"
 
         // Configurar los días dinámicamente
         val dayListContainer = binding.root.findViewById<LinearLayout>(R.id.day_list_container)
@@ -108,7 +137,8 @@ class ItemDetailFragment : Fragment() {
 
             title.text = "Día $day"
 
-            if (day <= desafio.completados) {
+            // Verificar si el día está completado
+            if (diasCompletados.contains(day)) {
                 subtitle.text = "Completado"
                 checkIcon.visibility = View.VISIBLE
             } else {
@@ -118,7 +148,8 @@ class ItemDetailFragment : Fragment() {
 
             dayCard.setOnClickListener {
                 val bundle = Bundle().apply {
-                    putInt("day_number", day)
+                    putInt(DayDetailFragment.ARG_DAY_NUMBER, day)
+                    putParcelable("desafio", desafio)
                 }
                 findNavController().navigate(R.id.action_itemDetailFragment_to_dayDetailFragment, bundle)
             }
@@ -129,7 +160,6 @@ class ItemDetailFragment : Fragment() {
         // Log de verificación final
         Log.d("ItemDetailFragment", "Total de días generados: ${dayListContainer.childCount}")
     }
-
 
     companion object {
         const val ARG_ITEM_ID = "item_id"

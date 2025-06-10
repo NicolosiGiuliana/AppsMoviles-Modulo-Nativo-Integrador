@@ -1,276 +1,155 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="#FFFFFF"
+    tools:context=".DayDetailFragment">
 
-    <LinearLayout
-        android:id="@+id/day_detail_container"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:layout_height="match_parent"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="100dp">
 
-        <TextView
-            android:id="@+id/day_detail_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="DETALLE DEL DÍA"
-            android:textSize="14sp"
-            android:textColor="#888888"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hábitos de hoy"
-            android:textSize="20sp"
-            android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
-
-<!--        &lt;!&ndash; Hidratación consciente &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            android:padding="16dp"-->
-<!--            android:background="@drawable/habit_item_background"-->
-<!--            android:layout_marginBottom="16dp">-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="24dp"-->
-<!--                android:layout_height="24dp"-->
-<!--                android:src="@drawable/ic_check_green"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:layout_gravity="center_vertical" />-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Hidratación consciente"-->
-<!--                    android:textSize="16sp"-->
-<!--                    android:textColor="#333333"-->
-<!--                    android:textStyle="bold" />-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Beber 3L de agua durante el día"-->
-<!--                    android:textSize="14sp"-->
-<!--                    android:textColor="#666666"-->
-<!--                    android:layout_marginTop="4dp" />-->
-
-<!--            </LinearLayout>-->
-
-<!--        </LinearLayout>-->
-
-<!--        &lt;!&ndash; Lectura diaria &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            android:padding="16dp"-->
-<!--            android:background="@drawable/habit_item_background"-->
-<!--            android:layout_marginBottom="16dp">-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="24dp"-->
-<!--                android:layout_height="24dp"-->
-<!--                android:src="@drawable/ic_check_green"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:layout_gravity="center_vertical" />-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Lectura diaria"-->
-<!--                    android:textSize="16sp"-->
-<!--                    android:textColor="#333333"-->
-<!--                    android:textStyle="bold" />-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Leer 10 páginas de desarrollo personal"-->
-<!--                    android:textSize="14sp"-->
-<!--                    android:textColor="#666666"-->
-<!--                    android:layout_marginTop="4dp" />-->
-
-<!--            </LinearLayout>-->
-
-<!--        </LinearLayout>-->
-
-<!--        &lt;!&ndash; Movimiento corporal &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            android:padding="16dp"-->
-<!--            android:background="@drawable/habit_item_background"-->
-<!--            android:layout_marginBottom="16dp">-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="24dp"-->
-<!--                android:layout_height="24dp"-->
-<!--                android:src="@drawable/ic_check_green"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:layout_gravity="center_vertical" />-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Movimiento corporal"-->
-<!--                    android:textSize="16sp"-->
-<!--                    android:textColor="#333333"-->
-<!--                    android:textStyle="bold" />-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="30 minutos de ejercicio físico"-->
-<!--                    android:textSize="14sp"-->
-<!--                    android:textColor="#666666"-->
-<!--                    android:layout_marginTop="4dp" />-->
-
-<!--            </LinearLayout>-->
-
-<!--        </LinearLayout>-->
-
-<!--        &lt;!&ndash; Desconexión digital &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            android:padding="16dp"-->
-<!--            android:background="@drawable/habit_item_background"-->
-<!--            android:layout_marginBottom="16dp">-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="24dp"-->
-<!--                android:layout_height="24dp"-->
-<!--                android:src="@drawable/ic_circle_empty"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:layout_gravity="center_vertical" />-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:orientation="vertical">-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Desconexión digital"-->
-<!--                    android:textSize="16sp"-->
-<!--                    android:textColor="#333333"-->
-<!--                    android:textStyle="bold" />-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Sin redes sociales después de las 20h"-->
-<!--                    android:textSize="14sp"-->
-<!--                    android:textColor="#666666"-->
-<!--                    android:layout_marginTop="4dp" />-->
-
-<!--            </LinearLayout>-->
-
-<!--        </LinearLayout>-->
-
-        <!-- Mindfulness -->
         <LinearLayout
+            android:id="@+id/day_detail_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="@drawable/habit_item_background"
-            android:layout_marginBottom="24dp">
+            android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_check_green"
-                android:layout_marginEnd="16dp"
-                android:layout_gravity="center_vertical" />
-
-            <LinearLayout
-                android:layout_width="0dp"
+            <!-- Título del día -->
+            <TextView
+                android:id="@+id/day_detail_text"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:text="Día X"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:layout_marginBottom="24dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mindfulness"
-                    android:textSize="16sp"
-                    android:textColor="#333333"
-                    android:textStyle="bold" />
+            <!-- Subtitle -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Marca los hábitos completados"
+                android:textSize="16sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginBottom="24dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="10 minutos de meditación"
-                    android:textSize="14sp"
-                    android:textColor="#666666"
-                    android:layout_marginTop="4dp" />
+            <!-- Los hábitos se agregarán dinámicamente aquí -->
 
-            </LinearLayout>
+            <!-- Botón de completar día -->
+            <Button
+                android:id="@+id/complete_day_button"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Completar Día"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/bottom_nav_background"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp" />
 
         </LinearLayout>
 
-        <!-- Reflexión personal -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reflexión personal"
-            android:textSize="20sp"
-            android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+    </androidx.core.widget.NestedScrollView>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Día productivo y enfocado. Logré mantener la disciplina en casi todos los hábitos. Solo me falta mejorar la desconexión digital en las noches."
-            android:textSize="14sp"
-            android:textColor="#333333"
-            android:background="#FFFFFF"
-            android:padding="16dp"
-            android:layout_marginBottom="24dp" />
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:background="@drawable/bottom_nav_background"
+        android:elevation="12dp"
+        android:paddingVertical="16dp"
+        android:paddingHorizontal="8dp">
 
-        <!-- Botón completar día -->
-        <Button
-            android:id="@+id/complete_day_button"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Marcar día como completado"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:background="@drawable/complete_button_background"
-            android:layout_gravity="bottom" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="12dp"
+            android:background="@drawable/nav_item_background">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/add_home"
+                android:contentDescription="Home"
+                app:tint="#333333" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textSize="13sp"
+                android:textColor="#333333"
+                android:textStyle="bold"
+                android:layout_marginTop="6dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="12dp"
+            android:background="@drawable/nav_item_background">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_today"
+                android:contentDescription="Hoy"
+                app:tint="#333333" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hoy"
+                android:textSize="13sp"
+                android:textColor="#333333"
+                android:textStyle="bold"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="12dp"
+            android:background="@drawable/nav_item_background">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_settings"
+                android:contentDescription="Configuración"
+                app:tint="#999999" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Configuración"
+                android:textSize="13sp"
+                android:textColor="#999999"
+                android:layout_marginTop="6dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
