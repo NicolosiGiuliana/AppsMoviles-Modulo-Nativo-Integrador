@@ -165,8 +165,8 @@ class ItemListFragment : Fragment() {
 
         // Setup current day card click
         binding.currentDayCard?.setOnClickListener {
-            // Navigate to today's screen usando la misma función
-            navigateToToday()
+            findNavController().navigate(R.id.action_itemListFragment_to_todayFragment)
+//            navigateToToday()
         }
     }
     @Parcelize
@@ -493,7 +493,7 @@ class ItemListFragment : Fragment() {
             val bundle = Bundle().apply {
                 putInt(DayDetailFragment.ARG_DAY_NUMBER, getCurrentDayNumber())
             }
-            findNavController().navigate(R.id.action_itemListFragment_to_dayDetailFragment, bundle)
+            findNavController().navigate(R.id.action_itemListFragment_to_todayFragment, bundle)
         } catch (e: Exception) {
             Toast.makeText(context, "Error al navegar: ${e.message}", Toast.LENGTH_SHORT).show()
         }

@@ -5,15 +5,16 @@
     android:id="@+id/item_detail_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:background="#FFFFFF"
     tools:context=".ItemDetailHostActivity">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp">
+        android:paddingHorizontal="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="100dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,32 +26,34 @@
                 android:id="@+id/progress_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                android:background="@android:color/white">
+                android:layout_marginBottom="32dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                android:background="@drawable/progress_card_background">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp"
-                    android:gravity="center">
+                    android:padding="32dp"
+                    android:gravity="center"
+                    android:background="@drawable/progress_card_background">
 
                     <!-- Círculo de progreso -->
                     <RelativeLayout
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:layout_marginBottom="16dp">
+                        android:layout_width="140dp"
+                        android:layout_height="140dp"
+                        android:layout_marginBottom="24dp"
+                        android:rotation="45">
 
                         <ProgressBar
                             android:id="@+id/circular_progress"
-                            android:layout_width="120dp"
-                            android:layout_height="120dp"
+                            android:layout_width="140dp"
+                            android:layout_height="140dp"
                             android:indeterminate="false"
                             android:progress="75"
                             android:max="100"
-                            android:progressDrawable="@drawable/circular_progress_drawable"
+                            android:progressDrawable="@drawable/circular_progress_modern"
                             style="?android:attr/progressBarStyleHorizontal" />
 
                         <TextView
@@ -59,9 +62,9 @@
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
                             android:text="15/15"
-                            android:textSize="20sp"
+                            android:textSize="24sp"
                             android:textStyle="bold"
-                            android:textColor="#333333"
+                            android:textColor="#FFFFFF"
                             android:rotation="-45" />
 
                     </RelativeLayout>
@@ -71,9 +74,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Excelente progreso"
-                        android:textSize="18sp"
+                        android:textSize="22sp"
                         android:textStyle="bold"
-                        android:textColor="#333333"
+                        android:textColor="#FFFFFF"
                         android:layout_marginBottom="8dp" />
 
                     <TextView
@@ -81,10 +84,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="15 días completados\nconsecutivamente"
-                        android:textSize="14sp"
-                        android:textColor="#666666"
+                        android:textSize="16sp"
+                        android:textColor="#E8F5E8"
                         android:gravity="center"
-                        android:lineSpacingExtra="2dp" />
+                        android:lineSpacingExtra="4dp"
+                        android:alpha="0.9" />
 
                 </LinearLayout>
 
@@ -110,9 +114,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:background="@android:color/white"
-        android:elevation="8dp"
-        android:paddingVertical="12dp">
+        android:background="@drawable/bottom_nav_background"
+        android:elevation="12dp"
+        android:paddingVertical="16dp"
+        android:paddingHorizontal="8dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -120,11 +125,12 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="8dp">
+            android:padding="12dp"
+            android:background="@drawable/nav_item_background">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:src="@drawable/add_home"
                 android:contentDescription="Home"
                 app:tint="#333333" />
@@ -133,9 +139,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Home"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textColor="#333333"
-                android:layout_marginTop="4dp" />
+                android:textStyle="bold"
+                android:layout_marginTop="6dp" />
 
         </LinearLayout>
 
@@ -145,11 +152,12 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="8dp">
+            android:padding="12dp"
+            android:background="@drawable/nav_item_background">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:src="@drawable/ic_today"
                 android:contentDescription="Hoy"
                 app:tint="#333333" />
@@ -158,9 +166,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hoy"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textColor="#333333"
-                android:layout_marginTop="4dp" />
+                android:textStyle="bold"
+                android:layout_marginTop="6dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -169,22 +178,23 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="8dp">
+            android:padding="12dp"
+            android:background="@drawable/nav_item_background">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:src="@drawable/ic_settings"
                 android:contentDescription="Configuración"
-                app:tint="#BBBBBB" />
+                app:tint="#999999" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Configuración"
-                android:textSize="12sp"
-                android:textColor="#BBBBBB"
-                android:layout_marginTop="4dp" />
+                android:textSize="13sp"
+                android:textColor="#999999"
+                android:layout_marginTop="6dp" />
 
         </LinearLayout>
 

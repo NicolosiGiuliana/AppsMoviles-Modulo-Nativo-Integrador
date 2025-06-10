@@ -32,6 +32,9 @@
         <action
             android:id="@+id/action_itemListFragment_to_dayDetailFragment"
             app:destination="@id/dayDetailFragment" />
+        <action
+            android:id="@+id/action_itemListFragment_to_todayFragment"
+            app:destination="@id/todayFragment" />
     </fragment>
 
     <!-- Detalle del desafío -->
@@ -73,5 +76,11 @@
             android:id="@+id/action_createDesafioFragment_to_itemListFragment"
             app:destination="@id/itemListFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/todayFragment"
+        android:name="com.example.trabajointegradornativo.TodayFragment"
+        android:label="Hoy"
+        tools:layout="@layout/action_to_today_fragment" />
 
 </navigation>
