@@ -6,6 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -43,6 +46,7 @@ class ItemDetailFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true) // Habilita el menú en el Toolbar
 
         arguments?.let {
             desafio = it.getParcelable("desafio") ?: throw IllegalStateException("Desafio no encontrado en los argumentos")
@@ -262,6 +266,56 @@ class ItemDetailFragment : Fragment() {
         settingsIcon?.setColorFilter(disabledColor)
         settingsText?.setTextColor(disabledColor)
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.challenge_context_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_edit -> {
+                val bundle = Bundle().apply {
+                    putParcelable("desafio", desafio)
+                }
+//                findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
+                true
+            }
+            R.id.action_delete -> {
+                eliminarDesafio(desafio.id)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun eliminarDesafio(id: String) {
+        val context = requireContext()
+
+        androidx.appcompat.app.AlertDialog.Builder(context)
+            .setTitle("Eliminar desafío")
+            .setMessage("¿Estás seguro de que querés eliminar este desafío?")
+            .setPositiveButton("Sí") { _, _ ->
+                val uid = auth.currentUser?.uid ?: return@setPositiveButton
+                firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(id)
+                    .delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Desafío eliminado", Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.action_itemDetailFragment_to_itemListFragment)
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Error al eliminar desafío", Toast.LENGTH_LONG).show()
+                    }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+
+
 
     companion object {
         const val ARG_ITEM_ID = "item_id"

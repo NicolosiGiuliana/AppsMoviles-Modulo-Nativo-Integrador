@@ -448,20 +448,30 @@ class ItemListFragment : Fragment() {
     }
 
     private fun eliminarDesafio(id: String) {
-        val uid = auth.currentUser?.uid ?: return
-        firestore.collection("usuarios")
-            .document(uid)
-            .collection("desafios")
-            .document(id)
-            .delete()
-            .addOnSuccessListener {
-                Toast.makeText(context, "Desafío eliminado", Toast.LENGTH_SHORT).show()
-                cargarDesafios() // Recargar lista
+        val context = requireContext()
+
+        androidx.appcompat.app.AlertDialog.Builder(context)
+            .setTitle("Eliminar desafío")
+            .setMessage("¿Estás seguro de que querés eliminar este desafío?")
+            .setPositiveButton("Sí") { _, _ ->
+                val uid = auth.currentUser?.uid ?: return@setPositiveButton
+                firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(id)
+                    .delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Desafío eliminado", Toast.LENGTH_SHORT).show()
+                        cargarDesafios() // Recargar la lista después de eliminar
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Error al eliminar desafío", Toast.LENGTH_LONG).show()
+                    }
             }
-            .addOnFailureListener {
-                Toast.makeText(context, "Error al eliminar desafío", Toast.LENGTH_LONG).show()
-            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
+
 
 
 
