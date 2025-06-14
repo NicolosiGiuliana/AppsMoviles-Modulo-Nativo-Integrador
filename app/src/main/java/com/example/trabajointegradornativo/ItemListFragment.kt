@@ -246,13 +246,7 @@ class ItemListFragment : Fragment() {
             val challengeName: TextView = view.findViewById(R.id.challenge_name)
             val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
             val progressText: TextView = view.findViewById(R.id.progress_text)
-
-            init {
-                // Register for context menu
-                view.setOnCreateContextMenuListener { menu, _, _ ->
-                    requireActivity().menuInflater.inflate(R.menu.challenge_context_menu, menu)
-                }
-            }
+            val menuButton: ImageView = view.findViewById(R.id.menu_button)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -276,12 +270,33 @@ class ItemListFragment : Fragment() {
                 findNavController().navigate(R.id.show_item_detail, bundle)
             }
 
-            // Register for context menu
-            registerForContextMenu(holder.itemView)
+            // MENÚ DE TRES PUNTITOS
+            holder.menuButton.setOnClickListener {
+                val popup = PopupMenu(holder.itemView.context, holder.menuButton)
+                popup.menuInflater.inflate(R.menu.menu_challenge_options, popup.menu)
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_edit -> {
+                            val bundle = Bundle().apply {
+                                putParcelable("desafio", challenge)
+                            }
+//                            findNavController().navigate(R.id.action_itemListFragment_to_editDesafioFragment, bundle)
+                            true
+                        }
+                        R.id.action_delete -> {
+                            eliminarDesafio(challenge.id)
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                popup.show()
+            }
         }
 
         override fun getItemCount() = challenges.size
     }
+
 
     private fun createChallengeFromDefault(defaultChallenge: DefaultChallenge) {
         val uid = auth.currentUser?.uid ?: return
@@ -431,6 +446,23 @@ class ItemListFragment : Fragment() {
 
         override fun getItemCount() = challenges.size
     }
+
+    private fun eliminarDesafio(id: String) {
+        val uid = auth.currentUser?.uid ?: return
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(id)
+            .delete()
+            .addOnSuccessListener {
+                Toast.makeText(context, "Desafío eliminado", Toast.LENGTH_SHORT).show()
+                cargarDesafios() // Recargar lista
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Error al eliminar desafío", Toast.LENGTH_LONG).show()
+            }
+    }
+
 
 
     // Context Menu handling

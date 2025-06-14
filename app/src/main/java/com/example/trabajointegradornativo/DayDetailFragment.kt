@@ -47,8 +47,10 @@ class DayDetailFragment : Fragment() {
 
         sharedPrefs = requireContext().getSharedPreferences("habit_states", Context.MODE_PRIVATE)
 
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = "${desafio.nombre}"
+
         val dayTextView = view.findViewById<TextView>(R.id.day_detail_text)
-        dayTextView.text = "Día $dayNumber - ${desafio.nombre}"
+        dayTextView.text = "Día $dayNumber"
 
         // Cargar hábitos del día específico desde Firestore
         cargarHabitosDesafio(view)

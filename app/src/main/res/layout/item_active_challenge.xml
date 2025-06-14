@@ -15,16 +15,37 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Challenge Name -->
-        <TextView
-            android:id="@+id/challenge_name"
-            android:layout_width="wrap_content"
+        <!-- Header with title and menu -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="30 Días de Ejercicio"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_dark"
-            android:layout_marginBottom="8dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <!-- Challenge Name -->
+            <TextView
+                android:id="@+id/challenge_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="30 Días de Ejercicio"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark" />
+
+            <!-- Menu Button -->
+            <ImageView
+                android:id="@+id/menu_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_more_vert"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="4dp"
+                android:contentDescription="Opciones"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
 
         <!-- Progress Bar Container -->
         <LinearLayout
