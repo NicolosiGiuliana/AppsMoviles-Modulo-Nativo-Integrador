@@ -40,7 +40,7 @@ class ItemListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        (activity as AppCompatActivity).supportActionBar?.hide()
+//        (activity as AppCompatActivity).supportActionBar?.hide()
 
         _binding = FragmentItemListBinding.inflate(inflater, container, false)
         return binding.root

@@ -9,7 +9,7 @@
     <fragment
         android:id="@+id/itemListFragment"
         android:name="com.example.trabajointegradornativo.ItemListFragment"
-        android:label="Home"
+        android:label="Desafio+"
         tools:layout="@layout/fragment_item_list">
 
         <action
