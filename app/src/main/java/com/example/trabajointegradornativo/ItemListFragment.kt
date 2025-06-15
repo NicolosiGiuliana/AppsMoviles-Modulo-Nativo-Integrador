@@ -523,7 +523,7 @@ class ItemListFragment : Fragment() {
         val settingsLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(2) as? LinearLayout
         settingsLayout?.setOnClickListener {
-            Toast.makeText(context, "Configuración próximamente", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.profileFragment)
         }
 
         // Establecer colores iniciales

@@ -82,6 +82,12 @@
     </fragment>
 
     <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.trabajointegradornativo.ProfileFragment"
+        android:label="Perfil"
+        tools:layout="@layout/profile_fragment" />
+
+    <fragment
         android:id="@+id/todayFragment"
         android:name="com.example.trabajointegradornativo.TodayFragment"
         android:label="Hoy"

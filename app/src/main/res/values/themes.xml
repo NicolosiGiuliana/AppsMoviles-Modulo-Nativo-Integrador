@@ -20,6 +20,13 @@
         <item name="android:titleTextStyle">@style/CustomActionBarTitle</item>
     </style>
 
+    <style name="CustomSwitchStyle" parent="Theme.AppCompat">
+        <item name="colorAccent">#34C759</item>
+        <item name="colorControlActivated">#34C759</item>
+        <item name="colorSwitchThumbNormal">#FFFFFF</item>
+        <item name="android:colorForeground">#E5E5E5</item>
+    </style>
+
     <!-- Estilo para el texto del título del ActionBar -->
     <style name="CustomActionBarTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textColor">@android:color/white</item>

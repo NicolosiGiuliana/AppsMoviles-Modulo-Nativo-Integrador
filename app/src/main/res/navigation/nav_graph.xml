@@ -78,6 +78,12 @@
             app:destination="@id/itemListFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.trabajointegradornativo.ProfileFragment"
+        android:label="Perfil"
+        tools:layout="@layout/profile_fragment" />
+
     <!-- Fragment Today -->
     <fragment
         android:id="@+id/todayFragment"
