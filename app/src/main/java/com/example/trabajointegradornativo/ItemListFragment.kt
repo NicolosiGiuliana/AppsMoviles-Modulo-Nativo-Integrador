@@ -472,9 +472,6 @@ class ItemListFragment : Fragment() {
             .show()
     }
 
-
-
-
     // Context Menu handling
     override fun onCreateContextMenu(
         menu: ContextMenu,
@@ -519,10 +516,10 @@ class ItemListFragment : Fragment() {
             navigateToToday()
         }
 
-        // Configuración (deshabilitado por ahora)
-        val settingsLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
+        // Profile (cambiar de "Configuración" a "Profile")
+        val profileLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(2) as? LinearLayout
-        settingsLayout?.setOnClickListener {
+        profileLayout?.setOnClickListener {
             findNavController().navigate(R.id.profileFragment)
         }
 
@@ -563,15 +560,14 @@ class ItemListFragment : Fragment() {
         val todayIcon = todayLayout?.getChildAt(0) as? ImageView
         val todayText = todayLayout?.getChildAt(1) as? TextView
 
-        // Configuración
-        val settingsLayout = bottomNav?.getChildAt(2) as? LinearLayout
-        val settingsIcon = settingsLayout?.getChildAt(0) as? ImageView
-        val settingsText = settingsLayout?.getChildAt(1) as? TextView
+        // Profile
+        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
+        val profileIcon = profileLayout?.getChildAt(0) as? ImageView
+        val profileText = profileLayout?.getChildAt(1) as? TextView
 
         // Colores
         val activeColor = ContextCompat.getColor(requireContext(), R.color.primary_green)
         val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
-        val disabledColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
 
         when (activeTab) {
             "home" -> {
@@ -579,20 +575,27 @@ class ItemListFragment : Fragment() {
                 homeText?.setTextColor(activeColor)
                 todayIcon?.setColorFilter(inactiveColor)
                 todayText?.setTextColor(inactiveColor)
+                profileIcon?.setColorFilter(inactiveColor)
+                profileText?.setTextColor(inactiveColor)
             }
             "today" -> {
                 homeIcon?.setColorFilter(inactiveColor)
                 homeText?.setTextColor(inactiveColor)
                 todayIcon?.setColorFilter(activeColor)
                 todayText?.setTextColor(activeColor)
+                profileIcon?.setColorFilter(inactiveColor)
+                profileText?.setTextColor(inactiveColor)
+            }
+            "profile" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+                profileIcon?.setColorFilter(activeColor)
+                profileText?.setTextColor(activeColor)
             }
         }
-
-        // Configuración siempre deshabilitada
-        settingsIcon?.setColorFilter(disabledColor)
-        settingsText?.setTextColor(disabledColor)
     }
-
 
     override fun onResume() {
         super.onResume()

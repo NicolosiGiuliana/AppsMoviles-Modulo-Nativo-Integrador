@@ -85,10 +85,10 @@ class TodayFragment : Fragment() {
                         // Actualizar el ícono
                         if (newState) {
                             checkIcon.setImageResource(R.drawable.ic_check_green)
-                            checkIcon.setColorFilter(resources.getColor(android.R.color.holo_green_dark))
+                            checkIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
                         } else {
                             checkIcon.setImageResource(R.drawable.ic_circle_empty)
-                            checkIcon.setColorFilter(resources.getColor(android.R.color.darker_gray))
+                            checkIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
                         }
                     }
                     break
@@ -134,10 +134,10 @@ class TodayFragment : Fragment() {
 
                         if (exerciseCompleted) {
                             exerciseIcon.setImageResource(R.drawable.ic_check_green)
-                            exerciseIcon.setColorFilter(resources.getColor(android.R.color.holo_green_dark))
+                            exerciseIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
                         } else {
                             exerciseIcon.setImageResource(R.drawable.ic_circle_empty)
-                            exerciseIcon.setColorFilter(resources.getColor(android.R.color.darker_gray))
+                            exerciseIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
                         }
 
                         updateProgressSummary(view)
@@ -183,10 +183,10 @@ class TodayFragment : Fragment() {
 
                         if (readingCompleted) {
                             readingIcon.setImageResource(R.drawable.ic_check_green)
-                            readingIcon.setColorFilter(resources.getColor(android.R.color.holo_green_dark))
+                            readingIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
                         } else {
                             readingIcon.setImageResource(R.drawable.ic_circle_empty)
-                            readingIcon.setColorFilter(resources.getColor(android.R.color.darker_gray))
+                            readingIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
                         }
 
                         updateProgressSummary(view)
@@ -198,10 +198,10 @@ class TodayFragment : Fragment() {
 
                         if (notesCompleted) {
                             notesIcon.setImageResource(R.drawable.ic_check_green)
-                            notesIcon.setColorFilter(resources.getColor(android.R.color.holo_green_dark))
+                            notesIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
                         } else {
                             notesIcon.setImageResource(R.drawable.ic_circle_empty)
-                            notesIcon.setColorFilter(resources.getColor(android.R.color.darker_gray))
+                            notesIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
                         }
 
                         updateProgressSummary(view)
@@ -222,80 +222,103 @@ class TodayFragment : Fragment() {
     }
 
     private fun setupBottomNavigation(view: View) {
-        // Home
-        val homeLayout = view.findViewById<LinearLayout>(R.id.bottom_navigation)
-            ?.getChildAt(0) as? LinearLayout
-        homeLayout?.setOnClickListener {
-            navigateToHome()
-        }
+        val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        // Hoy (ya estamos aquí)
-        val todayLayout = view.findViewById<LinearLayout>(R.id.bottom_navigation)
-            ?.getChildAt(1) as? LinearLayout
-        todayLayout?.setOnClickListener {
-            // Ya estamos en Hoy, solo actualizar colores
+        if (bottomNav != null) {
+            // Home
+            val homeLayout = bottomNav.getChildAt(0) as? LinearLayout
+            homeLayout?.setOnClickListener {
+                navigateToHome()
+            }
+
+            // Hoy (ya estamos aquí)
+            val todayLayout = bottomNav.getChildAt(1) as? LinearLayout
+            todayLayout?.setOnClickListener {
+                Toast.makeText(context, "Ya estás en Hoy", Toast.LENGTH_SHORT).show()
+            }
+
+            // Profile
+            val profileLayout = bottomNav.getChildAt(2) as? LinearLayout
+            profileLayout?.setOnClickListener {
+                navigateToProfile()
+            }
+
+            // Establecer colores iniciales
             updateBottomNavigationColors(view, "today")
+        } else {
+            Toast.makeText(context, "Error: No se encontró la navegación bottom", Toast.LENGTH_SHORT).show()
         }
-
-        // Configuración (deshabilitado por ahora)
-        val settingsLayout = view.findViewById<LinearLayout>(R.id.bottom_navigation)
-            ?.getChildAt(2) as? LinearLayout
-        settingsLayout?.setOnClickListener {
-            Toast.makeText(context, "Configuración próximamente", Toast.LENGTH_SHORT).show()
-        }
-
-        // Establecer colores iniciales
-        updateBottomNavigationColors(view, "today")
     }
 
     private fun navigateToHome() {
         try {
-            findNavController().navigate(R.id.action_todayFragment_to_itemListFragment)
+            // Usar navegación directa por ID de destino en lugar de acción
+            findNavController().navigate(R.id.itemListFragment)
         } catch (e: Exception) {
-            Toast.makeText(context, "Error al navegar: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error al navegar a Home: ${e.message}", Toast.LENGTH_LONG).show()
+            e.printStackTrace()
+        }
+    }
+
+    private fun navigateToProfile() {
+        try {
+            // Usar navegación directa por ID de destino en lugar de acción
+            findNavController().navigate(R.id.profileFragment)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Error al navegar a Perfil: ${e.message}", Toast.LENGTH_LONG).show()
+            e.printStackTrace()
         }
     }
 
     private fun updateBottomNavigationColors(view: View, activeTab: String) {
         val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        // Home
-        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
-        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
-        val homeText = homeLayout?.getChildAt(1) as? TextView
+        if (bottomNav != null) {
+            // Home
+            val homeLayout = bottomNav.getChildAt(0) as? LinearLayout
+            val homeIcon = homeLayout?.getChildAt(0) as? ImageView
+            val homeText = homeLayout?.getChildAt(1) as? TextView
 
-        // Hoy
-        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
-        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
-        val todayText = todayLayout?.getChildAt(1) as? TextView
+            // Hoy
+            val todayLayout = bottomNav.getChildAt(1) as? LinearLayout
+            val todayIcon = todayLayout?.getChildAt(0) as? ImageView
+            val todayText = todayLayout?.getChildAt(1) as? TextView
 
-        // Configuración
-        val settingsLayout = bottomNav?.getChildAt(2) as? LinearLayout
-        val settingsIcon = settingsLayout?.getChildAt(0) as? ImageView
-        val settingsText = settingsLayout?.getChildAt(1) as? TextView
+            // Profile
+            val profileLayout = bottomNav.getChildAt(2) as? LinearLayout
+            val profileIcon = profileLayout?.getChildAt(0) as? ImageView
+            val profileText = profileLayout?.getChildAt(1) as? TextView
 
-        // Colores
-        val activeColor = ContextCompat.getColor(requireContext(), R.color.primary_green)
-        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
-        val disabledColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+            // Colores usando colores del sistema para evitar errores de recursos
+            val activeColor = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+            val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
 
-        when (activeTab) {
-            "home" -> {
-                homeIcon?.setColorFilter(activeColor)
-                homeText?.setTextColor(activeColor)
-                todayIcon?.setColorFilter(inactiveColor)
-                todayText?.setTextColor(inactiveColor)
-            }
-            "today" -> {
-                homeIcon?.setColorFilter(inactiveColor)
-                homeText?.setTextColor(inactiveColor)
-                todayIcon?.setColorFilter(activeColor)
-                todayText?.setTextColor(activeColor)
+            when (activeTab) {
+                "home" -> {
+                    homeIcon?.setColorFilter(activeColor)
+                    homeText?.setTextColor(activeColor)
+                    todayIcon?.setColorFilter(inactiveColor)
+                    todayText?.setTextColor(inactiveColor)
+                    profileIcon?.setColorFilter(inactiveColor)
+                    profileText?.setTextColor(inactiveColor)
+                }
+                "today" -> {
+                    homeIcon?.setColorFilter(inactiveColor)
+                    homeText?.setTextColor(inactiveColor)
+                    todayIcon?.setColorFilter(activeColor)
+                    todayText?.setTextColor(activeColor)
+                    profileIcon?.setColorFilter(inactiveColor)
+                    profileText?.setTextColor(inactiveColor)
+                }
+                "profile" -> {
+                    homeIcon?.setColorFilter(inactiveColor)
+                    homeText?.setTextColor(inactiveColor)
+                    todayIcon?.setColorFilter(inactiveColor)
+                    todayText?.setTextColor(inactiveColor)
+                    profileIcon?.setColorFilter(activeColor)
+                    profileText?.setTextColor(activeColor)
+                }
             }
         }
-
-        // Configuración siempre deshabilitada
-        settingsIcon?.setColorFilter(disabledColor)
-        settingsText?.setTextColor(disabledColor)
     }
 }

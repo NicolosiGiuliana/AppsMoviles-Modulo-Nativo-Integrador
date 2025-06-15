@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,7 @@ class ProfileFragment : Fragment() {
     companion object {
         private const val PERMISSION_REQUEST_CODE = 100
         private const val PICK_IMAGE_REQUEST = 101
+        private const val TAG = "ProfileFragment"
     }
 
     private lateinit var profileImage: ImageView
@@ -35,9 +37,6 @@ class ProfileFragment : Fragment() {
     private lateinit var motivationalPhrasesSwitch: SwitchCompat
     private lateinit var exportDataLayout: LinearLayout
     private lateinit var logoutLayout: LinearLayout
-    private lateinit var navHome: LinearLayout
-    private lateinit var navToday: LinearLayout
-    private lateinit var navConfig: LinearLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,9 +62,6 @@ class ProfileFragment : Fragment() {
         motivationalPhrasesSwitch = view.findViewById(R.id.motivationalPhrasesSwitch)
         exportDataLayout = view.findViewById(R.id.exportDataLayout)
         logoutLayout = view.findViewById(R.id.logoutLayout)
-        navHome = view.findViewById(R.id.navHome)
-        navToday = view.findViewById(R.id.navToday)
-        navConfig = view.findViewById(R.id.navConfig)
     }
 
     private fun setupClickListeners() {
@@ -97,16 +93,130 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupBottomNavigation() {
-        navHome.setOnClickListener {
-            findNavController().navigate(R.id.action_itemListFragment_to_createDesafioFragment)
+        val bottomNav = view?.findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        // Home
+        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
+        homeLayout?.setOnClickListener {
+            navigateToHome()
         }
 
-        navToday.setOnClickListener {
-            findNavController().navigate(R.id.action_itemListFragment_to_todayFragment)
+        // Hoy
+        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
+        todayLayout?.setOnClickListener {
+            navigateToToday()
         }
 
-        navConfig.setOnClickListener {
-            Toast.makeText(requireContext(), "Ya estás en Configuración", Toast.LENGTH_SHORT).show()
+        // Profile (ya estamos aquí)
+        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
+        profileLayout?.setOnClickListener {
+            Log.d(TAG, "Already in Profile")
+            Toast.makeText(requireContext(), "Ya estás en Perfil", Toast.LENGTH_SHORT).show()
+            updateBottomNavigationColors("profile")
+        }
+
+        // Establecer colores iniciales
+        updateBottomNavigationColors("profile")
+    }
+
+    private fun navigateToHome() {
+        try {
+            Log.d(TAG, "Attempting to navigate to Home")
+
+            // Primero intentar con la acción
+            try {
+                findNavController().navigate(R.id.action_profileFragment_to_itemListFragment)
+                Log.d(TAG, "Navigation to Home successful via action")
+                return
+            } catch (e: Exception) {
+                Log.w(TAG, "Action navigation failed, trying direct navigation: ${e.message}")
+            }
+
+            // Si falla, intentar navegación directa
+            findNavController().navigate(R.id.itemListFragment)
+            Log.d(TAG, "Navigation to Home successful via direct ID")
+
+        } catch (e: Exception) {
+            Log.e(TAG, "All navigation attempts to Home failed: ${e.message}")
+            Toast.makeText(requireContext(), "Error al navegar a Home: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun navigateToToday() {
+        try {
+            Log.d(TAG, "Attempting to navigate to Today")
+
+            // Primero intentar con la acción
+            try {
+                findNavController().navigate(R.id.action_profileFragment_to_todayFragment)
+                Log.d(TAG, "Navigation to Today successful via action")
+                return
+            } catch (e: Exception) {
+                Log.w(TAG, "Action navigation failed, trying direct navigation: ${e.message}")
+            }
+
+            // Si falla, intentar navegación directa
+            findNavController().navigate(R.id.todayFragment)
+            Log.d(TAG, "Navigation to Today successful via direct ID")
+
+        } catch (e: Exception) {
+            Log.e(TAG, "All navigation attempts to Today failed: ${e.message}")
+            Toast.makeText(requireContext(), "Error al navegar a Hoy: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateBottomNavigationColors(activeTab: String) {
+        val bottomNav = view?.findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        // Home
+        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
+        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
+        val homeText = homeLayout?.getChildAt(1) as? TextView
+
+        // Hoy
+        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
+        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
+        val todayText = todayLayout?.getChildAt(1) as? TextView
+
+        // Profile
+        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
+        val profileIcon = profileLayout?.getChildAt(0) as? ImageView
+        val profileText = profileLayout?.getChildAt(1) as? TextView
+
+        // Colores
+        val activeColor = try {
+            ContextCompat.getColor(requireContext(), R.color.primary_green)
+        } catch (e: Exception) {
+            ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+        }
+
+        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
+
+        when (activeTab) {
+            "home" -> {
+                homeIcon?.setColorFilter(activeColor)
+                homeText?.setTextColor(activeColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+                profileIcon?.setColorFilter(inactiveColor)
+                profileText?.setTextColor(inactiveColor)
+            }
+            "today" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(activeColor)
+                todayText?.setTextColor(activeColor)
+                profileIcon?.setColorFilter(inactiveColor)
+                profileText?.setTextColor(inactiveColor)
+            }
+            "profile" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+                profileIcon?.setColorFilter(activeColor)
+                profileText?.setTextColor(activeColor)
+            }
         }
     }
 

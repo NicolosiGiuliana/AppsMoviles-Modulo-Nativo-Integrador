@@ -273,15 +273,15 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_settings"
-                android:contentDescription="Configuración"
-                app:tint="#BBBBBB" />
+                android:contentDescription="Perfil"
+                app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Configuración"
+                android:text="Perfil"
                 android:textSize="12sp"
-                android:textColor="#BBBBBB"
+                android:textColor="#333333"
                 android:layout_marginTop="4dp" />
         </LinearLayout>
     </LinearLayout>
