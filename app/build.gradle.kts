@@ -53,7 +53,11 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.google.firebase.firestore.ktx)
+    implementation("com.google.firebase:firebase-storage:20.3.0")
 
+    // Asegúrate de tener también estas (probablemente ya las tienes)
+    implementation ("com.google.firebase:firebase-auth:22.3.0")
+    implementation ("com.google.firebase:firebase-firestore:24.10.0")
     // LÍNEA CORREGIDA - agregadas las comillas
     implementation("androidx.cardview:cardview:1.0.0")
 

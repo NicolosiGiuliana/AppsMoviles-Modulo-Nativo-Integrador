@@ -1,323 +1,712 @@
 package com.example.trabajointegradornativo
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.storage.FirebaseStorage
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.*
+
+data class Habito(
+    val nombre: String,
+    var completado: Boolean = false,
+    var fotoUrl: String? = null,
+    var comentario: String? = null
+)
+
+data class Desafio(
+    val id: String,
+    val nombre: String,
+    val diaActual: Int,
+    val totalDias: Int,
+    val habitos: MutableList<Habito>
+)
 
 class TodayFragment : Fragment() {
 
-    // Variables para rastrear estados
-    private var waterCompleted = false
-    private var meditationCompleted = true
-    private var exerciseCompleted = true
-    private var readingCompleted = false
-    private var notesCompleted = true
+    private lateinit var dateTextView: TextView
+    private lateinit var progressTextView: TextView
+    private lateinit var activitiesContainer: LinearLayout
 
-    // Variables para rastrear si las cards están expandidas
-    private var exerciseCardExpanded = true
-    private var readingCardExpanded = true
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+
+    private var desafiosActivos = mutableListOf<Desafio>()
+    private var habitoSeleccionadoParaFoto: Pair<String, String>? = null
+
+    // Listeners para detectar cambios en tiempo real
+    private val firestoreListeners = mutableListOf<ListenerRegistration>()
+
+    // Launcher para tomar fotos con cámara
+    private val takePictureLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val imageBitmap = result.data?.extras?.get("data") as? Bitmap
+            imageBitmap?.let { bitmap ->
+                mostrarDialogoComentario(bitmap)
+            }
+        }
+    }
+
+    // Launcher para seleccionar foto de galería
+    private val pickImageLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                try {
+                    val inputStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream?.close()
+
+                    if (bitmap != null) {
+                        mostrarDialogoComentario(bitmap)
+                    } else {
+                        Toast.makeText(context, "Error al cargar la imagen", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error al procesar la imagen: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    // Launcher para permisos de cámara
+    private val requestCameraPermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            abrirCamara()
+        } else {
+            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Launcher para permisos de almacenamiento (para galería)
+    private val requestStoragePermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            abrirGaleria()
+        } else {
+            Toast.makeText(context, "Permiso de almacenamiento denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.action_to_today_fragment, container, false)
 
-        setupClickListeners(view)
-        updateProgressSummary(view)
+        inicializarViews(view)
+        configurarFechaActual()
         setupBottomNavigation(view)
 
         return view
     }
 
-    private fun setupClickListeners(view: View) {
-        // Listener para "Beber 2L de agua"
-        setupSimpleHabitClickListener(view, R.id.activities_container, "Beber 2L de agua") { completed ->
-            waterCompleted = completed
-            updateProgressSummary(view)
-        }
-
-        // Listener para "Meditar 10 min"
-        setupSimpleHabitClickListener(view, R.id.activities_container, "Meditar 10 min") { completed ->
-            meditationCompleted = completed
-            updateProgressSummary(view)
-        }
-
-        // Listener para card de ejercicio
-        setupExerciseCardListener(view)
-
-        // Listener para card de lectura
-        setupReadingCardListener(view)
+    override fun onResume() {
+        super.onResume()
+        Log.d("TodayFragment", "onResume: Recargando datos")
+        cargarDesafiosDelUsuario()
     }
 
-    private fun setupSimpleHabitClickListener(view: View, containerId: Int, habitText: String, onToggle: (Boolean) -> Unit) {
-        val container = view.findViewById<LinearLayout>(containerId)
+    override fun onPause() {
+        super.onPause()
+        limpiarListeners()
+    }
 
-        // Buscar el LinearLayout que contiene el hábito específico
-        for (i in 0 until container.childCount) {
-            val child = container.getChildAt(i)
-            if (child is LinearLayout) {
-                val textView = child.findViewById<TextView>(android.R.id.text1)
-                    ?: child.getChildAt(1) as? TextView
+    override fun onDestroyView() {
+        super.onDestroyView()
+        limpiarListeners()
+    }
 
-                if (textView?.text == habitText) {
-                    val checkIcon = child.getChildAt(0) as ImageView
+    private fun limpiarListeners() {
+        firestoreListeners.forEach { listener ->
+            listener.remove()
+        }
+        firestoreListeners.clear()
+    }
 
-                    child.setOnClickListener {
-                        val isCurrentlyCompleted = when (habitText) {
-                            "Beber 2L de agua" -> waterCompleted
-                            "Meditar 10 min" -> meditationCompleted
-                            else -> false
+    private fun inicializarViews(view: View) {
+        dateTextView = view.findViewById(R.id.date_today)
+        progressTextView = view.findViewById(R.id.progress_summary)
+        activitiesContainer = view.findViewById(R.id.activities_container)
+    }
+
+    private fun configurarFechaActual() {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "ES"))
+        val fechaFormateada = dateFormat.format(calendar.time)
+        dateTextView.text = fechaFormateada.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+        }
+    }
+
+    private fun cargarDesafiosDelUsuario() {
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        limpiarListeners()
+
+        val desafiosListener = firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .whereEqualTo("estado", "activo")
+            .addSnapshotListener { documents, error ->
+                if (error != null) {
+                    Log.e("TodayFragment", "Error al escuchar desafíos: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                if (documents != null) {
+                    desafiosActivos.clear()
+
+                    if (documents.isEmpty) {
+                        mostrarMensajeSinDesafios()
+                        return@addSnapshotListener
+                    }
+
+                    for (document in documents) {
+                        val desafioId = document.id
+                        val nombre = document.getString("nombre") ?: "Desafío sin nombre"
+                        val diaActual = document.getLong("diaActual")?.toInt() ?: 1
+                        val totalDias = document.getLong("dias")?.toInt() ?: 30
+
+                        cargarHabitosDelDiaConListener(desafioId, nombre, diaActual, totalDias)
+                    }
+                }
+            }
+
+        firestoreListeners.add(desafiosListener)
+    }
+
+    private fun cargarHabitosDelDiaConListener(desafioId: String, nombreDesafio: String, diaActual: Int, totalDias: Int) {
+        val uid = auth.currentUser?.uid ?: return
+
+        val diaCompletadoListener = firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafioId)
+            .collection("dias_completados")
+            .whereEqualTo("dia", diaActual)
+            .addSnapshotListener { completadosSnapshot, error ->
+                if (error != null) {
+                    Log.e("TodayFragment", "Error al verificar día completado: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                val diaEstaCompletado = completadosSnapshot != null && !completadosSnapshot.isEmpty
+
+                val habitosListener = firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(desafioId)
+                    .collection("dias")
+                    .document("dia_$diaActual")
+                    .addSnapshotListener { document, habitosError ->
+                        if (habitosError != null) {
+                            Log.e("TodayFragment", "Error al cargar hábitos: ${habitosError.message}")
+                            return@addSnapshotListener
                         }
 
-                        val newState = !isCurrentlyCompleted
-                        onToggle(newState)
+                        if (document != null && document.exists()) {
+                            val habitosData = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                            val habitos = habitosData.map { habitoMap: Map<String, Any> ->
+                                val habitoCompletado = if (diaEstaCompletado) {
+                                    true
+                                } else {
+                                    habitoMap["completado"] as? Boolean ?: false
+                                }
 
-                        // Actualizar el ícono
-                        if (newState) {
-                            checkIcon.setImageResource(R.drawable.ic_check_green)
-                            checkIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
-                        } else {
-                            checkIcon.setImageResource(R.drawable.ic_circle_empty)
-                            checkIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
+                                Habito(
+                                    nombre = habitoMap["nombre"] as? String ?: "",
+                                    completado = habitoCompletado,
+                                    fotoUrl = habitoMap["fotoUrl"] as? String,
+                                    comentario = habitoMap["comentario"] as? String
+                                )
+                            }.toMutableList()
+
+                            val desafioExistente = desafiosActivos.find { it.id == desafioId }
+                            if (desafioExistente != null) {
+                                desafioExistente.habitos.clear()
+                                desafioExistente.habitos.addAll(habitos)
+                            } else {
+                                val desafio = Desafio(desafioId, nombreDesafio, diaActual, totalDias, habitos)
+                                desafiosActivos.add(desafio)
+                            }
+
+                            Log.d("TodayFragment", "Desafío actualizado: $nombreDesafio, día completado: $diaEstaCompletado")
+                            actualizarInterfaz()
                         }
                     }
-                    break
+
+                firestoreListeners.add(habitosListener)
+            }
+
+        firestoreListeners.add(diaCompletadoListener)
+    }
+
+    private fun mostrarMensajeSinDesafios() {
+        activitiesContainer.removeAllViews()
+
+        val mensajeLayout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = android.view.Gravity.CENTER
+            setPadding(32, 64, 32, 64)
+        }
+
+        val textoMensaje = TextView(requireContext()).apply {
+            text = "No tienes desafíos activos.\n¡Ve a Home para crear uno!"
+            textSize = 16f
+            gravity = android.view.Gravity.CENTER
+            setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray))
+        }
+
+        mensajeLayout.addView(textoMensaje)
+        activitiesContainer.addView(mensajeLayout)
+
+        progressTextView.text = "0/0 completados"
+    }
+
+    private fun actualizarInterfaz() {
+        activitiesContainer.removeAllViews()
+
+        for (desafio in desafiosActivos) {
+            agregarDesafioALaInterfaz(desafio)
+        }
+
+        actualizarResumenProgreso()
+    }
+
+    private fun agregarDesafioALaInterfaz(desafio: Desafio) {
+        val cardView = CardView(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = 32
+            }
+            radius = 24f
+            cardElevation = 4f
+            setCardBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
+        }
+
+        val cardLayout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(32, 32, 32, 32)
+        }
+
+        val tituloDesafio = TextView(requireContext()).apply {
+            text = "${desafio.nombre} - Día ${desafio.diaActual}"
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+            setPadding(0, 0, 0, 24)
+        }
+        cardLayout.addView(tituloDesafio)
+
+        for (habito in desafio.habitos) {
+            val habitoLayout = crearLayoutHabito(desafio, habito)
+            cardLayout.addView(habitoLayout)
+        }
+
+        cardView.addView(cardLayout)
+        activitiesContainer.addView(cardView)
+    }
+
+    private fun crearLayoutHabito(desafio: Desafio, habito: Habito): LinearLayout {
+        val habitoLayout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, 0, 0, 24)
+        }
+
+        val horizontalLayout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+        }
+
+        val checkbox = ImageView(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(48, 48).apply {
+                marginEnd = 24
+            }
+            setImageResource(if (habito.completado) R.drawable.ic_check_green else R.drawable.ic_circle_empty)
+            setColorFilter(
+                ContextCompat.getColor(
+                    context,
+                    if (habito.completado) android.R.color.holo_green_dark else android.R.color.darker_gray
+                )
+            )
+            setOnClickListener {
+                verificarSiDiaEstaCompletado(desafio) { diaCompletado ->
+                    if (!diaCompletado) {
+                        toggleHabito(desafio, habito, this)
+                    } else {
+                        Toast.makeText(context, "Este día ya está marcado como completado", Toast.LENGTH_SHORT).show()
+                    }
                 }
+            }
+        }
+
+        val textoHabito = TextView(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            text = habito.nombre
+            textSize = 14f
+            setTextColor(ContextCompat.getColor(context, android.R.color.black))
+        }
+
+        val iconoCamara = ImageView(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(32, 32)
+            setImageResource(R.drawable.ic_camera)
+            setColorFilter(ContextCompat.getColor(context, android.R.color.darker_gray))
+            setOnClickListener {
+                habitoSeleccionadoParaFoto = Pair(desafio.id, habito.nombre)
+                mostrarOpcionesFoto()
+            }
+        }
+
+        horizontalLayout.addView(checkbox)
+        horizontalLayout.addView(textoHabito)
+        horizontalLayout.addView(iconoCamara)
+        habitoLayout.addView(horizontalLayout)
+
+        if (habito.fotoUrl != null || habito.comentario != null) {
+            val contenidoExtra = crearContenidoExtra(habito)
+            habitoLayout.addView(contenidoExtra)
+        }
+
+        return habitoLayout
+    }
+
+    private fun mostrarOpcionesFoto() {
+        val opciones = arrayOf("Tomar foto", "Seleccionar de galería")
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Agregar foto")
+            .setItems(opciones) { _, which ->
+                when (which) {
+                    0 -> verificarPermisosCamara() // Tomar foto
+                    1 -> verificarPermisosGaleria() // Seleccionar de galería
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun verificarSiDiaEstaCompletado(desafio: Desafio, callback: (Boolean) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias_completados")
+            .whereEqualTo("dia", desafio.diaActual)
+            .get()
+            .addOnSuccessListener { documents ->
+                callback(!documents.isEmpty)
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+
+    private fun crearContenidoExtra(habito: Habito): LinearLayout {
+        val extraLayout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(72, 24, 0, 0)
+        }
+
+        if (habito.fotoUrl != null) {
+            val fotoPlaceholder = LinearLayout(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(160, 160).apply {
+                    bottomMargin = 24
+                }
+                setBackgroundColor(ContextCompat.getColor(context, android.R.color.darker_gray))
+                gravity = android.view.Gravity.CENTER
+            }
+
+            val textoFoto = TextView(requireContext()).apply {
+                text = "Foto\nadjunta"
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, android.R.color.white))
+                gravity = android.view.Gravity.CENTER
+            }
+
+            fotoPlaceholder.addView(textoFoto)
+            extraLayout.addView(fotoPlaceholder)
+        }
+
+        if (habito.comentario != null) {
+            val comentarioLayout = LinearLayout(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                setBackgroundColor(ContextCompat.getColor(context, android.R.color.background_light))
+                setPadding(24, 24, 24, 24)
+            }
+
+            val textoComentario = TextView(requireContext()).apply {
+                text = habito.comentario
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, android.R.color.black))
+            }
+
+            comentarioLayout.addView(textoComentario)
+            extraLayout.addView(comentarioLayout)
+        }
+
+        return extraLayout
+    }
+
+    private fun toggleHabito(desafio: Desafio, habito: Habito, checkbox: ImageView) {
+        habito.completado = !habito.completado
+
+        checkbox.setImageResource(if (habito.completado) R.drawable.ic_check_green else R.drawable.ic_circle_empty)
+        checkbox.setColorFilter(
+            ContextCompat.getColor(
+                requireContext(),
+                if (habito.completado) android.R.color.holo_green_dark else android.R.color.darker_gray
+            )
+        )
+
+        guardarProgresoHabito(desafio, habito)
+        actualizarResumenProgreso()
+    }
+
+    private fun guardarProgresoHabito(desafio: Desafio, habito: Habito) {
+        val uid = auth.currentUser?.uid ?: return
+
+        val habitosData = desafio.habitos.map { h: Habito ->
+            mapOf(
+                "nombre" to h.nombre,
+                "completado" to h.completado,
+                "fotoUrl" to h.fotoUrl,
+                "comentario" to h.comentario
+            )
+        }
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .document("dia_${desafio.diaActual}")
+            .update("habitos", habitosData)
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error al guardar progreso: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun actualizarResumenProgreso() {
+        val totalHabitos = desafiosActivos.sumOf { it.habitos.size }
+        val habitosCompletados = desafiosActivos.sumOf { desafio ->
+            desafio.habitos.count { it.completado }
+        }
+
+        progressTextView.text = "$habitosCompletados/$totalHabitos completados"
+    }
+
+    private fun verificarPermisosCamara() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                abrirCamara()
+            }
+            else -> {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }
     }
 
-    private fun setupExerciseCardListener(view: View) {
-        val container = view.findViewById<LinearLayout>(R.id.activities_container)
-
-        // Buscar la CardView del ejercicio
-        for (i in 0 until container.childCount) {
-            val child = container.getChildAt(i)
-            if (child is CardView) {
-                val cardLayout = child.getChildAt(0) as LinearLayout
-                val titleText = cardLayout.getChildAt(0) as TextView
-
-                if (titleText.text.toString().contains("30 Días de Ejercicio")) {
-                    val exerciseLayout = cardLayout.getChildAt(1) as LinearLayout
-                    val photoLayout = cardLayout.getChildAt(2)
-                    val commentLayout = cardLayout.getChildAt(3)
-                    val exerciseIcon = exerciseLayout.getChildAt(0) as ImageView
-
-                    // Click en el título para expandir/contraer
-                    titleText.setOnClickListener {
-                        exerciseCardExpanded = !exerciseCardExpanded
-
-                        if (exerciseCardExpanded) {
-                            exerciseLayout.visibility = View.VISIBLE
-                            photoLayout.visibility = View.VISIBLE
-                            commentLayout.visibility = View.VISIBLE
-                        } else {
-                            exerciseLayout.visibility = View.GONE
-                            photoLayout.visibility = View.GONE
-                            commentLayout.visibility = View.GONE
-                        }
-                    }
-
-                    // Click en el ejercicio para marcar/desmarcar
-                    exerciseLayout.setOnClickListener {
-                        exerciseCompleted = !exerciseCompleted
-
-                        if (exerciseCompleted) {
-                            exerciseIcon.setImageResource(R.drawable.ic_check_green)
-                            exerciseIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
-                        } else {
-                            exerciseIcon.setImageResource(R.drawable.ic_circle_empty)
-                            exerciseIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
-                        }
-
-                        updateProgressSummary(view)
-                    }
-                    break
-                }
+    private fun verificarPermisosGaleria() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                abrirGaleria()
+            }
+            else -> {
+                requestStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
     }
 
-    private fun setupReadingCardListener(view: View) {
-        val container = view.findViewById<LinearLayout>(R.id.activities_container)
-
-        // Buscar la CardView de lectura
-        for (i in 0 until container.childCount) {
-            val child = container.getChildAt(i)
-            if (child is CardView) {
-                val cardLayout = child.getChildAt(0) as LinearLayout
-                val titleText = cardLayout.getChildAt(0) as TextView
-
-                if (titleText.text.toString().contains("Lectura Diaria")) {
-                    val readingLayout = cardLayout.getChildAt(1) as LinearLayout
-                    val notesLayout = cardLayout.getChildAt(2) as LinearLayout
-                    val readingIcon = readingLayout.getChildAt(0) as ImageView
-                    val notesIcon = notesLayout.getChildAt(0) as ImageView
-
-                    // Click en el título para expandir/contraer
-                    titleText.setOnClickListener {
-                        readingCardExpanded = !readingCardExpanded
-
-                        if (readingCardExpanded) {
-                            readingLayout.visibility = View.VISIBLE
-                            notesLayout.visibility = View.VISIBLE
-                        } else {
-                            readingLayout.visibility = View.GONE
-                            notesLayout.visibility = View.GONE
-                        }
-                    }
-
-                    // Click en "Leer 20 páginas"
-                    readingLayout.setOnClickListener {
-                        readingCompleted = !readingCompleted
-
-                        if (readingCompleted) {
-                            readingIcon.setImageResource(R.drawable.ic_check_green)
-                            readingIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
-                        } else {
-                            readingIcon.setImageResource(R.drawable.ic_circle_empty)
-                            readingIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
-                        }
-
-                        updateProgressSummary(view)
-                    }
-
-                    // Click en "Tomar notas"
-                    notesLayout.setOnClickListener {
-                        notesCompleted = !notesCompleted
-
-                        if (notesCompleted) {
-                            notesIcon.setImageResource(R.drawable.ic_check_green)
-                            notesIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
-                        } else {
-                            notesIcon.setImageResource(R.drawable.ic_circle_empty)
-                            notesIcon.setColorFilter(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
-                        }
-
-                        updateProgressSummary(view)
-                    }
-                    break
-                }
-            }
+    private fun abrirCamara() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (takePictureIntent.resolveActivity(requireActivity().packageManager) != null) {
+            takePictureLauncher.launch(takePictureIntent)
+        } else {
+            Toast.makeText(context, "No se puede acceder a la cámara", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun updateProgressSummary(view: View) {
-        val progressText = view.findViewById<TextView>(R.id.progress_summary)
-        val completedTasks = listOf(waterCompleted, meditationCompleted, exerciseCompleted, readingCompleted, notesCompleted)
-        val completedCount = completedTasks.count { it }
-        val totalTasks = completedTasks.size
+    private fun abrirGaleria() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/*"
+        pickImageLauncher.launch(intent)
+    }
 
-        progressText.text = "$completedCount/$totalTasks completados"
+    private fun mostrarDialogoComentario(bitmap: Bitmap) {
+        val editText = EditText(requireContext()).apply {
+            hint = "Agrega un comentario (opcional)"
+            maxLines = 3
+            setPadding(32, 32, 32, 32)
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Agregar comentario")
+            .setView(editText)
+            .setPositiveButton("Guardar") { _, _ ->
+                val comentario = editText.text.toString().trim()
+                subirFotoYGuardarComentario(bitmap, comentario)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun subirFotoYGuardarComentario(bitmap: Bitmap, comentario: String) {
+        val habitoInfo = habitoSeleccionadoParaFoto ?: return
+        val (desafioId, habitoNombre) = habitoInfo
+
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data: ByteArray = baos.toByteArray()
+
+        val uid = auth.currentUser?.uid ?: return
+        val timestamp = System.currentTimeMillis()
+        val storageRef = storage.reference
+            .child("usuarios/$uid/fotos_habitos/${desafioId}_${habitoNombre}_$timestamp.jpg")
+
+        storageRef.putBytes(data)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                    actualizarHabitoConFotoYComentario(desafioId, habitoNombre, uri.toString(), comentario)
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error al subir foto: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun actualizarHabitoConFotoYComentario(desafioId: String, habitoNombre: String, fotoUrl: String, comentario: String) {
+        val desafio = desafiosActivos.find { it.id == desafioId } ?: return
+        val habito = desafio.habitos.find { it.nombre == habitoNombre } ?: return
+
+        habito.fotoUrl = fotoUrl
+        if (comentario.isNotEmpty()) {
+            habito.comentario = comentario
+        }
+
+        guardarProgresoHabito(desafio, habito)
+        Toast.makeText(context, "Foto y comentario guardados", Toast.LENGTH_SHORT).show()
     }
 
     private fun setupBottomNavigation(view: View) {
         val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        if (bottomNav != null) {
-            // Home
-            val homeLayout = bottomNav.getChildAt(0) as? LinearLayout
-            homeLayout?.setOnClickListener {
-                navigateToHome()
+        val homeLayout = bottomNav.getChildAt(0) as? LinearLayout
+        homeLayout?.setOnClickListener {
+            try {
+                findNavController().navigate(R.id.itemListFragment)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al navegar a Home", Toast.LENGTH_SHORT).show()
             }
+        }
 
-            // Hoy (ya estamos aquí)
-            val todayLayout = bottomNav.getChildAt(1) as? LinearLayout
-            todayLayout?.setOnClickListener {
-                Toast.makeText(context, "Ya estás en Hoy", Toast.LENGTH_SHORT).show()
+        val todayLayout = bottomNav.getChildAt(1) as? LinearLayout
+        todayLayout?.setOnClickListener {
+            Toast.makeText(context, "Ya estás en Hoy", Toast.LENGTH_SHORT).show()
+        }
+
+        val profileLayout = bottomNav.getChildAt(2) as? LinearLayout
+        profileLayout?.setOnClickListener {
+            try {
+                findNavController().navigate(R.id.profileFragment)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al navegar a Perfil", Toast.LENGTH_SHORT).show()
             }
-
-            // Profile
-            val profileLayout = bottomNav.getChildAt(2) as? LinearLayout
-            profileLayout?.setOnClickListener {
-                navigateToProfile()
-            }
-
-            // Establecer colores iniciales
-            updateBottomNavigationColors(view, "today")
-        } else {
-            Toast.makeText(context, "Error: No se encontró la navegación bottom", Toast.LENGTH_SHORT).show()
         }
-    }
 
-    private fun navigateToHome() {
-        try {
-            // Usar navegación directa por ID de destino en lugar de acción
-            findNavController().navigate(R.id.itemListFragment)
-        } catch (e: Exception) {
-            Toast.makeText(context, "Error al navegar a Home: ${e.message}", Toast.LENGTH_LONG).show()
-            e.printStackTrace()
-        }
-    }
-
-    private fun navigateToProfile() {
-        try {
-            // Usar navegación directa por ID de destino en lugar de acción
-            findNavController().navigate(R.id.profileFragment)
-        } catch (e: Exception) {
-            Toast.makeText(context, "Error al navegar a Perfil: ${e.message}", Toast.LENGTH_LONG).show()
-            e.printStackTrace()
-        }
+        updateBottomNavigationColors(view, "today")
     }
 
     private fun updateBottomNavigationColors(view: View, activeTab: String) {
         val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        if (bottomNav != null) {
-            // Home
-            val homeLayout = bottomNav.getChildAt(0) as? LinearLayout
-            val homeIcon = homeLayout?.getChildAt(0) as? ImageView
-            val homeText = homeLayout?.getChildAt(1) as? TextView
+        val homeLayout = bottomNav.getChildAt(0) as? LinearLayout
+        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
+        val homeText = homeLayout?.getChildAt(1) as? TextView
 
-            // Hoy
-            val todayLayout = bottomNav.getChildAt(1) as? LinearLayout
-            val todayIcon = todayLayout?.getChildAt(0) as? ImageView
-            val todayText = todayLayout?.getChildAt(1) as? TextView
+        val todayLayout = bottomNav.getChildAt(1) as? LinearLayout
+        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
+        val todayText = todayLayout?.getChildAt(1) as? TextView
 
-            // Profile
-            val profileLayout = bottomNav.getChildAt(2) as? LinearLayout
-            val profileIcon = profileLayout?.getChildAt(0) as? ImageView
-            val profileText = profileLayout?.getChildAt(1) as? TextView
+        val profileLayout = bottomNav.getChildAt(2) as? LinearLayout
+        val profileIcon = profileLayout?.getChildAt(0) as? ImageView
+        val profileText = profileLayout?.getChildAt(1) as? TextView
 
-            // Colores usando colores del sistema para evitar errores de recursos
-            val activeColor = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
-            val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
+        val activeColor = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
 
-            when (activeTab) {
-                "home" -> {
-                    homeIcon?.setColorFilter(activeColor)
-                    homeText?.setTextColor(activeColor)
-                    todayIcon?.setColorFilter(inactiveColor)
-                    todayText?.setTextColor(inactiveColor)
-                    profileIcon?.setColorFilter(inactiveColor)
-                    profileText?.setTextColor(inactiveColor)
-                }
-                "today" -> {
-                    homeIcon?.setColorFilter(inactiveColor)
-                    homeText?.setTextColor(inactiveColor)
-                    todayIcon?.setColorFilter(activeColor)
-                    todayText?.setTextColor(activeColor)
-                    profileIcon?.setColorFilter(inactiveColor)
-                    profileText?.setTextColor(inactiveColor)
-                }
-                "profile" -> {
-                    homeIcon?.setColorFilter(inactiveColor)
-                    homeText?.setTextColor(inactiveColor)
-                    todayIcon?.setColorFilter(inactiveColor)
-                    todayText?.setTextColor(inactiveColor)
-                    profileIcon?.setColorFilter(activeColor)
-                    profileText?.setTextColor(activeColor)
-                }
+        when (activeTab) {
+            "home" -> {
+                homeIcon?.setColorFilter(activeColor)
+                homeText?.setTextColor(activeColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+                profileIcon?.setColorFilter(inactiveColor)
+                profileText?.setTextColor(inactiveColor)
+            }
+            "today" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(activeColor)
+                todayText?.setTextColor(activeColor)
+                profileIcon?.setColorFilter(inactiveColor)
+                profileText?.setTextColor(inactiveColor)
+            }
+            "profile" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+                profileIcon?.setColorFilter(activeColor)
+                profileText?.setTextColor(inactiveColor)
             }
         }
     }
