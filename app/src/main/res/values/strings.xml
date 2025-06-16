@@ -1,4 +1,5 @@
 <resources>
+    <!-- Strings en español (idioma por defecto) -->
     <string name="app_name">Desafío+</string>
     <string name="title_activity_item_detail_host">ItemDetailHostActivity</string>
     <string name="title_item_list">Items</string>
@@ -19,14 +20,33 @@
     <string name="language">Idioma</string>
     <string name="select_language">Seleccionar idioma</string>
     <string name="language_spanish">Español</string>
+    <string name="language_english">Inglés</string>
+    <string name="language_portuguese">Portugués</string>
     <string name="account">Cuenta</string>
     <string name="export_data">Exportar datos</string>
     <string name="logout">Cerrar sesión</string>
     <string name="home">Inicio</string>
     <string name="today">Hoy</string>
     <string name="profile">Perfil</string>
-
-    <!-- Otros strings que puedas tener -->
     <string name="hello_world">Hola Mundo</string>
     <string name="action_settings">Configuración</string>
+
+    <!-- Nuevos strings para diálogos y mensajes -->
+    <string name="change_profile_photo">Cambiar foto de perfil</string>
+    <string name="take_photo">Tomar foto</string>
+    <string name="select_from_gallery">Seleccionar de galería</string>
+    <string name="use_default_image">Usar imagen por defecto</string>
+    <string name="cancel">Cancelar</string>
+    <string name="logout_confirmation">¿Estás seguro de que deseas cerrar sesión?</string>
+    <string name="uploading_image">Subiendo imagen...</string>
+    <string name="profile_photo_updated">Foto de perfil actualizada</string>
+    <string name="error_uploading_image">Error al subir imagen</string>
+    <string name="notifications_enabled">Notificaciones habilitadas</string>
+    <string name="notifications_disabled">Notificaciones deshabilitadas</string>
+    <string name="language_changed_to">Idioma cambiado a %s</string>
+    <string name="already_in_profile">Ya estás en Perfil</string>
+
+    <!-- Agregar estos strings adicionales al archivo existente -->
+    <string name="error_navigating_home">Error al navegar a Home: %s</string>
+    <string name="error_navigating_today">Error al navegar a Today: %s</string>
 </resources>

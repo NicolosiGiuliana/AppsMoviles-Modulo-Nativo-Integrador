@@ -1,0 +1,52 @@
+<resources>
+    <!-- Strings en portugués -->
+    <string name="app_name">Desafio+</string>
+    <string name="title_activity_item_detail_host">ItemDetailHostActivity</string>
+    <string name="title_item_list">Itens</string>
+    <string name="title_item_detail">Detalhe do Item</string>
+
+    <string name="profile_title">Perfil</string>
+    <string name="profile_subtitle">Gerencie sua conta e preferências</string>
+    <string name="profile_photo">Foto do perfil</string>
+    <string name="change_photo">Alterar foto</string>
+    <string name="default_name">Usuário</string>
+    <string name="default_email">usuario@exemplo.com</string>
+    <string name="member_since">Membro desde</string>
+    <string name="configuration">Configuração</string>
+    <string name="reminders">Lembretes</string>
+    <string name="daily_notifications">Notificações diárias</string>
+    <string name="notification_time">Hora da notificação</string>
+    <string name="motivational_phrases">Frases motivacionais</string>
+    <string name="language">Idioma</string>
+    <string name="select_language">Selecionar idioma</string>
+    <string name="language_spanish">Espanhol</string>
+    <string name="language_english">Inglês</string>
+    <string name="language_portuguese">Português</string>
+    <string name="account">Conta</string>
+    <string name="export_data">Exportar dados</string>
+    <string name="logout">Sair</string>
+    <string name="home">Início</string>
+    <string name="today">Hoje</string>
+    <string name="profile">Perfil</string>
+    <string name="hello_world">Olá Mundo</string>
+    <string name="action_settings">Configurações</string>
+
+    <!-- Novos strings para diálogos e mensagens -->
+    <string name="change_profile_photo">Alterar foto do perfil</string>
+    <string name="take_photo">Tirar foto</string>
+    <string name="select_from_gallery">Selecionar da galeria</string>
+    <string name="use_default_image">Usar imagem padrão</string>
+    <string name="cancel">Cancelar</string>
+    <string name="logout_confirmation">Tem certeza de que deseja sair?</string>
+    <string name="uploading_image">Enviando imagem...</string>
+    <string name="profile_photo_updated">Foto do perfil atualizada</string>
+    <string name="error_uploading_image">Erro ao enviar imagem</string>
+    <string name="notifications_enabled">Notificações habilitadas</string>
+    <string name="notifications_disabled">Notificações desabilitadas</string>
+    <string name="language_changed_to">Idioma alterado para %s</string>
+    <string name="already_in_profile">Você já está no Perfil</string>
+
+    <!-- Novos strings para erros de navegação -->
+    <string name="error_navigating_home">Erro ao navegar para Home: %s</string>
+    <string name="error_navigating_today">Erro ao navegar para Today: %s</string>
+</resources>

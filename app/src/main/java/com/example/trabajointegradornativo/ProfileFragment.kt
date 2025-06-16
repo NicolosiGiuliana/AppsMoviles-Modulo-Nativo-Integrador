@@ -23,6 +23,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.trabajointegradornativo.LanguageHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -40,8 +41,8 @@ class ProfileFragment : Fragment() {
         private const val PICK_IMAGE_REQUEST = 102
         private const val CAMERA_REQUEST = 103
         private const val TAG = "ProfileFragment"
-        private const val MAX_IMAGE_SIZE = 1024 // Tamaño máximo en píxeles
-        private const val JPEG_QUALITY = 80 // Calidad de compresión JPEG
+        private const val MAX_IMAGE_SIZE = 1024
+        private const val JPEG_QUALITY = 80
     }
 
     private lateinit var auth: FirebaseAuth
@@ -64,8 +65,8 @@ class ProfileFragment : Fragment() {
     private lateinit var selectedLanguageText: TextView
     private lateinit var logoutLayout: LinearLayout
 
-    // Data
-    private val languages = arrayOf("Español", "English", "Português")
+    // Data - Ahora usando arrays de strings
+    private lateinit var languages: Array<String>
     private val languageCodes = arrayOf("es", "en", "pt")
     private var selectedLanguageIndex = 0
     private var selectedNotificationHour = 9
@@ -81,6 +82,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initLanguageArray()
         initFirebase()
         initViews(view)
         loadUserData()
@@ -91,6 +93,14 @@ class ProfileFragment : Fragment() {
         loadProfileImage()
     }
 
+    private fun initLanguageArray() {
+        languages = arrayOf(
+            getString(R.string.language_spanish),
+            getString(R.string.language_english),
+            getString(R.string.language_portuguese)
+        )
+    }
+
     private fun setupBottomNavigation(view: View) {
         val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
@@ -98,10 +108,9 @@ class ProfileFragment : Fragment() {
         val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
         homeLayout?.setOnClickListener {
             try {
-                // Navegar directamente por ID del fragmento
                 findNavController().navigate(R.id.itemListFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, "Error al navegar a Home: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_navigating_home, e.message), Toast.LENGTH_SHORT).show()
                 Log.e(TAG, "Error navegando a Home", e)
             }
         }
@@ -110,10 +119,9 @@ class ProfileFragment : Fragment() {
         val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
             try {
-                // Navegar directamente por ID del fragmento
                 findNavController().navigate(R.id.todayFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, "Error al navegar a Today: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_navigating_today, e.message), Toast.LENGTH_SHORT).show()
                 Log.e(TAG, "Error navegando a Today", e)
             }
         }
@@ -121,11 +129,9 @@ class ProfileFragment : Fragment() {
         // Profile (ya estamos aquí)
         val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
         profileLayout?.setOnClickListener {
-            // Ya estamos en Profile, solo mostrar mensaje
-            Toast.makeText(context, "Ya estás en Perfil", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.already_in_profile), Toast.LENGTH_SHORT).show()
         }
 
-        // Establecer colores iniciales para mostrar que Profile está activo
         updateBottomNavigationColors(view, "profile")
     }
 
@@ -203,24 +209,21 @@ class ProfileFragment : Fragment() {
     private fun loadUserData() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            // Cargar datos del usuario
             profileEmail.text = currentUser.email
-            profileName.text = currentUser.displayName ?: "Usuario"
+            profileName.text = currentUser.displayName ?: getString(R.string.default_name)
 
-            // Generar iniciales
-            val name = currentUser.displayName ?: "Usuario"
+            val name = currentUser.displayName ?: getString(R.string.default_name)
             val initials = getInitials(name)
             profileInitials.text = initials
 
-            // Fecha de registro
             val memberSince = sharedPreferences.getString("member_since", "")
             if (memberSince.isNullOrEmpty()) {
                 val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
                 val currentDate = dateFormat.format(Date())
-                profileMember.text = "Miembro desde $currentDate"
+                profileMember.text = getString(R.string.member_since) + " " + currentDate
                 sharedPreferences.edit().putString("member_since", currentDate).apply()
             } else {
-                profileMember.text = "Miembro desde $memberSince"
+                profileMember.text = getString(R.string.member_since) + " " + memberSince
             }
         }
     }
@@ -236,20 +239,17 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadSettings() {
-        // Cargar configuración de notificaciones
         val notificationsEnabled = sharedPreferences.getBoolean("daily_notifications", true)
         dailyNotificationsSwitch.isChecked = notificationsEnabled
 
         val motivationalEnabled = sharedPreferences.getBoolean("motivational_phrases", true)
         motivationalPhrasesSwitch.isChecked = motivationalEnabled
 
-        // Cargar horario de notificaciones
         selectedNotificationHour = sharedPreferences.getInt("notification_hour", 9)
         selectedNotificationMinute = sharedPreferences.getInt("notification_minute", 0)
         updateNotificationTimeDisplay()
 
-        // Cargar idioma seleccionado
-        val savedLanguage = sharedPreferences.getString("selected_language", "es")
+        val savedLanguage = LanguageHelper.getAppLanguage(requireContext())
         selectedLanguageIndex = languageCodes.indexOf(savedLanguage)
         if (selectedLanguageIndex == -1) selectedLanguageIndex = 0
         selectedLanguageText.text = languages[selectedLanguageIndex]
@@ -264,30 +264,21 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Cambiar foto de perfil
         cameraIcon.setOnClickListener { showImagePickerDialog() }
         profileImage.setOnClickListener { showImagePickerDialog() }
-
-        // Horario de notificaciones
         notificationTimeLayout.setOnClickListener { showTimePickerDialog() }
-
-        // Selector de idioma
         languageLayout.setOnClickListener { showLanguageDialog() }
-
-        // Cerrar sesión
         logoutLayout.setOnClickListener { showLogoutDialog() }
     }
 
     private fun setupSwitches() {
-        // Switch de notificaciones diarias
         dailyNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                // Verificar permisos antes de habilitar notificaciones
                 checkNotificationPermissions { permissionsGranted ->
                     if (permissionsGranted) {
                         sharedPreferences.edit().putBoolean("daily_notifications", true).apply()
                         scheduleNotifications()
-                        Toast.makeText(requireContext(), "Notificaciones habilitadas", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.notifications_enabled), Toast.LENGTH_SHORT).show()
                     } else {
                         dailyNotificationsSwitch.isChecked = false
                         Toast.makeText(requireContext(), "Se necesitan permisos para las notificaciones", Toast.LENGTH_LONG).show()
@@ -295,11 +286,10 @@ class ProfileFragment : Fragment() {
                 }
             } else {
                 sharedPreferences.edit().putBoolean("daily_notifications", false).apply()
-                Toast.makeText(requireContext(), "Notificaciones deshabilitadas", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.notifications_disabled), Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Switch de frases motivacionales
         motivationalPhrasesSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean("motivational_phrases", isChecked).apply()
             if (dailyNotificationsSwitch.isChecked) {
@@ -331,7 +321,6 @@ class ProfileFragment : Fragment() {
             return
         }
 
-        // Verificar permisos de alarma exacta para Android 12+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
             if (!alarmManager.canScheduleExactAlarms()) {
@@ -354,7 +343,7 @@ class ProfileFragment : Fragment() {
                 intent.data = Uri.parse("package:${requireContext().packageName}")
                 startActivity(intent)
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -368,7 +357,7 @@ class ProfileFragment : Fragment() {
                     startActivity(intent)
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -428,10 +417,15 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showImagePickerDialog() {
-        val options = arrayOf("Tomar foto", "Seleccionar de galería", "Usar imagen por defecto", "Cancelar")
+        val options = arrayOf(
+            getString(R.string.take_photo),
+            getString(R.string.select_from_gallery),
+            getString(R.string.use_default_image),
+            getString(R.string.cancel)
+        )
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Cambiar foto de perfil")
+            .setTitle(getString(R.string.change_profile_photo))
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> checkCameraPermissionAndTakePhoto()
@@ -511,7 +505,7 @@ class ProfileFragment : Fragment() {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     sharedPreferences.edit().putBoolean("daily_notifications", true).apply()
                     scheduleNotifications()
-                    Toast.makeText(requireContext(), "Permisos de notificación concedidos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.notifications_enabled), Toast.LENGTH_SHORT).show()
                 } else {
                     dailyNotificationsSwitch.isChecked = false
                     Toast.makeText(requireContext(), "Permisos de notificación denegados", Toast.LENGTH_SHORT).show()
@@ -557,7 +551,6 @@ class ProfileFragment : Fragment() {
         uploadProfileImage(resizedBitmap)
     }
 
-    // NUEVO: Función para redimensionar imagen
     private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
@@ -593,8 +586,7 @@ class ProfileFragment : Fragment() {
 
         Log.d(TAG, "Iniciando subida de imagen para usuario: ${currentUser.uid}")
 
-        // Mostrar indicador de carga
-        Toast.makeText(requireContext(), "Subiendo imagen...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.uploading_image), Toast.LENGTH_SHORT).show()
 
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, baos)
@@ -604,7 +596,6 @@ class ProfileFragment : Fragment() {
 
         val imageRef = storage.reference.child("profile_images/${currentUser.uid}.jpg")
 
-        // Agregar metadata
         val metadata = com.google.firebase.storage.StorageMetadata.Builder()
             .setContentType("image/jpeg")
             .build()
@@ -619,9 +610,8 @@ class ProfileFragment : Fragment() {
                 profileImage.setImageBitmap(bitmap)
                 profileImage.visibility = View.VISIBLE
                 profileInitials.visibility = View.GONE
-                Toast.makeText(requireContext(), "Foto de perfil actualizada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.profile_photo_updated), Toast.LENGTH_SHORT).show()
 
-                // Guardar referencia en Firestore (opcional)
                 saveImageReferenceToFirestore(currentUser.uid)
             }
             .addOnFailureListener { exception ->
@@ -645,14 +635,12 @@ class ProfileFragment : Fragment() {
                     else -> "Error desconocido: ${exception.message}"
                 }
 
-                Toast.makeText(requireContext(), "Error al subir imagen: $errorMessage", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.error_uploading_image) + ": $errorMessage", Toast.LENGTH_LONG).show()
 
-                // Mostrar diálogo con opciones
                 showUploadErrorDialog(bitmap)
             }
     }
 
-    // NUEVO: Guardar referencia en Firestore
     private fun saveImageReferenceToFirestore(userId: String) {
         val userRef = firestore.collection("usuarios").document(userId)
         val imageData = mapOf(
@@ -669,22 +657,20 @@ class ProfileFragment : Fragment() {
             }
     }
 
-    // NUEVO: Diálogo de error con opciones
     private fun showUploadErrorDialog(bitmap: Bitmap) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Error al subir imagen")
+            .setTitle(getString(R.string.error_uploading_image))
             .setMessage("No se pudo subir la imagen. ¿Qué deseas hacer?")
             .setPositiveButton("Reintentar") { _, _ ->
                 uploadProfileImage(bitmap)
             }
             .setNegativeButton("Usar localmente") { _, _ ->
-                // Usar la imagen localmente sin subirla
                 profileImage.setImageBitmap(bitmap)
                 profileImage.visibility = View.VISIBLE
                 profileInitials.visibility = View.GONE
                 Toast.makeText(requireContext(), "Imagen establecida localmente", Toast.LENGTH_SHORT).show()
             }
-            .setNeutralButton("Cancelar", null)
+            .setNeutralButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -732,60 +718,49 @@ class ProfileFragment : Fragment() {
 
     private fun showLanguageDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Seleccionar idioma")
+            .setTitle(getString(R.string.select_language))
             .setSingleChoiceItems(languages, selectedLanguageIndex) { dialog, which ->
                 selectedLanguageIndex = which
                 selectedLanguageText.text = languages[selectedLanguageIndex]
                 saveLanguagePreference()
                 dialog.dismiss()
 
+                val languageName = languages[selectedLanguageIndex]
                 Toast.makeText(
                     requireContext(),
-                    "Idioma cambiado a ${languages[selectedLanguageIndex]}",
+                    getString(R.string.language_changed_to, languageName),
                     Toast.LENGTH_SHORT
                 ).show()
 
                 changeAppLanguage(languageCodes[selectedLanguageIndex])
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun saveLanguagePreference() {
-        sharedPreferences.edit()
-            .putString("selected_language", languageCodes[selectedLanguageIndex])
-            .apply()
+        LanguageHelper.setAppLanguage(requireContext(), languageCodes[selectedLanguageIndex])
     }
 
     private fun changeAppLanguage(languageCode: String) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-
-        val config = requireActivity().resources.configuration
-        config.setLocale(locale)
-        requireActivity().resources.updateConfiguration(config, requireActivity().resources.displayMetrics)
-
+        LanguageHelper.setAppLanguage(requireContext(), languageCode)
         requireActivity().recreate()
     }
 
-
-
     private fun showLogoutDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Cerrar sesión")
-            .setMessage("¿Estás seguro de que deseas cerrar sesión?")
-            .setPositiveButton("Cerrar sesión") { _, _ ->
+            .setTitle(getString(R.string.logout))
+            .setMessage(getString(R.string.logout_confirmation))
+            .setPositiveButton(getString(R.string.logout)) { _, _ ->
                 performLogout()
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun performLogout() {
-        // Cerrar sesión en Firebase
         FirebaseAuth.getInstance().signOut()
 
-        // Limpiar SharedPreferences (igual que en ItemDetailHostActivity)
         with(sharedPreferences.edit()) {
             putString("user_email", "")
             putString("user_name", "")
@@ -793,7 +768,6 @@ class ProfileFragment : Fragment() {
             apply()
         }
 
-        // Regresar a MainActivity con las mismas flags que en ItemDetailHostActivity
         val intent = Intent(requireActivity(), MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
