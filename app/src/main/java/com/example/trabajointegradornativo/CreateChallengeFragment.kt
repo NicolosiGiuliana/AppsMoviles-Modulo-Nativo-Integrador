@@ -13,6 +13,9 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
@@ -60,8 +63,10 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 // Permisos concedidos, obtener ubicación
                 obtenerUbicacionActual()
             }
+
             else -> {
-                Toast.makeText(context, "Permisos de ubicación denegados", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Permisos de ubicación denegados", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -263,7 +268,8 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
         textUbicacionSeleccionada.visibility = if (tieneUbicacion) View.VISIBLE else View.GONE
         buttonEliminarUbicacion.visibility = if (tieneUbicacion) View.VISIBLE else View.GONE
-        buttonObtenerUbicacion.text = if (tieneUbicacion) "Cambiar ubicación" else "Obtener mi ubicación"
+        buttonObtenerUbicacion.text =
+            if (tieneUbicacion) "Cambiar ubicación" else "Obtener mi ubicación"
     }
 
     private fun recopilarHabitos(): List<String> {
@@ -293,17 +299,23 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
         when {
             nombre.isEmpty() -> {
-                Toast.makeText(context, "El nombre del desafío es obligatorio", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "El nombre del desafío es obligatorio", Toast.LENGTH_SHORT)
+                    .show()
                 return false
             }
+
             habitos.size < 3 -> {
-                Toast.makeText(context, "Debes agregar al menos 3 hábitos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Debes agregar al menos 3 hábitos", Toast.LENGTH_SHORT)
+                    .show()
                 return false
             }
+
             habitos.size > 5 -> {
-                Toast.makeText(context, "No puedes agregar más de 5 hábitos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "No puedes agregar más de 5 hábitos", Toast.LENGTH_SHORT)
+                    .show()
                 return false
             }
+
             auth.currentUser?.uid == null -> {
                 Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
                 return false
@@ -322,16 +334,17 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         val currentTime = com.google.firebase.Timestamp.now()
 
         // Crear estructura de ubicación si está disponible
-        val ubicacionData = if (ubicacionSeleccionada != null && latitudSeleccionada != null && longitudSeleccionada != null) {
-            mapOf(
-                "direccion" to ubicacionSeleccionada!!,
-                "latitud" to latitudSeleccionada!!,
-                "longitud" to longitudSeleccionada!!,
-                "timestamp" to currentTime
-            )
-        } else {
-            null
-        }
+        val ubicacionData =
+            if (ubicacionSeleccionada != null && latitudSeleccionada != null && longitudSeleccionada != null) {
+                mapOf(
+                    "direccion" to ubicacionSeleccionada!!,
+                    "latitud" to latitudSeleccionada!!,
+                    "longitud" to longitudSeleccionada!!,
+                    "timestamp" to currentTime
+                )
+            } else {
+                null
+            }
 
         // Crear estructura similar a getInitialChallengeForObjective
         val desafioBase = hashMapOf(
@@ -382,30 +395,50 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                     )
                 }
 
+                val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+// Obtener la fecha actual
+                val calendar = Calendar.getInstance()
+
                 for (i in 1..duracionSeleccionada) {
                     val diaRef = documentRef.collection("dias").document("dia_$i")
+
+                    // Calcular la fecha de realización sumando (i-1) días a la fecha actual
+                    // Usamos (i-1) porque el día 1 debe ser hoy, día 2 mañana, etc.
+                    val fechaRealizacion = Calendar.getInstance().apply {
+                        add(Calendar.DAY_OF_YEAR, i - 1)
+                    }
+
                     val dataDia = hashMapOf(
                         "dia" to i,
                         "habitos" to habitosParaDias,
                         "completado" to false,
-                        "fecha_creacion" to currentTime
+                        "fecha_creacion" to currentTime,
+                        "fechaRealizacion" to dateFormatter.format(fechaRealizacion.time)
                     )
+
                     batch.set(diaRef, dataDia)
                 }
 
                 // 3. Commit de batch
                 batch.commit().addOnSuccessListener {
-                    Toast.makeText(context, "¡Desafío creado exitosamente!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "¡Desafío creado exitosamente!", Toast.LENGTH_SHORT)
+                        .show()
                     startActivity(Intent(requireContext(), ItemDetailHostActivity::class.java))
                     activity?.finish()
                 }.addOnFailureListener { e ->
-                    Toast.makeText(context, "Error al crear los días: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        "Error al crear los días: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                     crearButton.isEnabled = true
                     crearButton.text = "Crear Desafío"
                 }
 
             }.addOnFailureListener { e ->
-                Toast.makeText(context, "Error al crear desafío: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Error al crear desafío: ${e.message}", Toast.LENGTH_LONG)
+                    .show()
                 crearButton.isEnabled = true
                 crearButton.text = "Crear Desafío"
             }

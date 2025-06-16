@@ -2,6 +2,7 @@ package com.example.trabajointegradornativo
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.TimePickerDialog
 import android.content.Context
@@ -308,27 +309,35 @@ class ProfileFragment : Fragment() {
     }
 
     private fun checkNotificationPermissions(callback: (Boolean) -> Unit) {
+        var permissionsNeeded = mutableListOf<String>()
+
+        // Verificar permiso de notificaciones para Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ requiere permiso POST_NOTIFICATIONS
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                requestPermissions(
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    NOTIFICATION_PERMISSION_REQUEST_CODE
-                )
-                return
+                permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS)
             }
+        }
+
+        // Si hay permisos pendientes, solicitarlos
+        if (permissionsNeeded.isNotEmpty()) {
+            requestPermissions(
+                permissionsNeeded.toTypedArray(),
+                NOTIFICATION_PERMISSION_REQUEST_CODE
+            )
+            return
         }
 
         // Verificar permisos de alarma exacta para Android 12+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+            val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
             if (!alarmManager.canScheduleExactAlarms()) {
                 showExactAlarmPermissionDialog()
-                callback(false)
+                // Aún podemos continuar con alarmas inexactas
+                callback(true)
                 return
             }
         }
@@ -383,25 +392,25 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setDefaultProfileImage() {
-        try {
-            val defaultDrawable = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_camera)
-            val currentUser = auth.currentUser
-            val userName = currentUser?.displayName ?: "Usuario"
-            val initials = getInitials(userName)
-
-            profileImage.setImageDrawable(defaultDrawable)
-            profileImage.visibility = View.VISIBLE
-            profileInitials.text = initials
-            profileInitials.visibility = View.VISIBLE
-            profileInitials.setBackgroundResource(android.R.drawable.button_onoff_indicator_on)
-
-            Log.d(TAG, "Imagen por defecto establecida para usuario: $userName")
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error al establecer imagen por defecto", e)
-            profileImage.visibility = View.GONE
-            profileInitials.visibility = View.VISIBLE
-        }
+//        try {
+//            val defaultDrawable = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_camera)
+//            val currentUser = auth.currentUser
+//            val userName = currentUser?.displayName ?: "Usuario"
+//            val initials = getInitials(userName)
+//
+//            profileImage.setImageDrawable(defaultDrawable)
+//            profileImage.visibility = View.VISIBLE
+//            profileInitials.text = initials
+//            profileInitials.visibility = View.VISIBLE
+//            profileInitials.setBackgroundResource(android.R.drawable.button_onoff_indicator_on)
+//
+//            Log.d(TAG, "Imagen por defecto establecida para usuario: $userName")
+//
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Error al establecer imagen por defecto", e)
+//            profileImage.visibility = View.GONE
+//            profileInitials.visibility = View.VISIBLE
+//        }
     }
 
     private fun loadImageFromUri(uri: Uri) {
@@ -708,9 +717,17 @@ class ProfileFragment : Fragment() {
         val context = requireContext()
         val hour = selectedNotificationHour
         val minute = selectedNotificationMinute
-        val includeMotivational = motivationalPhrasesSwitch.isChecked
 
-        Log.d(TAG, "Notificaciones programadas para $hour:$minute")
+        Log.d(TAG, "Programando notificaciones para $hour:$minute")
+
+        try {
+            val notificationHelper = NotificationHelper(context)
+            notificationHelper.programarNotificacionDiaria(hour, minute)
+            Toast.makeText(context, "Recordatorios programados para $hour:${String.format("%02d", minute)}", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al programar notificaciones", e)
+            Toast.makeText(context, "Error al programar recordatorios", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showLanguageDialog() {
