@@ -179,42 +179,83 @@
                 android:layout_marginBottom="24dp" />
 
         </LinearLayout>
-
-        <!-- Ubicación (opcional) -->
-        <TextView
+        <!-- Sección de Ubicación Opcional -->
+        <CheckBox
+            android:id="@+id/checkboxUbicacionOpcional"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ubicación (opcional)"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginTop="@dimen/margin_medium"
+            android:text="Agregar ubicación (opcional)"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
 
-        <!-- Seleccionar ubicación -->
         <LinearLayout
             android:id="@+id/layoutSelectLocation"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/location_background"
-            android:padding="12dp"
-            android:layout_marginBottom="32dp">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_small"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_medium"
+            android:background="@drawable/edittext_background"
+            android:visibility="gone">
 
             <TextView
-                android:layout_width="12dp"
-                android:layout_height="16dp"
-                android:text="📍"
-                android:textSize="14sp"
-                android:layout_marginRight="12dp" />
-
-            <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Seleccionar ubicación en mapa"
+                android:text="Ubicación del desafío"
+                android:textColor="@color/text_primary"
                 android:textSize="14sp"
-                android:textColor="#999999" />
+                android:textStyle="bold"
+                android:layout_marginBottom="@dimen/margin_small" />
+
+            <TextView
+                android:id="@+id/textUbicacionSeleccionada"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_small"
+                android:background="@drawable/edittext_background"
+                android:padding="@dimen/padding_medium"
+                android:text="No hay ubicación seleccionada"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonObtenerUbicacion"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:background="@drawable/button_secondary_background"
+                    android:text="Obtener mi ubicación"
+                    android:textColor="@color/green_primary"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/buttonEliminarUbicacion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_secondary_background"
+                    android:text="Eliminar"
+                    android:textColor="@color/primary_green"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    android:paddingHorizontal="@dimen/padding_medium" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:text="💡 Tip: Te ayudará a recordar dónde realizar tus hábitos"
+                android:textColor="@color/text_hint_ubi"
+                android:textSize="12sp" />
 
         </LinearLayout>
 

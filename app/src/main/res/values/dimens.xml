@@ -6,7 +6,7 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="container_margin">8dp</dimen>
     <dimen name="container_horizontal_margin">16dp</dimen>
-
+    <dimen name="margin_medium">16dp</dimen>
     <dimen name="edittext_height">48dp</dimen>
     <dimen name="margin_small">12dp</dimen>
     <dimen name="padding_medium">12dp</dimen>

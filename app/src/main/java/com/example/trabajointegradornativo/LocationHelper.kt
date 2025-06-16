@@ -1,0 +1,115 @@
+package com.example.trabajointegradornativo
+
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Bundle
+import androidx.core.app.ActivityCompat
+
+class LocationHelper(private val context: Context) {
+
+    private var locationManager: LocationManager? = null
+    private var locationListener: LocationListener? = null
+
+    interface LocationCallback {
+        fun onLocationReceived(latitude: Double, longitude: Double, address: String)
+        fun onLocationError(error: String)
+    }
+
+    fun getCurrentLocation(callback: LocationCallback) {
+        if (!hasLocationPermission()) {
+            callback.onLocationError("Permisos de ubicación no concedidos")
+            return
+        }
+
+        locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        // Verificar si el GPS está habilitado
+        if (!isGPSEnabled()) {
+            callback.onLocationError("GPS deshabilitado. Por favor, actívalo en configuración")
+            return
+        }
+
+        locationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                val latitude = location.latitude
+                val longitude = location.longitude
+
+                // Obtener dirección legible (opcional)
+                val address = getAddressFromLocation(latitude, longitude)
+
+                // Detener las actualizaciones después de obtener la primera ubicación
+                stopLocationUpdates()
+
+                callback.onLocationReceived(latitude, longitude, address)
+            }
+
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {
+                callback.onLocationError("Proveedor de ubicación deshabilitado")
+            }
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        }
+
+        try {
+            // Intentar obtener la última ubicación conocida primero
+            val lastKnownLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            if (lastKnownLocation != null) {
+                val address = getAddressFromLocation(lastKnownLocation.latitude, lastKnownLocation.longitude)
+                callback.onLocationReceived(lastKnownLocation.latitude, lastKnownLocation.longitude, address)
+                return
+            }
+
+            // Si no hay ubicación conocida, solicitar actualizaciones
+            locationManager?.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000, // 5 segundos
+                10f,  // 10 metros
+                locationListener!!
+            )
+
+        } catch (e: SecurityException) {
+            callback.onLocationError("Error de permisos: ${e.message}")
+        }
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun isGPSEnabled(): Boolean {
+        return locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
+    }
+
+    private fun getAddressFromLocation(latitude: Double, longitude: Double): String {
+        return try {
+            val geocoder = android.location.Geocoder(context, java.util.Locale.getDefault())
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            if (addresses?.isNotEmpty() == true) {
+                val address = addresses[0]
+                "${address.getAddressLine(0)}"
+            } else {
+                "Lat: ${"%.4f".format(latitude)}, Lng: ${"%.4f".format(longitude)}"
+            }
+        } catch (e: Exception) {
+            "Lat: ${"%.4f".format(latitude)}, Lng: ${"%.4f".format(longitude)}"
+        }
+    }
+
+    fun stopLocationUpdates() {
+        locationListener?.let { listener ->
+            locationManager?.removeUpdates(listener)
+        }
+        locationListener = null
+    }
+}

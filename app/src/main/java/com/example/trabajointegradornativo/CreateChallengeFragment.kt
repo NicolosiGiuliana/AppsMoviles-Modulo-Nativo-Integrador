@@ -1,16 +1,20 @@
 package com.example.trabajointegradornativo
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class CreateChallengeFragment : Fragment() {
+class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
     // Views principales
     private lateinit var nombreInput: EditText
@@ -26,22 +30,50 @@ class CreateChallengeFragment : Fragment() {
     private lateinit var option45Days: TextView
     private lateinit var option75Days: TextView
 
-    // Ubicación
+    // Ubicación - NUEVOS ELEMENTOS
     private lateinit var layoutSelectLocation: LinearLayout
+    private lateinit var textUbicacionSeleccionada: TextView
+    private lateinit var buttonObtenerUbicacion: Button
+    private lateinit var buttonEliminarUbicacion: Button
+    private lateinit var checkboxUbicacionOpcional: CheckBox
 
     // Variables para almacenar datos
     private var duracionSeleccionada = 30 // Por defecto 30 días
     private val habitosAdicionales = mutableListOf<EditText>()
     private var ubicacionSeleccionada: String? = null
+    private var latitudSeleccionada: Double? = null
+    private var longitudSeleccionada: Double? = null
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+
+    // Helper para geolocalización
+    private lateinit var locationHelper: LocationHelper
+
+    // Launcher para solicitar permisos
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                    permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true -> {
+                // Permisos concedidos, obtener ubicación
+                obtenerUbicacionActual()
+            }
+            else -> {
+                Toast.makeText(context, "Permisos de ubicación denegados", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_create_challenge, container, false)
+
+        // Inicializar helper de ubicación
+        locationHelper = LocationHelper(requireContext())
 
         inicializarViews(view)
         configurarEventos()
@@ -66,11 +98,18 @@ class CreateChallengeFragment : Fragment() {
         option45Days = view.findViewById(R.id.option45Days)
         option75Days = view.findViewById(R.id.option75Days)
 
-        // Ubicación
+        // Ubicación - NUEVOS ELEMENTOS
         layoutSelectLocation = view.findViewById(R.id.layoutSelectLocation)
+        textUbicacionSeleccionada = view.findViewById(R.id.textUbicacionSeleccionada)
+        buttonObtenerUbicacion = view.findViewById(R.id.buttonObtenerUbicacion)
+        buttonEliminarUbicacion = view.findViewById(R.id.buttonEliminarUbicacion)
+        checkboxUbicacionOpcional = view.findViewById(R.id.checkboxUbicacionOpcional)
 
         // Establecer 30 días como seleccionado por defecto
         seleccionarDuracion(option30Days, 30)
+
+        // Configurar estado inicial de ubicación
+        actualizarEstadoUbicacion()
     }
 
     private fun configurarEventos() {
@@ -82,8 +121,16 @@ class CreateChallengeFragment : Fragment() {
         // Agregar hábito
         agregarHabitoButton.setOnClickListener { agregarNuevoHabito() }
 
-        // Seleccionar ubicación
-        layoutSelectLocation.setOnClickListener { seleccionarUbicacion() }
+        // Eventos de ubicación - NUEVOS
+        checkboxUbicacionOpcional.setOnCheckedChangeListener { _, isChecked ->
+            layoutSelectLocation.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (!isChecked) {
+                limpiarUbicacion()
+            }
+        }
+
+        buttonObtenerUbicacion.setOnClickListener { solicitarUbicacion() }
+        buttonEliminarUbicacion.setOnClickListener { limpiarUbicacion() }
 
         // Botones principales
         crearButton.setOnClickListener { guardarDesafio() }
@@ -144,13 +191,79 @@ class CreateChallengeFragment : Fragment() {
         }
     }
 
-    private fun seleccionarUbicacion() {
-        // Aquí puedes implementar la lógica para abrir un selector de ubicación
-        // Por ejemplo, abrir Google Maps o una actividad de selección de ubicación
-        Toast.makeText(context, "Función de ubicación en desarrollo", Toast.LENGTH_SHORT).show()
+    // NUEVOS MÉTODOS PARA GEOLOCALIZACIÓN
 
-        // Ejemplo de cómo guardar una ubicación
-        ubicacionSeleccionada = "Ubicación ejemplo"
+    private fun solicitarUbicacion() {
+        if (tienePermisosUbicacion()) {
+            obtenerUbicacionActual()
+        } else {
+            solicitarPermisosUbicacion()
+        }
+    }
+
+    private fun tienePermisosUbicacion(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun solicitarPermisosUbicacion() {
+        locationPermissionRequest.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
+
+    private fun obtenerUbicacionActual() {
+        buttonObtenerUbicacion.text = "Obteniendo ubicación..."
+        buttonObtenerUbicacion.isEnabled = false
+
+        locationHelper.getCurrentLocation(this)
+    }
+
+    // Implementar LocationCallback
+    override fun onLocationReceived(latitude: Double, longitude: Double, address: String) {
+        latitudSeleccionada = latitude
+        longitudSeleccionada = longitude
+        ubicacionSeleccionada = address
+
+        textUbicacionSeleccionada.text = address
+        actualizarEstadoUbicacion()
+
+        buttonObtenerUbicacion.text = "Obtener mi ubicación"
+        buttonObtenerUbicacion.isEnabled = true
+
+        Toast.makeText(context, "Ubicación obtenida correctamente", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onLocationError(error: String) {
+        Toast.makeText(context, "Error al obtener ubicación: $error", Toast.LENGTH_LONG).show()
+
+        buttonObtenerUbicacion.text = "Obtener mi ubicación"
+        buttonObtenerUbicacion.isEnabled = true
+    }
+
+    private fun limpiarUbicacion() {
+        ubicacionSeleccionada = null
+        latitudSeleccionada = null
+        longitudSeleccionada = null
+        textUbicacionSeleccionada.text = ""
+        actualizarEstadoUbicacion()
+    }
+
+    private fun actualizarEstadoUbicacion() {
+        val tieneUbicacion = ubicacionSeleccionada != null
+
+        textUbicacionSeleccionada.visibility = if (tieneUbicacion) View.VISIBLE else View.GONE
+        buttonEliminarUbicacion.visibility = if (tieneUbicacion) View.VISIBLE else View.GONE
+        buttonObtenerUbicacion.text = if (tieneUbicacion) "Cambiar ubicación" else "Obtener mi ubicación"
     }
 
     private fun recopilarHabitos(): List<String> {
@@ -208,6 +321,18 @@ class CreateChallengeFragment : Fragment() {
         val uid = auth.currentUser?.uid!!
         val currentTime = com.google.firebase.Timestamp.now()
 
+        // Crear estructura de ubicación si está disponible
+        val ubicacionData = if (ubicacionSeleccionada != null && latitudSeleccionada != null && longitudSeleccionada != null) {
+            mapOf(
+                "direccion" to ubicacionSeleccionada!!,
+                "latitud" to latitudSeleccionada!!,
+                "longitud" to longitudSeleccionada!!,
+                "timestamp" to currentTime
+            )
+        } else {
+            null
+        }
+
         // Crear estructura similar a getInitialChallengeForObjective
         val desafioBase = hashMapOf(
             "nombre" to nombre,
@@ -220,7 +345,7 @@ class CreateChallengeFragment : Fragment() {
             "diaActual" to 1,
             "completados" to 0,
             "totalHabitos" to habitos.size,
-            "ubicacion" to ubicacionSeleccionada,
+            "ubicacion" to ubicacionData, // NUEVA: datos de ubicación completos
             "creadoPor" to uid,
             "estado" to "activo",
             "habitos" to habitos.map { habito ->
@@ -286,8 +411,10 @@ class CreateChallengeFragment : Fragment() {
             }
     }
 
-
     private fun cancelarCreacion() {
+        // Detener actualizaciones de ubicación si están activas
+        locationHelper.stopLocationUpdates()
+
         // Mostrar diálogo de confirmación si hay datos ingresados
         val hayDatos = nombreInput.text.toString().trim().isNotEmpty() ||
                 recopilarHabitos().isNotEmpty()
@@ -304,5 +431,10 @@ class CreateChallengeFragment : Fragment() {
         } else {
             activity?.onBackPressed()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        locationHelper.stopLocationUpdates()
     }
 }
