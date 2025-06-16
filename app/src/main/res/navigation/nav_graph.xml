@@ -101,6 +101,7 @@
         android:name="com.example.trabajointegradornativo.ProfileFragment"
         android:label="Perfil"
         tools:layout="@layout/profile_fragment">
+        <!-- ESTAS SON LAS ACCIONES QUE FALTABAN -->
         <action
             android:id="@+id/action_profileFragment_to_itemListFragment"
             app:destination="@id/itemListFragment" />

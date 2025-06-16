@@ -1,29 +1,23 @@
 package com.example.trabajointegradornativo
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.TimePickerDialog
-import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.view.*
+import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -67,7 +61,6 @@ class ProfileFragment : Fragment() {
     private lateinit var notificationTimeText: TextView
     private lateinit var languageLayout: LinearLayout
     private lateinit var selectedLanguageText: TextView
-    private lateinit var exportDataLayout: LinearLayout
     private lateinit var logoutLayout: LinearLayout
 
     // Data
@@ -92,10 +85,93 @@ class ProfileFragment : Fragment() {
         loadUserData()
         setupClickListeners()
         setupSwitches()
-        setupBottomNavigation()
+        setupBottomNavigation(view)
         loadSettings()
         loadProfileImage()
+    }
 
+    private fun setupBottomNavigation(view: View) {
+        val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        // Home
+        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
+        homeLayout?.setOnClickListener {
+            try {
+                // Navegar directamente por ID del fragmento
+                findNavController().navigate(R.id.itemListFragment)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al navegar a Home: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "Error navegando a Home", e)
+            }
+        }
+
+        // Today
+        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
+        todayLayout?.setOnClickListener {
+            try {
+                // Navegar directamente por ID del fragmento
+                findNavController().navigate(R.id.todayFragment)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al navegar a Today: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "Error navegando a Today", e)
+            }
+        }
+
+        // Profile (ya estamos aquí)
+        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
+        profileLayout?.setOnClickListener {
+            // Ya estamos en Profile, solo mostrar mensaje
+            Toast.makeText(context, "Ya estás en Perfil", Toast.LENGTH_SHORT).show()
+        }
+
+        // Establecer colores iniciales para mostrar que Profile está activo
+        updateBottomNavigationColors(view, "profile")
+    }
+
+    private fun updateBottomNavigationColors(view: View, activeTab: String) {
+        val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
+        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
+        val homeText = homeLayout?.getChildAt(1) as? TextView
+
+        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
+        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
+        val todayText = todayLayout?.getChildAt(1) as? TextView
+
+        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
+        val profileIcon = profileLayout?.getChildAt(0) as? ImageView
+        val profileText = profileLayout?.getChildAt(1) as? TextView
+
+        val activeColor = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
+
+        when (activeTab) {
+            "home" -> {
+                homeIcon?.setColorFilter(activeColor)
+                homeText?.setTextColor(activeColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+                profileIcon?.setColorFilter(inactiveColor)
+                profileText?.setTextColor(inactiveColor)
+            }
+            "today" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(activeColor)
+                todayText?.setTextColor(activeColor)
+                profileIcon?.setColorFilter(inactiveColor)
+                profileText?.setTextColor(inactiveColor)
+            }
+            "profile" -> {
+                homeIcon?.setColorFilter(inactiveColor)
+                homeText?.setTextColor(inactiveColor)
+                todayIcon?.setColorFilter(inactiveColor)
+                todayText?.setTextColor(inactiveColor)
+                profileIcon?.setColorFilter(activeColor)
+                profileText?.setTextColor(activeColor)
+            }
+        }
     }
 
     private fun initFirebase() {
@@ -285,10 +361,6 @@ class ProfileFragment : Fragment() {
             }
             .setNegativeButton("Cancelar", null)
             .show()
-    }
-
-    private fun setupBottomNavigation() {
-        // Implementar navegación si es necesario
     }
 
     private fun loadProfileImage() {
