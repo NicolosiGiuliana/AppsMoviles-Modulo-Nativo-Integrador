@@ -1,0 +1,52 @@
+<resources>
+    <!-- Strings en inglés -->
+    <string name="app_name">Challenge+</string>
+    <string name="title_activity_item_detail_host">ItemDetailHostActivity</string>
+    <string name="title_item_list">Items</string>
+    <string name="title_item_detail">Item Detail</string>
+
+    <string name="profile_title">Profile</string>
+    <string name="profile_subtitle">Manage your account and preferences</string>
+    <string name="profile_photo">Profile photo</string>
+    <string name="change_photo">Change photo</string>
+    <string name="default_name">User</string>
+    <string name="default_email">user@example.com</string>
+    <string name="member_since">Member since</string>
+    <string name="configuration">Settings</string>
+    <string name="reminders">Reminders</string>
+    <string name="daily_notifications">Daily notifications</string>
+    <string name="notification_time">Notification time</string>
+    <string name="motivational_phrases">Motivational phrases</string>
+    <string name="language">Language</string>
+    <string name="select_language">Select language</string>
+    <string name="language_spanish">Spanish</string>
+    <string name="language_english">English</string>
+    <string name="language_portuguese">Portuguese</string>
+    <string name="account">Account</string>
+    <string name="export_data">Export data</string>
+    <string name="logout">Sign out</string>
+    <string name="home">Home</string>
+    <string name="today">Today</string>
+    <string name="profile">Profile</string>
+    <string name="hello_world">Hello World</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Nuevos strings para diálogos y mensajes -->
+    <string name="change_profile_photo">Change profile photo</string>
+    <string name="take_photo">Take photo</string>
+    <string name="select_from_gallery">Select from gallery</string>
+    <string name="use_default_image">Use default image</string>
+    <string name="cancel">Cancel</string>
+    <string name="logout_confirmation">Are you sure you want to sign out?</string>
+    <string name="uploading_image">Uploading image...</string>
+    <string name="profile_photo_updated">Profile photo updated</string>
+    <string name="error_uploading_image">Error uploading image</string>
+    <string name="notifications_enabled">Notifications enabled</string>
+    <string name="notifications_disabled">Notifications disabled</string>
+    <string name="language_changed_to">Language changed to %s</string>
+    <string name="already_in_profile">You are already in Profile</string>
+
+    <!-- Agregar estos strings adicionales al archivo existente -->
+    <string name="error_navigating_home">Error navigating to Home: %s</string>
+    <string name="error_navigating_today">Error navigating to Today: %s</string>
+</resources>
