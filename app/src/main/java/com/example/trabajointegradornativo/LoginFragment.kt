@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.InputFilter
-import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -465,109 +463,125 @@ class LoginFragment : Fragment() {
         val challenge = getInitialChallengeForObjective(objective)
         val challengesRef = db.collection("usuarios").document(userId).collection("desafios")
 
+        // 1. Crear el desafío principal
         challengesRef.add(challenge)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onError(e) }
+            .addOnSuccessListener { documentRef ->
+
+                // 2. Crear la estructura de días usando batch
+                val batch = db.batch()
+                val dias = challenge["dias"] as? Int ?: 30
+                val habitos = challenge["habitos"] as? List<Map<String, Any>> ?: emptyList()
+
+                // Convertir hábitos a la estructura que necesita cada día
+                val habitosParaDias = habitos.map { habito ->
+                    mapOf(
+                        "nombre" to (habito["nombre"] ?: ""),
+                        "completado" to false
+                    )
+                }
+
+                // Crear cada día del desafío
+                for (i in 1..dias) {
+                    val diaRef = documentRef.collection("dias").document("dia_$i")
+                    val dataDia = hashMapOf(
+                        "dia" to i,
+                        "habitos" to habitosParaDias,
+                        "completado" to false,
+                        "fecha_creacion" to com.google.firebase.Timestamp.now()
+                    )
+                    batch.set(diaRef, dataDia)
+                }
+
+                // 3. Ejecutar el batch
+                batch.commit()
+                    .addOnSuccessListener {
+                        onSuccess()
+                    }
+                    .addOnFailureListener { e ->
+                        onError(e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                onError(e)
+            }
     }
 
-    private fun getInitialChallengeForObjective(objective: String): HashMap<String, Any> {
-        val currentTime = com.google.firebase.Timestamp.now()
-
+    private fun getInitialChallengeForObjective(objective: String): Map<String, Any> {
         return when (objective) {
-            "Fitness" -> hashMapOf(
-                "nombre" to "Rutina de Fitness",
-                "descripcion" to "Desafío de 30 días para mejorar tu condición física",
-                "tipo" to "fitness",
-                "completado" to false,
-                "fechaCreacion" to currentTime,
-                "fechaInicio" to currentTime,
+            "Fitness" -> mapOf(
+                "nombre" to "Reto de Fitness Inicial",
+                "descripcion" to "Comienza tu camino hacia una mejor forma física.",
                 "dias" to 30,
-                "diaActual" to 1,
-                "completados" to 0,
-                "totalHabitos" to 5,
                 "habitos" to listOf(
-                    mapOf("nombre" to "30 minutos de ejercicio", "completado" to false),
-                    mapOf("nombre" to "10 flexiones", "completado" to false),
-                    mapOf("nombre" to "15 sentadillas", "completado" to false),
-                    mapOf("nombre" to "Caminar 5000 pasos", "completado" to false),
-                    mapOf("nombre" to "Estiramientos", "completado" to false)
-                )
-            )
-
-            "Lectura" -> hashMapOf(
-                "nombre" to "Hábito de Lectura",
-                "descripcion" to "Desafío de 21 días para crear el hábito de lectura diaria",
-                "tipo" to "lectura",
-                "completado" to false,
-                "fechaCreacion" to currentTime,
-                "fechaInicio" to currentTime,
-                "dias" to 21,
-                "diaActual" to 1,
-                "completados" to 0,
+                    mapOf("nombre" to "Caminar 30 minutos"),
+                    mapOf("nombre" to "Hacer 15 minutos de estiramientos"),
+                    mapOf("nombre" to "Beber 2 litros de agua"),
+                    mapOf("nombre" to "Dormir 7-8 horas"),
+                    mapOf("nombre" to "Comer una porción de vegetales")
+                ),
                 "totalHabitos" to 5,
-                "habitos" to listOf(
-                    mapOf("nombre" to "Leer 20 minutos", "completado" to false),
-                    mapOf("nombre" to "Elegir libro del día", "completado" to false),
-                    mapOf("nombre" to "Tomar notas importantes", "completado" to false),
-                    mapOf("nombre" to "Buscar lugar cómodo para leer", "completado" to false),
-                    mapOf("nombre" to "Reflexionar sobre lo leído", "completado" to false)
-                )
+                "estado" to "activo",
+                "progreso" to 0
             )
-
-            "Mindfulness" -> hashMapOf(
-                "nombre" to "Mindfulness Diario",
-                "descripcion" to "Desafío de 30 días de meditación y mindfulness",
-                "tipo" to "mindfulness",
-                "completado" to false,
-                "fechaCreacion" to currentTime,
-                "fechaInicio" to currentTime,
+            "Lectura" -> mapOf(
+                "nombre" to "Reto de Lectura Inicial",
+                "descripcion" to "Desarrolla el hábito de la lectura.",
                 "dias" to 30,
-                "diaActual" to 1,
-                "completados" to 0,
+                "habitos" to listOf(
+                    mapOf("nombre" to "Leer 20 páginas"),
+                    mapOf("nombre" to "Tomar notas de lo leído"),
+                    mapOf("nombre" to "Reflexionar sobre la lectura"),
+                    mapOf("nombre" to "Compartir lo aprendido"),
+                    mapOf("nombre" to "Leer en un lugar tranquilo")
+                ),
                 "totalHabitos" to 5,
-                "habitos" to listOf(
-                    mapOf("nombre" to "10 minutos de meditación", "completado" to false),
-                    mapOf("nombre" to "Respiración consciente", "completado" to false),
-                    mapOf("nombre" to "Gratitud del día", "completado" to false),
-                    mapOf("nombre" to "Momento presente", "completado" to false),
-                    mapOf("nombre" to "Reflexión personal", "completado" to false)
-                )
+                "estado" to "activo",
+                "progreso" to 0
             )
-
-            "Hidratación" -> hashMapOf(
-                "nombre" to "Hidratación Saludable",
-                "descripcion" to "Desafío de 15 días para mejorar tus hábitos de hidratación",
-                "tipo" to "hidratacion",
-                "completado" to false,
-                "fechaCreacion" to currentTime,
-                "fechaInicio" to currentTime,
-                "dias" to 15,
-                "diaActual" to 1,
-                "completados" to 0,
+            "Mindfulness" -> mapOf(
+                "nombre" to "Reto de Mindfulness Inicial",
+                "descripcion" to "Practica la atención plena diariamente.",
+                "dias" to 30,
+                "habitos" to listOf(
+                    mapOf("nombre" to "Meditar 10 minutos"),
+                    mapOf("nombre" to "Practicar la respiración consciente"),
+                    mapOf("nombre" to "Escribir en un diario de gratitud"),
+                    mapOf("nombre" to "Hacer una pausa consciente"),
+                    mapOf("nombre" to "Observar el entorno")
+                ),
                 "totalHabitos" to 5,
-                "habitos" to listOf(
-                    mapOf("nombre" to "2 litros de agua", "completado" to false),
-                    mapOf("nombre" to "Vaso al despertar", "completado" to false),
-                    mapOf("nombre" to "Agua antes de cada comida", "completado" to false),
-                    mapOf("nombre" to "Evitar bebidas azucaradas", "completado" to false),
-                    mapOf("nombre" to "Infusión nocturna", "completado" to false)
-                )
+                "estado" to "activo",
+                "progreso" to 0
             )
-
-            else -> hashMapOf(
-                "nombre" to "Desafío Personal",
-                "descripcion" to "Define tu propio desafío personal",
-                "tipo" to "general",
-                "completado" to false,
-                "fechaCreacion" to currentTime,
-                "fechaInicio" to currentTime,
-                "dias" to 7,
-                "diaActual" to 1,
-                "completados" to 0,
-                "totalHabitos" to 1,
+            "Hidratación" -> mapOf(
+                "nombre" to "Reto de Hidratación Inicial",
+                "descripcion" to "Mantente hidratado para una mejor salud.",
+                "dias" to 30,
                 "habitos" to listOf(
-                    mapOf("nombre" to "Define tu meta", "completado" to false)
-                )
+                    mapOf("nombre" to "Beber 2 litros de agua"),
+                    mapOf("nombre" to "Llevar una botella de agua"),
+                    mapOf("nombre" to "Beber un vaso de agua al despertar"),
+                    mapOf("nombre" to "Beber agua antes de cada comida"),
+                    mapOf("nombre" to "Evitar bebidas azucaradas")
+                ),
+                "totalHabitos" to 5,
+                "estado" to "activo",
+                "progreso" to 0
+            )
+            else -> mapOf(
+                "nombre" to "Reto Genérico Inicial",
+                "descripcion" to "Un reto para empezar a construir hábitos.",
+                "dias" to 30,
+                "habitos" to listOf(
+                    mapOf("nombre" to "Hábito 1"),
+                    mapOf("nombre" to "Hábito 2"),
+                    mapOf("nombre" to "Hábito 3"),
+                    mapOf("nombre" to "Hábito 4"),
+                    mapOf("nombre" to "Hábito 5")
+                ),
+                "totalHabitos" to 5,
+                "estado" to "activo",
+                "progreso" to 0
             )
         }
     }
