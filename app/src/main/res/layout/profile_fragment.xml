@@ -23,7 +23,7 @@
             android:id="@+id/titleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Perfil"
+            android:text="@string/profile_title"
             android:textSize="34sp"
             android:textStyle="bold"
             android:textColor="#000000"
@@ -33,7 +33,7 @@
             android:id="@+id/subtitleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gestiona tu cuenta y configuración"
+            android:text="@string/profile_subtitle"
             android:textSize="17sp"
             android:textColor="#666666" />
 
@@ -43,7 +43,6 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="90dp"
         app:layout_constraintTop_toBottomOf="@+id/headerLayout"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,7 +52,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="20dp"
+            android:paddingBottom="20dp">
 
             <!-- Tarjeta de Perfil -->
             <androidx.cardview.widget.CardView
@@ -83,7 +83,9 @@
                             android:layout_height="80dp"
                             android:background="@drawable/profile_circle_bg"
                             android:scaleType="centerCrop"
-                            android:contentDescription="Foto de perfil" />
+                            android:contentDescription="@string/profile_photo"
+                            android:clickable="true"
+                            android:focusable="true" />
 
                         <TextView
                             android:id="@+id/profileInitials"
@@ -106,7 +108,7 @@
                             android:background="@drawable/camera_icon_bg"
                             android:src="@drawable/ic_camera"
                             android:padding="4dp"
-                            android:contentDescription="Cambiar foto"
+                            android:contentDescription="@string/change_photo"
                             android:clickable="true"
                             android:focusable="true" />
 
@@ -123,7 +125,7 @@
                             android:id="@+id/profileName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Juan Pérez"
+                            android:text="@string/default_name"
                             android:textSize="22sp"
                             android:textStyle="bold"
                             android:textColor="#000000"
@@ -133,7 +135,7 @@
                             android:id="@+id/profileEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="juan.perez@email.com"
+                            android:text="@string/default_email"
                             android:textSize="16sp"
                             android:textColor="#007AFF"
                             android:layout_marginBottom="4dp" />
@@ -142,7 +144,7 @@
                             android:id="@+id/profileMember"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Miembro desde marzo 2024"
+                            android:text="@string/member_since"
                             android:textSize="14sp"
                             android:textColor="#666666" />
 
@@ -156,36 +158,38 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Configuración"
-                android:textSize="20sp"
+                android:text="@string/configuration"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
-                android:layout_marginBottom="20dp" />
+                android:layout_marginBottom="15dp" />
 
-            <!-- Recordatorios -->
+            <!-- Subsección Recordatorios -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recordatorios"
-                android:textSize="20sp"
+                android:text="@string/reminders"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#333333"
-                android:layout_marginBottom="20dp" />
+                android:textColor="#555555"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="16dp" />
 
             <!-- Notificaciones diarias -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingVertical="15dp"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="24dp"
                 android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Notificaciones diarias"
-                    android:textSize="17sp"
+                    android:text="@string/daily_notifications"
+                    android:textSize="16sp"
                     android:textColor="#333333" />
 
                 <androidx.appcompat.widget.SwitchCompat
@@ -200,29 +204,36 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E5E5E5" />
+                android:background="#E5E5E5"
+                android:layout_marginHorizontal="16dp" />
 
-            <!-- Horario -->
+            <!-- Horario de notificaciones -->
             <LinearLayout
+                android:id="@+id/notificationTimeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingVertical="15dp"
-                android:gravity="center_vertical">
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="24dp"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Horario"
-                    android:textSize="17sp"
+                    android:text="@string/notification_time"
+                    android:textSize="16sp"
                     android:textColor="#333333" />
 
                 <TextView
+                    android:id="@+id/notificationTimeText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="9:00 AM"
-                    android:textSize="17sp"
+                    android:text="09:00"
+                    android:textSize="16sp"
                     android:textColor="#666666" />
 
             </LinearLayout>
@@ -230,22 +241,24 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E5E5E5" />
+                android:background="#E5E5E5"
+                android:layout_marginHorizontal="16dp" />
 
             <!-- Frases motivacionales -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingVertical="15dp"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="24dp"
                 android:gravity="center_vertical">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Frases motivacionales"
-                    android:textSize="17sp"
+                    android:text="@string/motivational_phrases"
+                    android:textSize="16sp"
                     android:textColor="#333333" />
 
                 <androidx.appcompat.widget.SwitchCompat
@@ -257,28 +270,26 @@
 
             </LinearLayout>
 
-            <!-- Espaciado -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="20dp" />
-
-            <!-- Sección Cuenta -->
+            <!-- Subsección Idioma -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cuenta"
-                android:textSize="20sp"
+                android:text="@string/language"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#333333"
-                android:layout_marginBottom="20dp" />
+                android:textColor="#555555"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="16dp" />
 
-            <!-- Exportar datos -->
+            <!-- Selección de idioma -->
             <LinearLayout
-                android:id="@+id/exportDataLayout"
+                android:id="@+id/languageLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingVertical="15dp"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="24dp"
                 android:gravity="center_vertical"
                 android:clickable="true"
                 android:focusable="true"
@@ -288,18 +299,38 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Exportar datos"
-                    android:textSize="17sp"
+                    android:text="@string/select_language"
+                    android:textSize="16sp"
                     android:textColor="#333333" />
+
+                <TextView
+                    android:id="@+id/selectedLanguageText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/language_spanish"
+                    android:textSize="16sp"
+                    android:textColor="#666666" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="→"
                     android:textSize="18sp"
-                    android:textColor="#C7C7CC" />
+                    android:textColor="#C7C7CC"
+                    android:layout_marginStart="8dp" />
 
             </LinearLayout>
+
+            <!-- Sección Cuenta -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/account"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="15dp" />
 
             <View
                 android:layout_width="match_parent"
@@ -313,6 +344,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingVertical="15dp"
+                android:paddingHorizontal="16dp"
                 android:gravity="center_vertical"
                 android:clickable="true"
                 android:focusable="true"
@@ -322,9 +354,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Cerrar sesión"
+                    android:text="@string/logout"
                     android:textSize="17sp"
-                    android:textColor="#333333" />
+                    android:textColor="#FF3B30" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -364,13 +396,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/add_home"
-                android:contentDescription="Home"
+                android:contentDescription="@string/home"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Home"
+                android:text="@string/home"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -388,13 +420,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_today"
-                android:contentDescription="Hoy"
+                android:contentDescription="@string/today"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hoy"
+                android:text="@string/today"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -412,13 +444,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_settings"
-                android:contentDescription="Perfil"
+                android:contentDescription="@string/profile"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Perfil"
+                android:text="@string/profile"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />

@@ -54,7 +54,10 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.google.firebase.firestore.ktx)
     implementation("com.google.firebase:firebase-storage:20.3.0")
-
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.core:core-ktx:1.12.0")
     // Asegúrate de tener también estas (probablemente ya las tienes)
     implementation ("com.google.firebase:firebase-auth:22.3.0")
     implementation ("com.google.firebase:firebase-firestore:24.10.0")

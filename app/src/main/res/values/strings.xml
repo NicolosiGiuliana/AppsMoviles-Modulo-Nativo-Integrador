@@ -3,4 +3,30 @@
     <string name="title_activity_item_detail_host">ItemDetailHostActivity</string>
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
+
+    <string name="profile_title">Perfil</string>
+    <string name="profile_subtitle">Gestiona tu cuenta y preferencias</string>
+    <string name="profile_photo">Foto de perfil</string>
+    <string name="change_photo">Cambiar foto</string>
+    <string name="default_name">Usuario</string>
+    <string name="default_email">usuario@ejemplo.com</string>
+    <string name="member_since">Miembro desde</string>
+    <string name="configuration">Configuración</string>
+    <string name="reminders">Recordatorios</string>
+    <string name="daily_notifications">Notificaciones diarias</string>
+    <string name="notification_time">Hora de notificación</string>
+    <string name="motivational_phrases">Frases motivacionales</string>
+    <string name="language">Idioma</string>
+    <string name="select_language">Seleccionar idioma</string>
+    <string name="language_spanish">Español</string>
+    <string name="account">Cuenta</string>
+    <string name="export_data">Exportar datos</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="home">Inicio</string>
+    <string name="today">Hoy</string>
+    <string name="profile">Perfil</string>
+
+    <!-- Otros strings que puedas tener -->
+    <string name="hello_world">Hola Mundo</string>
+    <string name="action_settings">Configuración</string>
 </resources>

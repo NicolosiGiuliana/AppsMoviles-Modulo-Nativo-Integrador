@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         // Usar el layout existente sin binding
         setContentView(R.layout.activity_main)
 
+
         // Inicializar SharedPreferences
         sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
@@ -70,5 +71,4 @@ class MainActivity : AppCompatActivity() {
                 get() = instance?.applicationContext ?: throw IllegalStateException("Application is not initialized.")
         }
     }
-
 }
