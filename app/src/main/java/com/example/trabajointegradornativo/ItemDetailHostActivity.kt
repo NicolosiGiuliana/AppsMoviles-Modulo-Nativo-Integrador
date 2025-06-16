@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -49,41 +47,19 @@ class ItemDetailHostActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menu.add(0, R.id.action_logout, 0, "Cerrar Sesión")
-            .setIcon(android.R.drawable.ic_lock_power_off)
-            .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-        return true
-    }
+    // Remover onCreateOptionsMenu para que no aparezca ningún botón en la toolbar
+    // override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    //     // No crear ningún menú
+    //     return false
+    // }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_logout -> {
-                logoutUser()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+    // Remover onOptionsItemSelected ya que no hay menú
+    // override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    //     return super.onOptionsItemSelected(item)
+    // }
 
-    private fun logoutUser() {
-        // Cerrar sesión en Firebase
-        FirebaseAuth.getInstance().signOut()
-
-        // Limpiar SharedPreferences
-        with(sharedPreferences.edit()) {
-            putString("user_email", "")
-            putString("user_name", "")
-            putBoolean("is_logged_in", false)
-            apply()
-        }
-
-        // Regresar a MainActivity
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
-    }
+    // Remover la función logoutUser ya que el logout se manejará solo desde ProfileFragment
+    // private fun logoutUser() { ... }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_item_detail)

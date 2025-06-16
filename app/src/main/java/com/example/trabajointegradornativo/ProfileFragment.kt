@@ -751,6 +751,8 @@ class ProfileFragment : Fragment() {
         requireActivity().recreate()
     }
 
+
+
     private fun showLogoutDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Cerrar sesión")
@@ -763,9 +765,21 @@ class ProfileFragment : Fragment() {
     }
 
     private fun performLogout() {
-        sharedPreferences.edit().clear().apply()
-        auth.signOut()
-        findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
-        Toast.makeText(requireContext(), "Sesión cerrada", Toast.LENGTH_SHORT).show()
+        // Cerrar sesión en Firebase
+        FirebaseAuth.getInstance().signOut()
+
+        // Limpiar SharedPreferences (igual que en ItemDetailHostActivity)
+        with(sharedPreferences.edit()) {
+            putString("user_email", "")
+            putString("user_name", "")
+            putBoolean("is_logged_in", false)
+            apply()
+        }
+
+        // Regresar a MainActivity con las mismas flags que en ItemDetailHostActivity
+        val intent = Intent(requireActivity(), MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        requireActivity().finish()
     }
 }
