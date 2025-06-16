@@ -15,9 +15,9 @@
 
     <!-- Estilo personalizado para ActionBar verde -->
     <style name="CustomActionBar" parent="Widget.AppCompat.ActionBar">
-        <item name="android:background">@color/background_main</item>
-        <item name="background">@color/background_main</item>
-        <item name="android:titleTextStyle">@color/primary_green</item>
+        <item name="android:background">@color/primary_green</item>
+        <item name="background">@color/primary_green</item>
+        <item name="android:titleTextStyle">@style/CustomActionBarTitle</item>
     </style>
 
     <style name="CustomSwitchStyle" parent="Theme.AppCompat">
