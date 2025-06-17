@@ -23,7 +23,6 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.trabajointegradornativo.LanguageHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -249,10 +248,45 @@ class ProfileFragment : Fragment() {
         selectedNotificationMinute = sharedPreferences.getInt("notification_minute", 0)
         updateNotificationTimeDisplay()
 
-        val savedLanguage = LanguageHelper.getAppLanguage(requireContext())
-        selectedLanguageIndex = languageCodes.indexOf(savedLanguage)
-        if (selectedLanguageIndex == -1) selectedLanguageIndex = 0
+        // Detectar el idioma actual correctamente
+        selectedLanguageIndex = getCurrentLanguageIndex()
+
+        // Asegurar que el índice esté dentro del rango válido
+        if (selectedLanguageIndex < 0 || selectedLanguageIndex >= languages.size) {
+            selectedLanguageIndex = 0
+        }
+
         selectedLanguageText.text = languages[selectedLanguageIndex]
+
+        Log.d(TAG, "Configuración de idioma cargada - Índice: $selectedLanguageIndex, Texto: ${languages[selectedLanguageIndex]}")
+    }
+
+    private fun getCurrentLanguageIndex(): Int {
+        // Obtener el idioma actual del sistema/configuración
+        val currentLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            resources.configuration.locales[0].language
+        } else {
+            @Suppress("DEPRECATION")
+            resources.configuration.locale.language
+        }
+
+        Log.d(TAG, "Idioma actual detectado: $currentLocale")
+
+        // Mapear el idioma actual al índice correcto
+        val index = when (currentLocale) {
+            "es" -> 0  // Español
+            "en" -> 1  // English
+            "pt" -> 2  // Português
+            else -> {
+                // Si no reconoce el idioma, usar el guardado en preferencias
+                val savedLanguage = LanguageHelper.getAppLanguage(requireContext())
+                Log.d(TAG, "Idioma guardado en preferencias: $savedLanguage")
+                languageCodes.indexOf(savedLanguage).takeIf { it >= 0 } ?: 0
+            }
+        }
+
+        Log.d(TAG, "Índice de idioma seleccionado: $index (${languages[index]})")
+        return index
     }
 
     private fun updateNotificationTimeDisplay() {
@@ -281,7 +315,7 @@ class ProfileFragment : Fragment() {
                         Toast.makeText(requireContext(), getString(R.string.notifications_enabled), Toast.LENGTH_SHORT).show()
                     } else {
                         dailyNotificationsSwitch.isChecked = false
-                        Toast.makeText(requireContext(), "Se necesitan permisos para las notificaciones", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(R.string.notification_permissions_needed), Toast.LENGTH_LONG).show()
                     }
                 }
             } else {
@@ -336,9 +370,9 @@ class ProfileFragment : Fragment() {
 
     private fun showNotificationSettingsDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Permisos de notificación")
-            .setMessage("Para recibir recordatorios, necesitas habilitar las notificaciones en la configuración de la aplicación.")
-            .setPositiveButton("Ir a configuración") { _, _ ->
+            .setTitle(getString(R.string.notification_permissions_title))
+            .setMessage(getString(R.string.notification_permissions_message))
+            .setPositiveButton(getString(R.string.go_to_settings)) { _, _ ->
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 intent.data = Uri.parse("package:${requireContext().packageName}")
                 startActivity(intent)
@@ -349,9 +383,9 @@ class ProfileFragment : Fragment() {
 
     private fun showExactAlarmPermissionDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Permisos de alarma")
-            .setMessage("Para programar recordatorios precisos, necesitas habilitar los permisos de alarma en la configuración.")
-            .setPositiveButton("Ir a configuración") { _, _ ->
+            .setTitle(getString(R.string.alarm_permissions_title))
+            .setMessage(getString(R.string.alarm_permissions_message))
+            .setPositiveButton(getString(R.string.go_to_settings)) { _, _ ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
                     startActivity(intent)
@@ -375,7 +409,7 @@ class ProfileFragment : Fragment() {
                 setDefaultProfileImage()
             }
         } else {
-            Log.w(TAG, "Usuario no autenticado")
+            Log.w(TAG, getString(R.string.user_not_authenticated))
             setDefaultProfileImage()
         }
     }
@@ -384,7 +418,7 @@ class ProfileFragment : Fragment() {
 //        try {
 //            val defaultDrawable = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_camera)
 //            val currentUser = auth.currentUser
-//            val userName = currentUser?.displayName ?: "Usuario"
+//            val userName = currentUser?.displayName ?: getString(R.string.default_name)
 //            val initials = getInitials(userName)
 //
 //            profileImage.setImageDrawable(defaultDrawable)
@@ -411,7 +445,7 @@ class ProfileFragment : Fragment() {
             profileInitials.visibility = View.GONE
             Log.d(TAG, "Imagen de perfil cargada desde Firebase Storage")
         } catch (e: Exception) {
-            Log.e(TAG, "Error loading profile image", e)
+            Log.e(TAG, getString(R.string.error_loading_image), e)
             setDefaultProfileImage()
         }
     }
@@ -432,7 +466,7 @@ class ProfileFragment : Fragment() {
                     1 -> checkGalleryPermissionAndOpenGallery()
                     2 -> {
                         setDefaultProfileImage()
-                        Toast.makeText(requireContext(), "Imagen por defecto establecida", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.default_image_set), Toast.LENGTH_SHORT).show()
                     }
                     3 -> { /* Cancelar */ }
                 }
@@ -491,14 +525,14 @@ class ProfileFragment : Fragment() {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     openGallery()
                 } else {
-                    Toast.makeText(requireContext(), "Permiso denegado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
                 }
             }
             CAMERA_REQUEST -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     takePhoto()
                 } else {
-                    Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.camera_permission_denied), Toast.LENGTH_SHORT).show()
                 }
             }
             NOTIFICATION_PERMISSION_REQUEST_CODE -> {
@@ -508,7 +542,7 @@ class ProfileFragment : Fragment() {
                     Toast.makeText(requireContext(), getString(R.string.notifications_enabled), Toast.LENGTH_SHORT).show()
                 } else {
                     dailyNotificationsSwitch.isChecked = false
-                    Toast.makeText(requireContext(), "Permisos de notificación denegados", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.notification_permissions_denied), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -542,7 +576,7 @@ class ProfileFragment : Fragment() {
             uploadProfileImage(resizedBitmap)
         } catch (e: FileNotFoundException) {
             Log.e(TAG, "Error al cargar imagen desde galería", e)
-            Toast.makeText(requireContext(), "Error al cargar la imagen", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.error_loading_image), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -579,8 +613,8 @@ class ProfileFragment : Fragment() {
     private fun uploadProfileImage(bitmap: Bitmap) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            Log.e(TAG, "Usuario no autenticado")
-            Toast.makeText(requireContext(), "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, getString(R.string.error_user_not_authenticated))
+            Toast.makeText(requireContext(), getString(R.string.user_not_authenticated), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -620,19 +654,19 @@ class ProfileFragment : Fragment() {
                 val errorMessage = when (exception) {
                     is StorageException -> {
                         when (exception.errorCode) {
-                            StorageException.ERROR_OBJECT_NOT_FOUND -> "Archivo no encontrado"
-                            StorageException.ERROR_BUCKET_NOT_FOUND -> "Bucket de almacenamiento no encontrado"
-                            StorageException.ERROR_PROJECT_NOT_FOUND -> "Proyecto no encontrado"
-                            StorageException.ERROR_QUOTA_EXCEEDED -> "Cuota de almacenamiento excedida"
-                            StorageException.ERROR_NOT_AUTHENTICATED -> "Usuario no autenticado"
-                            StorageException.ERROR_NOT_AUTHORIZED -> "Sin permisos para subir archivos"
-                            StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> "Límite de reintentos excedido"
-                            StorageException.ERROR_INVALID_CHECKSUM -> "Checksum inválido"
-                            StorageException.ERROR_CANCELED -> "Operación cancelada"
-                            else -> "Error de almacenamiento: ${exception.message}"
+                            StorageException.ERROR_OBJECT_NOT_FOUND -> getString(R.string.error_file_not_found)
+                            StorageException.ERROR_BUCKET_NOT_FOUND -> getString(R.string.error_bucket_not_found)
+                            StorageException.ERROR_PROJECT_NOT_FOUND -> getString(R.string.error_project_not_found)
+                            StorageException.ERROR_QUOTA_EXCEEDED -> getString(R.string.error_quota_exceeded)
+                            StorageException.ERROR_NOT_AUTHENTICATED -> getString(R.string.error_not_authenticated)
+                            StorageException.ERROR_NOT_AUTHORIZED -> getString(R.string.error_not_authorized)
+                            StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> getString(R.string.error_retry_limit_exceeded)
+                            StorageException.ERROR_INVALID_CHECKSUM -> getString(R.string.error_invalid_checksum)
+                            StorageException.ERROR_CANCELED -> getString(R.string.error_operation_canceled)
+                            else -> getString(R.string.error_storage_unknown, exception.message)
                         }
                     }
-                    else -> "Error desconocido: ${exception.message}"
+                    else -> getString(R.string.error_unknown, exception.message)
                 }
 
                 Toast.makeText(requireContext(), getString(R.string.error_uploading_image) + ": $errorMessage", Toast.LENGTH_LONG).show()
@@ -660,15 +694,15 @@ class ProfileFragment : Fragment() {
     private fun showUploadErrorDialog(bitmap: Bitmap) {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.error_uploading_image))
-            .setMessage("No se pudo subir la imagen. ¿Qué deseas hacer?")
-            .setPositiveButton("Reintentar") { _, _ ->
+            .setMessage(getString(R.string.upload_error_options_message))
+            .setPositiveButton(getString(R.string.retry)) { _, _ ->
                 uploadProfileImage(bitmap)
             }
-            .setNegativeButton("Usar localmente") { _, _ ->
+            .setNegativeButton(getString(R.string.use_locally)) { _, _ ->
                 profileImage.setImageBitmap(bitmap)
                 profileImage.visibility = View.VISIBLE
                 profileInitials.visibility = View.GONE
-                Toast.makeText(requireContext(), "Imagen establecida localmente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.image_set_locally), Toast.LENGTH_SHORT).show()
             }
             .setNeutralButton(getString(R.string.cancel), null)
             .show()
@@ -709,10 +743,10 @@ class ProfileFragment : Fragment() {
         try {
             val notificationHelper = NotificationHelper(context)
             notificationHelper.programarNotificacionDiaria(hour, minute)
-            Toast.makeText(context, "Recordatorios programados para $hour:${String.format("%02d", minute)}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.reminders_scheduled, hour, String.format("%02d", minute)), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Log.e(TAG, "Error al programar notificaciones", e)
-            Toast.makeText(context, "Error al programar recordatorios", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_scheduling_reminders), Toast.LENGTH_SHORT).show()
         }
     }
 
