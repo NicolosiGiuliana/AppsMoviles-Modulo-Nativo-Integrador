@@ -5,6 +5,8 @@
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
 
+
+    <!-- Profile strings -->
     <string name="profile_title">Perfil</string>
     <string name="profile_subtitle">Gestiona tu cuenta y preferencias</string>
     <string name="profile_photo">Foto de perfil</string>
@@ -31,12 +33,87 @@
     <string name="hello_world">Hola Mundo</string>
     <string name="action_settings">Configuración</string>
 
-    <!-- Nuevos strings para diálogos y mensajes -->
+    <!-- Login/Register strings -->
+    <string name="welcome">Bienvenido</string>
+    <string name="subtitle_login">Transforma tus días en logros</string>
+    <string name="full_name">NOMBRE COMPLETO</string>
+    <string name="enter_full_name">Ingrese su nombre completo</string>
+    <string name="birth_date">FECHA DE NACIMIENTO</string>
+    <string name="birth_date_format">DD/MM/AAAA</string>
+    <string name="objective">OBJETIVO</string>
+    <string name="select_objective">Seleccione su objetivo</string>
+    <string name="email">CORREO ELECTRÓNICO</string>
+    <string name="enter_email">Ingrese su correo electrónico</string>
+    <string name="password">CONTRASEÑA</string>
+    <string name="enter_password">Ingrese su contraseña</string>
+    <string name="confirm_password">CONFIRMAR CONTRASEÑA</string>
+    <string name="confirm_password_hint">Confirme su contraseña</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="register">Registrarse</string>
+    <string name="no_account">¿No tenes cuenta? Regístrate</string>
+    <string name="have_account">¿Ya tienes cuenta? Inicia sesión</string>
+
+    <!-- Home screen strings -->
+    <string name="hello_user">Hola, Usuario</string>
+    <string name="build_best_version">Construye tu mejor versión</string>
+    <string name="search_tags">Buscar por #etiquetas...</string>
+    <string name="add_challenge">Añadir desafío</string>
+    <string name="current_day">Día Actual</string>
+    <string name="completed_format">%1$d/%2$d completados</string>
+    <string name="current_date_format">%1$s %2$d %3$s</string>
+    <string name="started_challenges">Desafíos Iniciados</string>
+    <string name="default_challenges">Desafíos por Defecto</string>
+
+    <!-- Challenge strings -->
+    <string name="habit_name_default">Nombre del hábito</string>
+    <string name="options">Opciones</string>
+    <string name="day_format">Día %1$d de %2$d</string>
+    <string name="exercise_30_days">30 Días de Ejercicio</string>
+    <string name="fitness">Fitness</string>
+    <string name="days_30">30 días</string>
+    <string name="days_45">45 días</string>
+    <string name="days_75">75 días</string>
+
+    <!-- Day detail strings -->
+    <string name="day_x">Día X</string>
+    <string name="mark_completed_habits">Marca los hábitos completados</string>
+    <string name="complete_day">Completar Día</string>
+    <string name="completed">Completado</string>
+    <string name="subtitle">Subtítulo</string>
+
+    <!-- Progress strings -->
+    <string name="excellent_progress">Excelente progreso</string>
+    <string name="days_completed_consecutive">%1$d días completados\nconsecutivamente</string>
+    <string name="progress_format">%1$d/%2$d</string>
+
+    <!-- Create challenge strings -->
+    <string name="new_challenge">Nuevo Desafío</string>
+    <string name="create_custom_routine">Crea tu rutina personalizada</string>
+    <string name="challenge_name">Nombre del desafío</string>
+    <string name="challenge_name_hint">Ej: Mi rutina matutina</string>
+    <string name="duration">Duración</string>
+    <string name="daily_habits">Hábitos diarios (3-5)</string>
+    <string name="habit_1">Hábito 1</string>
+    <string name="habit_2">Hábito 2</string>
+    <string name="habit_3">Hábito 3</string>
+    <string name="add_habit">+ Agregar hábito</string>
+    <string name="add_location_optional">Agregar ubicación (opcional)</string>
+    <string name="challenge_location">Ubicación del desafío</string>
+    <string name="no_location_selected">No hay ubicación seleccionada</string>
+    <string name="get_my_location">Obtener mi ubicación</string>
+    <string name="remove">Eliminar</string>
+    <string name="location_tip">💡 Tip: Te ayudará a recordar dónde realizar tus hábitos</string>
+    <string name="create_challenge">Crear Desafío</string>
+    <string name="cancel">Cancelar</string>
+
+    <!-- Navigation strings -->
+    <string name="settings">Configuración</string>
+
+    <!-- Dialog strings -->
     <string name="change_profile_photo">Cambiar foto de perfil</string>
     <string name="take_photo">Tomar foto</string>
     <string name="select_from_gallery">Seleccionar de galería</string>
     <string name="use_default_image">Usar imagen por defecto</string>
-    <string name="cancel">Cancelar</string>
     <string name="logout_confirmation">¿Estás seguro de que deseas cerrar sesión?</string>
     <string name="uploading_image">Subiendo imagen...</string>
     <string name="profile_photo_updated">Foto de perfil actualizada</string>
@@ -45,8 +122,102 @@
     <string name="notifications_disabled">Notificaciones deshabilitadas</string>
     <string name="language_changed_to">Idioma cambiado a %s</string>
     <string name="already_in_profile">Ya estás en Perfil</string>
-
-    <!-- Agregar estos strings adicionales al archivo existente -->
     <string name="error_navigating_home">Error al navegar a Home: %s</string>
     <string name="error_navigating_today">Error al navegar a Today: %s</string>
+
+    <!-- Today screen strings -->
+    <string name="today_title">Hoy</string>
+    <string name="date_format_today">%1$s, %2$d de %3$s</string>
+    <string name="progress_summary_format">%1$d/%2$d completados</string>
+    <string name="exercise_30_days_day">30 Días de Ejercicio - Día %1$d</string>
+    <string name="daily_reading_day">Lectura Diaria - Día %1$d</string>
+    <string name="exercise_30_min">Ejercicio 30 min</string>
+    <string name="drink_2l_water">Beber 2L de agua</string>
+    <string name="meditate_10_min">Meditar 10 min</string>
+    <string name="read_20_pages">Leer 20 páginas</string>
+    <string name="take_notes">Tomar notas</string>
+    <string name="attached_photo">Foto\nadjunta</string>
+    <string name="great_cardio_comment">¡Gran sesión de cardio hoy!\nMe siento con mucha energía.</string>
+
+    <!-- TodayFragment specific strings -->
+    <string name="challenge_without_name">Desafío sin nombre</string>
+    <string name="no_active_challenges_message">No tienes desafíos activos.\n¡Ve a Home para crear uno!</string>
+    <string name="challenge_day_format">%1$s - Día %2$d</string>
+    <string name="day_already_completed">Este día ya está marcado como completado</string>
+    <string name="add_photo_to_habit">Agregar foto al hábito</string>
+    <string name="add_comment_optional">Agrega un comentario (opcional)</string>
+    <string name="add_comment">Agregar comentario</string>
+    <string name="add_comment_message">Puedes agregar un comentario opcional para esta foto</string>
+    <string name="save">Guardar</string>
+    <string name="photo_saved_successfully">Foto guardada exitosamente</string>
+    <string name="error_getting_image_url">Error al obtener URL de la imagen</string>
+    <string name="error_upload_options_message">No se pudo subir la imagen. ¿Qué deseas hacer?</string>
+    <string name="retry">Reintentar</string>
+    <string name="save_locally">Guardar localmente</string>
+    <string name="comment_saved_without_image">Comentario guardado (sin imagen)</string>
+    <string name="already_in_today">Ya estás en Hoy</string>
+    <string name="error_navigating_profile">Error al navegar a Perfil: %s</string>
+
+    <!-- Error messages -->
+    <string name="error_user_not_authenticated">Usuario no autenticado</string>
+    <string name="error_saving_progress">Error al guardar progreso: %s</string>
+    <string name="error_accessing_camera">Error al acceder a la cámara: %s</string>
+    <string name="error_loading_image">Error al cargar la imagen</string>
+    <string name="error_processing_image">Error al procesar la imagen: %s</string>
+    <string name="error_uploading_image_detailed">Error al subir imagen: %s</string>
+    <string name="error_file_not_found">Archivo no encontrado</string>
+    <string name="error_bucket_not_found">Bucket de almacenamiento no encontrado</string>
+    <string name="error_project_not_found">Proyecto no encontrado</string>
+    <string name="error_quota_exceeded">Cuota de almacenamiento excedida</string>
+    <string name="error_not_authenticated">Usuario no autenticado</string>
+    <string name="error_not_authorized">Sin permisos para subir archivos</string>
+    <string name="error_retry_limit_exceeded">Límite de reintentos excedido</string>
+    <string name="error_invalid_checksum">Checksum inválido</string>
+    <string name="error_operation_canceled">Operación cancelada</string>
+    <string name="error_storage_unknown">Error de almacenamiento: %s</string>
+    <string name="error_unknown">Error desconocido: %s</string>
+
+    <!-- Content descriptions -->
+    <string name="camera_icon">Cámara</string>
+
+    <!-- Days of week -->
+    <string name="friday">Viernes</string>
+    <string name="monday">Lunes</string>
+    <string name="tuesday">Martes</string>
+    <string name="wednesday">Miércoles</string>
+    <string name="thursday">Jueves</string>
+    <string name="saturday">Sábado</string>
+    <string name="sunday">Domingo</string>
+
+    <!-- Months -->
+    <string name="january">Enero</string>
+    <string name="february">Febrero</string>
+    <string name="march">Marzo</string>
+    <string name="april">Abril</string>
+    <string name="may">Mayo</string>
+    <string name="june">Junio</string>
+    <string name="july">Julio</string>
+    <string name="august">Agosto</string>
+    <string name="september">Septiembre</string>
+    <string name="october">Octubre</string>
+    <string name="november">Noviembre</string>
+    <string name="december">Diciembre</string>
+
+    <string name="notification_permissions_needed">Se necesitan permisos para las notificaciones</string>
+    <string name="notification_permissions_title">Permisos de notificación</string>
+    <string name="notification_permissions_message">Para recibir recordatorios, necesitas habilitar las notificaciones en la configuración de la aplicación.</string>
+    <string name="go_to_settings">Ir a configuración</string>
+    <string name="alarm_permissions_title">Permisos de alarma</string>
+    <string name="alarm_permissions_message">Para programar recordatorios precisos, necesitas habilitar los permisos de alarma en la configuración.</string>
+    <string name="default_image_set">Imagen por defecto establecida</string>
+    <string name="permission_denied">Permiso denegado</string>
+    <string name="camera_permission_denied">Permiso de cámara denegado</string>
+    <string name="storage_permission_denied">Permiso de almacenamiento denegado</string>
+    <string name="notification_permissions_denied">Permisos de notificación denegados</string>
+    <string name="user_not_authenticated">Usuario no autenticado</string>
+    <string name="upload_error_options_message">No se pudo subir la imagen. ¿Qué deseas hacer?</string>
+    <string name="use_locally">Usar localmente</string>
+    <string name="image_set_locally">Imagen establecida localmente</string>
+    <string name="reminders_scheduled">Recordatorios programados para %1$d:%2$s</string>
+    <string name="error_scheduling_reminders">Error al programar recordatorios</string>
 </resources>

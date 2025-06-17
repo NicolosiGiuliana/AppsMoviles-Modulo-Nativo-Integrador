@@ -25,7 +25,7 @@
                 android:id="@+id/day_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Día X"
+                android:text="@string/day_x"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#333333" />
@@ -34,7 +34,7 @@
                 android:id="@+id/day_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Subtítulo"
+                android:text="@string/subtitle"
                 android:textSize="14sp"
                 android:textColor="#666666"
                 android:layout_marginTop="2dp" />
@@ -45,7 +45,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_check"
-            android:contentDescription="Completado"
+            android:contentDescription="@string/completed"
             app:tint="#4CAF50"
             android:visibility="gone" />
     </LinearLayout>

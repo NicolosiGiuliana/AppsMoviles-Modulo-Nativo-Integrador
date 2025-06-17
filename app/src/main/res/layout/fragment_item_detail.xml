@@ -61,7 +61,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
-                            android:text="15/15"
+                            android:text="@string/progress_format"
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:textColor="#FFFFFF"
@@ -73,7 +73,7 @@
                         android:id="@+id/progress_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Excelente progreso"
+                        android:text="@string/excellent_progress"
                         android:textSize="22sp"
                         android:textStyle="bold"
                         android:textColor="#FFFFFF"
@@ -83,7 +83,7 @@
                         android:id="@+id/progress_subtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="15 días completados\nconsecutivamente"
+                        android:text="@string/days_completed_consecutive"
                         android:textSize="16sp"
                         android:textColor="#E8F5E8"
                         android:gravity="center"
@@ -130,13 +130,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/add_home"
-                android:contentDescription="Home"
+                android:contentDescription="@string/home"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Home"
+                android:text="@string/home"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -154,13 +154,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_today"
-                android:contentDescription="Hoy"
+                android:contentDescription="@string/today"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hoy"
+                android:text="@string/today"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -178,13 +178,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_settings"
-                android:contentDescription="Configuración"
+                android:contentDescription="@string/settings"
                 app:tint="#BBBBBB" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Configuración"
+                android:text="@string/settings"
                 android:textSize="12sp"
                 android:textColor="#BBBBBB"
                 android:layout_marginTop="4dp" />

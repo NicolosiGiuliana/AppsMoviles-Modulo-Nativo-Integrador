@@ -39,7 +39,7 @@
                     android:id="@+id/welcome_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hola, Usuario"
+                    android:text="@string/hello_user"
                     android:textSize="28sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_dark" />
@@ -47,7 +47,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Construye tu mejor versión"
+                    android:text="@string/build_best_version"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary" />
             </LinearLayout>
@@ -57,7 +57,7 @@
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:backgroundTint="@color/primary_green"
-                android:contentDescription="Añadir desafío"
+                android:contentDescription="@string/add_challenge"
                 app:srcCompat="@android:drawable/ic_input_add"
                 app:tint="@color/white"
                 app:elevation="4dp" />
@@ -69,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/search_background"
-            android:hint="Buscar por #etiquetas..."
+            android:hint="@string/search_tags"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
             android:textSize="14sp"
@@ -115,7 +115,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Día Actual"
+                        android:text="@string/current_day"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="@color/white"
@@ -157,7 +157,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Desafíos Iniciados"
+                    android:text="@string/started_challenges"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_dark"
@@ -182,7 +182,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Desafíos por Defecto"
+                    android:text="@string/default_challenges"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_dark"
@@ -225,13 +225,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/add_home"
-                android:contentDescription="Home"
+                android:contentDescription="@string/home"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Home"
+                android:text="@string/home"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -249,13 +249,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_today"
-                android:contentDescription="Hoy"
+                android:contentDescription="@string/today"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hoy"
+                android:text="@string/today"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -273,13 +273,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_settings"
-                android:contentDescription="Perfil"
+                android:contentDescription="@string/profile"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Perfil"
+                android:text="@string/profile"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />

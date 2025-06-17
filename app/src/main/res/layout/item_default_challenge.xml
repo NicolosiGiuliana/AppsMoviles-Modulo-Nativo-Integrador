@@ -31,7 +31,7 @@
             android:id="@+id/challenge_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fitness"
+            android:text="@string/fitness"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/text_dark"
@@ -43,7 +43,7 @@
             android:id="@+id/challenge_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="30 días"
+            android:text="@string/days_30"
             android:textSize="12sp"
             android:textColor="@color/text_secondary"
             android:gravity="center" />

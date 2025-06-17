@@ -101,7 +101,7 @@ class TodayFragment : Fragment() {
         if (isGranted) {
             abrirCamara()
         } else {
-            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.camera_permission_denied), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -112,7 +112,7 @@ class TodayFragment : Fragment() {
         if (isGranted) {
             abrirGaleria()
         } else {
-            Toast.makeText(context, "Permiso de almacenamiento denegado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.storage_permission_denied), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -160,8 +160,9 @@ class TodayFragment : Fragment() {
     }
 
     private fun configurarFechaActual() {
+        // Usar formateo de fecha simple y compatible con internacionalización
         val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "ES"))
+        val dateFormat = SimpleDateFormat("EEEE, d 'de' MMMM", Locale.getDefault())
         val fechaFormateada = dateFormat.format(calendar.time)
         dateTextView.text = fechaFormateada.replaceFirstChar {
             if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
@@ -171,7 +172,7 @@ class TodayFragment : Fragment() {
     private fun cargarDesafiosDelUsuario() {
         val uid = auth.currentUser?.uid
         if (uid == null) {
-            Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_user_not_authenticated), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -197,7 +198,7 @@ class TodayFragment : Fragment() {
 
                     for (document in documents) {
                         val desafioId = document.id
-                        val nombre = document.getString("nombre") ?: "Desafío sin nombre"
+                        val nombre = document.getString("nombre") ?: getString(R.string.challenge_without_name)
                         val diaActual = document.getLong("diaActual")?.toInt() ?: 1
                         val totalDias = document.getLong("dias")?.toInt() ?: 30
 
@@ -285,7 +286,7 @@ class TodayFragment : Fragment() {
         }
 
         val textoMensaje = TextView(requireContext()).apply {
-            text = "No tienes desafíos activos.\n¡Ve a Home para crear uno!"
+            text = getString(R.string.no_active_challenges_message)
             textSize = 16f
             gravity = android.view.Gravity.CENTER
             setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray))
@@ -294,7 +295,7 @@ class TodayFragment : Fragment() {
         mensajeLayout.addView(textoMensaje)
         activitiesContainer.addView(mensajeLayout)
 
-        progressTextView.text = "0/0 completados"
+        progressTextView.text = getString(R.string.progress_format, 0, 0)
     }
 
     private fun actualizarInterfaz() {
@@ -326,7 +327,7 @@ class TodayFragment : Fragment() {
         }
 
         val tituloDesafio = TextView(requireContext()).apply {
-            text = "${desafio.nombre} - Día ${desafio.diaActual}"
+            text = getString(R.string.challenge_day_format, desafio.nombre, desafio.diaActual)
             textSize = 16f
             setTypeface(null, android.graphics.Typeface.BOLD)
             setTextColor(ContextCompat.getColor(context, android.R.color.black))
@@ -370,7 +371,7 @@ class TodayFragment : Fragment() {
                     if (!diaCompletado) {
                         toggleHabito(desafio, habito, this)
                     } else {
-                        Toast.makeText(context, "Este día ya está marcado como completado", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.day_already_completed), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -387,6 +388,7 @@ class TodayFragment : Fragment() {
             layoutParams = LinearLayout.LayoutParams(32, 32)
             setImageResource(R.drawable.ic_camera)
             setColorFilter(ContextCompat.getColor(context, android.R.color.darker_gray))
+            contentDescription = getString(R.string.camera_icon)
             setOnClickListener {
                 habitoSeleccionadoParaFoto = Pair(desafio.id, habito.nombre)
                 mostrarOpcionesFoto()
@@ -406,17 +408,20 @@ class TodayFragment : Fragment() {
         return habitoLayout
     }
 
-    // NUEVA FUNCIÓN: Mostrar diálogo de opciones de foto mejorado
     private fun mostrarOpcionesFoto() {
-        val opciones = arrayOf("Tomar foto", "Seleccionar de galería", "Cancelar")
+        val opciones = arrayOf(
+            getString(R.string.take_photo),
+            getString(R.string.select_from_gallery),
+            getString(R.string.cancel)
+        )
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Agregar foto al hábito")
+            .setTitle(getString(R.string.add_photo_to_habit))
             .setItems(opciones) { dialog, which ->
                 when (which) {
-                    0 -> verificarPermisosCamara() // Tomar foto
-                    1 -> verificarPermisosGaleria() // Seleccionar de galería
-                    2 -> dialog.dismiss() // Cancelar
+                    0 -> verificarPermisosCamara()
+                    1 -> verificarPermisosGaleria()
+                    2 -> dialog.dismiss()
                 }
             }
             .show()
@@ -456,7 +461,7 @@ class TodayFragment : Fragment() {
             }
 
             val textoFoto = TextView(requireContext()).apply {
-                text = "Foto\nadjunta"
+                text = getString(R.string.attached_photo)
                 textSize = 12f
                 setTextColor(ContextCompat.getColor(context, android.R.color.white))
                 gravity = android.view.Gravity.CENTER
@@ -524,7 +529,7 @@ class TodayFragment : Fragment() {
             .document("dia_${desafio.diaActual}")
             .update("habitos", habitosData)
             .addOnFailureListener { e ->
-                Toast.makeText(context, "Error al guardar progreso: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_saving_progress, e.message), Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -534,10 +539,8 @@ class TodayFragment : Fragment() {
             desafio.habitos.count { it.completado }
         }
 
-        progressTextView.text = "$habitosCompletados/$totalHabitos completados"
+        progressTextView.text = getString(R.string.progress_format, habitosCompletados, totalHabitos)
     }
-
-    // FUNCIONES MEJORADAS DE MANEJO DE IMÁGENES (del ProfileFragment)
 
     private fun verificarPermisosCamara() {
         when {
@@ -571,13 +574,12 @@ class TodayFragment : Fragment() {
     }
 
     private fun abrirCamara() {
-        // Usar el mismo enfoque que ProfileFragment - más directo
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         try {
             takePictureLauncher.launch(takePictureIntent)
         } catch (e: Exception) {
             Log.e(TAG, "Error al abrir cámara: ${e.message}")
-            Toast.makeText(context, "Error al acceder a la cámara: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_accessing_camera, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -587,7 +589,6 @@ class TodayFragment : Fragment() {
         pickImageLauncher.launch(intent)
     }
 
-    // NUEVA FUNCIÓN: Manejar imagen seleccionada de galería
     private fun handleSelectedImage(uri: Uri) {
         try {
             val inputStream = requireContext().contentResolver.openInputStream(uri)
@@ -598,18 +599,17 @@ class TodayFragment : Fragment() {
                 val resizedBitmap = resizeBitmap(bitmap, MAX_IMAGE_SIZE)
                 mostrarDialogoComentario(resizedBitmap)
             } else {
-                Toast.makeText(requireContext(), "Error al cargar la imagen", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.error_loading_image), Toast.LENGTH_SHORT).show()
             }
         } catch (e: FileNotFoundException) {
             Log.e(TAG, "Error al cargar imagen desde galería", e)
-            Toast.makeText(requireContext(), "Error al cargar la imagen", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.error_loading_image), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Log.e(TAG, "Error inesperado al procesar imagen", e)
-            Toast.makeText(requireContext(), "Error al procesar la imagen: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.error_processing_image, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 
-    // NUEVA FUNCIÓN: Redimensionar imagen (del ProfileFragment)
     private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
@@ -637,24 +637,23 @@ class TodayFragment : Fragment() {
 
     private fun mostrarDialogoComentario(bitmap: Bitmap) {
         val editText = EditText(requireContext()).apply {
-            hint = "Agrega un comentario (opcional)"
+            hint = getString(R.string.add_comment_optional)
             maxLines = 3
             setPadding(32, 32, 32, 32)
         }
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Agregar comentario")
-            .setMessage("Puedes agregar un comentario opcional para esta foto")
+            .setTitle(getString(R.string.add_comment))
+            .setMessage(getString(R.string.add_comment_message))
             .setView(editText)
-            .setPositiveButton("Guardar") { _, _ ->
+            .setPositiveButton(getString(R.string.save)) { _, _ ->
                 val comentario = editText.text.toString().trim()
                 subirFotoYGuardarComentario(bitmap, comentario)
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
-    // FUNCIÓN MEJORADA: Subir foto con mejor manejo de errores
     private fun subirFotoYGuardarComentario(bitmap: Bitmap, comentario: String) {
         val habitoInfo = habitoSeleccionadoParaFoto ?: return
         val (desafioId, habitoNombre) = habitoInfo
@@ -663,8 +662,7 @@ class TodayFragment : Fragment() {
 
         Log.d(TAG, "Iniciando subida de imagen para hábito: $habitoNombre")
 
-        // Mostrar indicador de carga
-        Toast.makeText(requireContext(), "Subiendo imagen...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.uploading_image), Toast.LENGTH_SHORT).show()
 
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, baos)
@@ -676,7 +674,6 @@ class TodayFragment : Fragment() {
         val storageRef = storage.reference
             .child("usuarios/$uid/fotos_habitos/${desafioId}_${habitoNombre}_$timestamp.jpg")
 
-        // Agregar metadata
         val metadata = com.google.firebase.storage.StorageMetadata.Builder()
             .setContentType("image/jpeg")
             .build()
@@ -690,10 +687,10 @@ class TodayFragment : Fragment() {
                 Log.d(TAG, "Imagen subida exitosamente")
                 storageRef.downloadUrl.addOnSuccessListener { uri ->
                     actualizarHabitoConFotoYComentario(desafioId, habitoNombre, uri.toString(), comentario)
-                    Toast.makeText(requireContext(), "Foto guardada exitosamente", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.photo_saved_successfully), Toast.LENGTH_SHORT).show()
                 }.addOnFailureListener { e ->
                     Log.e(TAG, "Error al obtener URL de descarga", e)
-                    Toast.makeText(requireContext(), "Error al obtener URL de la imagen", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.error_getting_image_url), Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { exception ->
@@ -702,46 +699,43 @@ class TodayFragment : Fragment() {
                 val errorMessage = when (exception) {
                     is StorageException -> {
                         when (exception.errorCode) {
-                            StorageException.ERROR_OBJECT_NOT_FOUND -> "Archivo no encontrado"
-                            StorageException.ERROR_BUCKET_NOT_FOUND -> "Bucket de almacenamiento no encontrado"
-                            StorageException.ERROR_PROJECT_NOT_FOUND -> "Proyecto no encontrado"
-                            StorageException.ERROR_QUOTA_EXCEEDED -> "Cuota de almacenamiento excedida"
-                            StorageException.ERROR_NOT_AUTHENTICATED -> "Usuario no autenticado"
-                            StorageException.ERROR_NOT_AUTHORIZED -> "Sin permisos para subir archivos"
-                            StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> "Límite de reintentos excedido"
-                            StorageException.ERROR_INVALID_CHECKSUM -> "Checksum inválido"
-                            StorageException.ERROR_CANCELED -> "Operación cancelada"
-                            else -> "Error de almacenamiento: ${exception.message}"
+                            StorageException.ERROR_OBJECT_NOT_FOUND -> getString(R.string.error_file_not_found)
+                            StorageException.ERROR_BUCKET_NOT_FOUND -> getString(R.string.error_bucket_not_found)
+                            StorageException.ERROR_PROJECT_NOT_FOUND -> getString(R.string.error_project_not_found)
+                            StorageException.ERROR_QUOTA_EXCEEDED -> getString(R.string.error_quota_exceeded)
+                            StorageException.ERROR_NOT_AUTHENTICATED -> getString(R.string.error_not_authenticated)
+                            StorageException.ERROR_NOT_AUTHORIZED -> getString(R.string.error_not_authorized)
+                            StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> getString(R.string.error_retry_limit_exceeded)
+                            StorageException.ERROR_INVALID_CHECKSUM -> getString(R.string.error_invalid_checksum)
+                            StorageException.ERROR_CANCELED -> getString(R.string.error_operation_canceled)
+                            else -> getString(R.string.error_storage_unknown, exception.message)
                         }
                     }
-                    else -> "Error desconocido: ${exception.message}"
+                    else -> getString(R.string.error_unknown, exception.message)
                 }
 
-                Toast.makeText(requireContext(), "Error al subir imagen: $errorMessage", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.error_uploading_image_detailed, errorMessage), Toast.LENGTH_LONG).show()
 
-                // Mostrar diálogo con opciones
                 mostrarDialogoErrorSubida(bitmap, comentario)
             }
     }
 
-    // NUEVA FUNCIÓN: Diálogo de error con opciones
     private fun mostrarDialogoErrorSubida(bitmap: Bitmap, comentario: String) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Error al subir imagen")
-            .setMessage("No se pudo subir la imagen. ¿Qué deseas hacer?")
-            .setPositiveButton("Reintentar") { _, _ ->
+            .setTitle(getString(R.string.error_uploading_image))
+            .setMessage(getString(R.string.error_upload_options_message))
+            .setPositiveButton(getString(R.string.retry)) { _, _ ->
                 subirFotoYGuardarComentario(bitmap, comentario)
             }
-            .setNegativeButton("Guardar localmente") { _, _ ->
-                // Guardar solo el comentario sin la imagen
+            .setNegativeButton(getString(R.string.save_locally)) { _, _ ->
                 val habitoInfo = habitoSeleccionadoParaFoto ?: return@setNegativeButton
                 val (desafioId, habitoNombre) = habitoInfo
                 if (comentario.isNotEmpty()) {
                     actualizarHabitoConFotoYComentario(desafioId, habitoNombre, null, comentario)
-                    Toast.makeText(requireContext(), "Comentario guardado (sin imagen)", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.comment_saved_without_image), Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNeutralButton("Cancelar", null)
+            .setNeutralButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -749,7 +743,6 @@ class TodayFragment : Fragment() {
         val desafio = desafiosActivos.find { it.id == desafioId } ?: return
         val habito = desafio.habitos.find { it.nombre == habitoNombre } ?: return
 
-        // Actualizar los datos del hábito
         if (fotoUrl != null) {
             habito.fotoUrl = fotoUrl
         }
@@ -757,7 +750,6 @@ class TodayFragment : Fragment() {
             habito.comentario = comentario
         }
 
-        // Guardar en Firestore
         guardarProgresoHabito(desafio, habito)
 
         Log.d(TAG, "Hábito actualizado: $habitoNombre con foto: ${fotoUrl != null}, comentario: ${comentario.isNotEmpty()}")
@@ -771,13 +763,13 @@ class TodayFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.itemListFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, "Error al navegar a Home", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_navigating_home), Toast.LENGTH_SHORT).show()
             }
         }
 
         val todayLayout = bottomNav.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
-            Toast.makeText(context, "Ya estás en Hoy", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.already_in_today), Toast.LENGTH_SHORT).show()
         }
 
         val profileLayout = bottomNav.getChildAt(2) as? LinearLayout
@@ -785,7 +777,7 @@ class TodayFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.profileFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, "Error al navegar a Perfil", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_navigating_profile), Toast.LENGTH_SHORT).show()
             }
         }
 

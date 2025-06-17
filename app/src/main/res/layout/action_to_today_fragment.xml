@@ -32,7 +32,7 @@
                     android:id="@+id/title_today"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hoy"
+                    android:text="@string/today_title"
                     android:textSize="32sp"
                     android:textStyle="bold"
                     android:textColor="#333333"
@@ -42,7 +42,7 @@
                     android:id="@+id/date_today"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Viernes, 6 de Junio"
+                    android:text="@string/date_format_today"
                     android:textSize="16sp"
                     android:textColor="#888888"
                     android:layout_marginBottom="8dp" />
@@ -51,7 +51,7 @@
                     android:id="@+id/progress_summary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3/5 completados"
+                    android:text="@string/progress_summary_format"
                     android:textSize="16sp"
                     android:textColor="#4CAF50"
                     android:textStyle="bold" />
@@ -83,7 +83,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="30 Días de Ejercicio - Día 18"
+                            android:text="@string/exercise_30_days_day"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#333333"
@@ -108,7 +108,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Ejercicio 30 min"
+                                android:text="@string/exercise_30_min"
                                 android:textSize="14sp"
                                 android:textColor="#333333" />
 
@@ -116,6 +116,7 @@
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_camera"
+                                android:contentDescription="@string/camera_icon"
                                 app:tint="#CCCCCC" />
 
                         </LinearLayout>
@@ -133,7 +134,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Foto\nadjunta"
+                                android:text="@string/attached_photo"
                                 android:textSize="12sp"
                                 android:textColor="#999999"
                                 android:gravity="center"
@@ -152,7 +153,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="¡Gran sesión de cardio hoy!\nMe siento con mucha energía."
+                                android:text="@string/great_cardio_comment"
                                 android:textSize="12sp"
                                 android:textColor="#555555"
                                 android:lineSpacingMultiplier="1.3" />
@@ -183,7 +184,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Beber 2L de agua"
+                        android:text="@string/drink_2l_water"
                         android:textSize="14sp"
                         android:textColor="#333333" />
 
@@ -191,6 +192,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_camera"
+                        android:contentDescription="@string/camera_icon"
                         app:tint="#CCCCCC" />
 
                 </LinearLayout>
@@ -215,7 +217,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Meditar 10 min"
+                        android:text="@string/meditate_10_min"
                         android:textSize="14sp"
                         android:textColor="#333333" />
 
@@ -223,6 +225,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_camera"
+                        android:contentDescription="@string/camera_icon"
                         app:tint="#CCCCCC" />
 
                 </LinearLayout>
@@ -245,7 +248,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Lectura Diaria - Día 12"
+                            android:text="@string/daily_reading_day"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#333333"
@@ -270,7 +273,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Leer 20 páginas"
+                                android:text="@string/read_20_pages"
                                 android:textSize="14sp"
                                 android:textColor="#333333" />
 
@@ -278,6 +281,7 @@
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_camera"
+                                android:contentDescription="@string/camera_icon"
                                 app:tint="#CCCCCC" />
 
                         </LinearLayout>
@@ -300,7 +304,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Tomar notas"
+                                android:text="@string/take_notes"
                                 android:textSize="14sp"
                                 android:textColor="#333333" />
 
@@ -308,6 +312,7 @@
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_camera"
+                                android:contentDescription="@string/camera_icon"
                                 app:tint="#CCCCCC" />
 
                         </LinearLayout>
@@ -345,13 +350,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/add_home"
-                android:contentDescription="Home"
+                android:contentDescription="@string/home"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Home"
+                android:text="@string/home"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -369,13 +374,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_today"
-                android:contentDescription="Hoy"
+                android:contentDescription="@string/today"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hoy"
+                android:text="@string/today"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />
@@ -393,13 +398,13 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_settings"
-                android:contentDescription="Perfil"
+                android:contentDescription="@string/profile"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Perfil"
+                android:text="@string/profile"
                 android:textSize="12sp"
                 android:textColor="#333333"
                 android:layout_marginTop="4dp" />

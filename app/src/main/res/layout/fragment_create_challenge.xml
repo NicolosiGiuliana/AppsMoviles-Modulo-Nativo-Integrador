@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nuevo Desafío"
+            android:text="@string/new_challenge"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -24,7 +24,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Crea tu rutina personalizada"
+            android:text="@string/create_custom_routine"
             android:textSize="14sp"
             android:textColor="#999999"
             android:layout_marginBottom="24dp" />
@@ -33,7 +33,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nombre del desafío"
+            android:text="@string/challenge_name"
             android:textSize="16sp"
             android:textColor="#333333"
             android:textStyle="bold"
@@ -43,7 +43,7 @@
             android:id="@+id/inputChallengeName"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:hint="Ej: Mi rutina matutina"
+            android:hint="@string/challenge_name_hint"
             android:inputType="textCapWords"
             android:background="@drawable/edittext_background"
             android:padding="12dp"
@@ -54,7 +54,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Duración"
+            android:text="@string/duration"
             android:textSize="16sp"
             android:textColor="#333333"
             android:textStyle="bold"
@@ -71,7 +71,7 @@
                 android:id="@+id/option30Days"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="30 días"
+                android:text="@string/days_30"
                 android:textSize="14sp"
                 android:textColor="#4CAF50"
                 android:background="@drawable/duration_selected_background"
@@ -86,7 +86,7 @@
                 android:id="@+id/option45Days"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="45 días"
+                android:text="@string/days_45"
                 android:textSize="14sp"
                 android:textColor="#999999"
                 android:background="@drawable/duration_unselected_background"
@@ -101,7 +101,7 @@
                 android:id="@+id/option75Days"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="75 días"
+                android:text="@string/days_75"
                 android:textSize="14sp"
                 android:textColor="#999999"
                 android:background="@drawable/duration_unselected_background"
@@ -117,7 +117,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hábitos diarios (3-5)"
+            android:text="@string/daily_habits"
             android:textSize="16sp"
             android:textColor="#333333"
             android:textStyle="bold"
@@ -135,7 +135,7 @@
                 android:id="@+id/inputHabit1"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:hint="Hábito 1"
+                android:hint="@string/habit_1"
                 android:inputType="textCapWords"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
@@ -147,7 +147,7 @@
                 android:id="@+id/inputHabit2"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:hint="Hábito 2"
+                android:hint="@string/habit_2"
                 android:inputType="textCapWords"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
@@ -159,7 +159,7 @@
                 android:id="@+id/inputHabit3"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:hint="Hábito 3"
+                android:hint="@string/habit_3"
                 android:inputType="textCapWords"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
@@ -171,7 +171,7 @@
                 android:id="@+id/buttonAddHabit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+ Agregar hábito"
+                android:text="@string/add_habit"
                 android:textSize="14sp"
                 android:textColor="#4CAF50"
                 android:layout_gravity="center"
@@ -179,13 +179,14 @@
                 android:layout_marginBottom="24dp" />
 
         </LinearLayout>
+
         <!-- Sección de Ubicación Opcional -->
         <CheckBox
             android:id="@+id/checkboxUbicacionOpcional"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_medium"
-            android:text="Agregar ubicación (opcional)"
+            android:text="@string/add_location_optional"
             android:textColor="@color/text_primary"
             android:textSize="16sp" />
 
@@ -202,7 +203,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ubicación del desafío"
+                android:text="@string/challenge_location"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -215,7 +216,7 @@
                 android:layout_marginBottom="@dimen/margin_small"
                 android:background="@drawable/edittext_background"
                 android:padding="@dimen/padding_medium"
-                android:text="No hay ubicación seleccionada"
+                android:text="@string/no_location_selected"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:visibility="gone" />
@@ -232,7 +233,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="@dimen/margin_small"
                     android:background="@drawable/button_secondary_background"
-                    android:text="Obtener mi ubicación"
+                    android:text="@string/get_my_location"
                     android:textColor="@color/green_primary"
                     android:textSize="14sp" />
 
@@ -241,7 +242,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_secondary_background"
-                    android:text="Eliminar"
+                    android:text="@string/remove"
                     android:textColor="@color/primary_green"
                     android:textSize="14sp"
                     android:visibility="gone"
@@ -253,7 +254,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_small"
-                android:text="💡 Tip: Te ayudará a recordar dónde realizar tus hábitos"
+                android:text="@string/location_tip"
                 android:textColor="@color/text_hint_ubi"
                 android:textSize="12sp" />
 
@@ -264,7 +265,7 @@
             android:id="@+id/buttonCreateChallenge"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Crear Desafío"
+            android:text="@string/create_challenge"
             android:backgroundTint="#4CAF50"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
@@ -276,7 +277,7 @@
             android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancelar"
+            android:text="@string/cancel"
             android:textSize="16sp"
             android:textColor="#666666"
             android:layout_gravity="center"

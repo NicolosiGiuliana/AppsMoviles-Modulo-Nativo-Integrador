@@ -25,7 +25,7 @@
                 android:id="@+id/day_detail_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Día X"
+                android:text="@string/day_x"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_dark"
@@ -35,7 +35,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Marca los hábitos completados"
+                android:text="@string/mark_completed_habits"
                 android:textSize="16sp"
                 android:textColor="@color/text_secondary"
                 android:layout_marginBottom="24dp" />
@@ -47,7 +47,7 @@
                 android:id="@+id/complete_day_button"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Completar Día"
+                android:text="@string/complete_day"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
@@ -84,13 +84,13 @@
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:src="@drawable/add_home"
-                android:contentDescription="Home"
+                android:contentDescription="@string/home"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Home"
+                android:text="@string/home"
                 android:textSize="13sp"
                 android:textColor="#333333"
                 android:textStyle="bold"
@@ -111,13 +111,13 @@
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:src="@drawable/ic_today"
-                android:contentDescription="Hoy"
+                android:contentDescription="@string/today"
                 app:tint="#333333" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hoy"
+                android:text="@string/today"
                 android:textSize="13sp"
                 android:textColor="#333333"
                 android:textStyle="bold"
@@ -137,13 +137,13 @@
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:src="@drawable/ic_settings"
-                android:contentDescription="Configuración"
+                android:contentDescription="@string/settings"
                 app:tint="#999999" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Configuración"
+                android:text="@string/settings"
                 android:textSize="13sp"
                 android:textColor="#999999"
                 android:layout_marginTop="6dp" />

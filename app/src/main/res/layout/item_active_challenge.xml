@@ -29,7 +29,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="30 Días de Ejercicio"
+                android:text="@string/exercise_30_days"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_dark" />
@@ -42,7 +42,7 @@
                 android:src="@drawable/ic_more_vert"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:padding="4dp"
-                android:contentDescription="Opciones"
+                android:contentDescription="@string/options"
                 android:clickable="true"
                 android:focusable="true" />
         </LinearLayout>
@@ -71,7 +71,7 @@
                 android:id="@+id/progress_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Día 18 de 30"
+                android:text="DÃ­a 18 de 30"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary" />
         </LinearLayout>

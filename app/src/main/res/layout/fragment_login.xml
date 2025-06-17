@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
-    <!--    tools:context=".LoginActivity"-->
 
     <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:letterSpacing="-0.02"
-            android:text="Desafío+"
+            android:text="@string/app_name"
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -54,8 +53,6 @@
             android:paddingBottom="24dp">
 
             <!-- Logo Icon -->
-
-            <!-- Welcome Title -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/logoIcon"
                 android:layout_width="60dp"
@@ -71,6 +68,7 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Welcome Title -->
             <TextView
                 android:id="@+id/welcomeTitle"
                 android:layout_width="wrap_content"
@@ -78,7 +76,7 @@
                 android:layout_marginTop="15dp"
                 android:fontFamily="sans-serif-light"
                 android:letterSpacing="-0.02"
-                android:text="Bienvenido"
+                android:text="@string/welcome"
                 android:textColor="@color/text_primary"
                 android:textSize="28sp"
                 android:textStyle="normal"
@@ -93,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:fontFamily="sans-serif-light"
-                android:text="Transforma tus días en logros"
+                android:text="@string/subtitle_login"
                 android:textColor="@color/text_secondary"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -106,7 +104,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:text="NOMBRE COMPLETO"
+                android:text="@string/full_name"
                 android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -134,7 +132,7 @@
                     android:id="@+id/usernameInput"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:hint="Ingrese su nombre completo"
+                    android:hint="@string/enter_full_name"
                     android:inputType="textPersonName"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="10dp"
@@ -150,7 +148,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="FECHA DE NACIMIENTO"
+                android:text="@string/birth_date"
                 android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -182,7 +180,7 @@
                     android:layout_height="50dp"
                     android:clickable="true"
                     android:focusable="false"
-                    android:hint="DD/MM/AAAA"
+                    android:hint="@string/birth_date_format"
                     android:inputType="date"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="10dp"
@@ -198,7 +196,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="OBJETIVO"
+                android:text="@string/objective"
                 android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -230,7 +228,7 @@
                     android:layout_height="50dp"
                     android:clickable="true"
                     android:focusable="false"
-                    android:hint="Seleccione su objetivo"
+                    android:hint="@string/select_objective"
                     android:inputType="none"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="10dp"
@@ -246,7 +244,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="CORREO ELECTRÓNICO"
+                android:text="@string/email"
                 android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -274,7 +272,7 @@
                     android:id="@+id/emailInput"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:hint="Ingrese su correo electrónico"
+                    android:hint="@string/enter_email"
                     android:inputType="textEmailAddress"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="10dp"
@@ -290,7 +288,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="CONTRASEÑA"
+                android:text="@string/password"
                 android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -319,7 +317,7 @@
                     android:id="@+id/passwordInput"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:hint="Ingrese su contraseña"
+                    android:hint="@string/enter_password"
                     android:inputType="textPassword"
                     android:paddingHorizontal="14dp"
                     android:paddingTop="10dp"
@@ -334,7 +332,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="CONFIRMAR CONTRASEÑA"
+                android:text="@string/confirm_password"
                 android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -365,7 +363,7 @@
                     android:id="@+id/confirmPasswordInput"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:hint="Confirme su contraseña"
+                    android:hint="@string/confirm_password_hint"
                     android:inputType="textPassword"
                     android:longClickable="false"
                     android:paddingHorizontal="14dp"
@@ -377,9 +375,6 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Continue Button -->
-
-            <!-- Botón para cambiar modo -->
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/actionButton"
                 style="@style/Widget.MaterialComponents.Button"
@@ -388,7 +383,7 @@
                 android:layout_marginTop="26dp"
                 android:backgroundTint="@color/primary_green"
                 android:letterSpacing="-0.01"
-                android:text="Iniciar Sesión"
+                android:text="@string/login"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -399,28 +394,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/confirmPasswordInputLayout" />
 
+            <!-- Toggle Mode Button -->
             <Button
                 android:id="@+id/toggleModeButton"
                 android:layout_width="340dp"
                 android:layout_height="43dp"
                 android:layout_marginTop="8dp"
                 android:background="@android:color/transparent"
-                android:text="¿No tenes cuenta? Regístrate"
+                android:text="@string/no_account"
                 android:textColor="@color/primary_green"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/actionButton" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:drawableTop="@mipmap/ic_launcher"
-                android:gravity="center"
-                android:paddingBottom="15dp"
-                tools:layout_editor_absoluteX="234dp"
-                tools:layout_editor_absoluteY="64dp" />
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
