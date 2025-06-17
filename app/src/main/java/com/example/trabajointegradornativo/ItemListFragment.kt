@@ -187,7 +187,9 @@ class ItemListFragment : Fragment() {
         val id: String = "",
         val diaActual: Int = 0,
         val completados: Int = 0,
-        val totalHabitos: Int = 5
+        val totalHabitos: Int = 5,
+        val etiquetas: List<String> = emptyList(),  // AGREGAR
+        val visibilidad: String = "privado"         // AGREGAR
     ) : Parcelable
 
     data class DefaultChallenge(
@@ -215,7 +217,9 @@ class ItemListFragment : Fragment() {
                         id = doc.id,
                         diaActual = doc.getLong("diaActual")?.toInt() ?: 1,
                         completados = doc.getLong("completados")?.toInt() ?: 0,
-                        totalHabitos = doc.getLong("totalHabitos")?.toInt() ?: 5
+                        totalHabitos = doc.getLong("totalHabitos")?.toInt() ?: 5,
+                        etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),  // AGREGAR
+                        visibilidad = doc.getString("visibilidad") ?: "privado"            // AGREGAR
                     )
                 })
                 filteredActiveChallenges.clear()
@@ -234,6 +238,26 @@ class ItemListFragment : Fragment() {
             val currentChallenge = activeChallenges.first()
             binding.currentProgress?.text = getString(R.string.completed_format, currentChallenge.completados, currentChallenge.totalHabitos)
         }
+    }
+
+    inner class TagsAdapter(private val tags: List<String>) :
+        RecyclerView.Adapter<TagsAdapter.TagViewHolder>() {
+
+        inner class TagViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val tagText: TextView = view.findViewById(R.id.tag_text)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TagViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_tag, parent, false)
+            return TagViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: TagViewHolder, position: Int) {
+            holder.tagText.text = "#${tags[position]}"
+        }
+
+        override fun getItemCount() = tags.size
     }
 
     private fun cargarDesafiosPorDefecto() {
@@ -256,6 +280,8 @@ class ItemListFragment : Fragment() {
             val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
             val progressText: TextView = view.findViewById(R.id.progress_text)
             val menuButton: ImageView = view.findViewById(R.id.menu_button)
+            val visibilityTag: TextView = view.findViewById(R.id.visibility_tag)  // AGREGAR
+            val tagsRecycler: RecyclerView = view.findViewById(R.id.tags_recycler) // AGREGAR
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -271,6 +297,13 @@ class ItemListFragment : Fragment() {
             val progress = ((challenge.diaActual.toFloat() / challenge.dias.toFloat()) * 100).toInt()
             holder.progressBar.progress = progress
             holder.progressText.text = getString(R.string.day_format, challenge.diaActual, challenge.dias)
+
+            holder.visibilityTag.text = if (challenge.visibilidad == "publico") "Público" else "Privado"
+
+// Configurar etiquetas
+            val tagsLayoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
+            holder.tagsRecycler.layoutManager = tagsLayoutManager
+            holder.tagsRecycler.adapter = TagsAdapter(challenge.etiquetas)
 
             holder.itemView.setOnClickListener {
                 val bundle = Bundle().apply {

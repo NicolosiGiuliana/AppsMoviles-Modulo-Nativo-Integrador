@@ -266,6 +266,20 @@
     <string name="hydration_objective">Hidratación</string>
     <string name="other_objective">Otro</string>
 
+    <!-- Para etiquetas -->
+    <string name="tags">Etiquetas</string>
+    <string name="tags_description">Agrega etiquetas para categorizar tu desafío</string>
+    <string name="add_tag_hint">Escribir etiqueta...</string>
+    <string name="add">Agregar</string>
+
+    <!-- Para visibilidad -->
+    <string name="challenge_visibility">Visibilidad del desafío</string>
+    <string name="visibility_description">Elige quién puede ver tu desafío</string>
+    <string name="public_challenge">Público</string>
+    <string name="public_description">Otros usuarios podrán ver y unirse a tu desafío</string>
+    <string name="private_challenge">Privado</string>
+    <string name="private_description">Solo tú podrás ver este desafío</string>
+
     <!-- Challenge data -->
     <string name="initial_fitness_challenge">Reto de Fitness Inicial</string>
     <string name="fitness_challenge_description">Comienza tu camino hacia una mejor forma física.</string>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Color de fondo transparente o sólido -->
+    <solid android:color="@android:color/transparent" />
+
+    <!-- Borde/contorno -->
+    <stroke
+        android:width="2dp"
+        android:color="@color/primary_green" />
+
+    <!-- Esquinas redondeadas para efecto de etiqueta -->
+    <corners android:radius="16dp" />
+
+    <!-- Padding interno -->
+    <padding
+        android:left="12dp"
+        android:top="6dp"
+        android:right="12dp"
+        android:bottom="6dp" />
+
+</shape>

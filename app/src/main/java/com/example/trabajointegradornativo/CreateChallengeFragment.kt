@@ -33,12 +33,22 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     private lateinit var option45Days: TextView
     private lateinit var option75Days: TextView
 
-    // Ubicación - NUEVOS ELEMENTOS
+    // Ubicación
     private lateinit var layoutSelectLocation: LinearLayout
     private lateinit var textUbicacionSeleccionada: TextView
     private lateinit var buttonObtenerUbicacion: Button
     private lateinit var buttonEliminarUbicacion: Button
     private lateinit var checkboxUbicacionOpcional: CheckBox
+
+    // NUEVOS ELEMENTOS - Etiquetas
+    private lateinit var inputNewTag: EditText
+    private lateinit var buttonAddTag: Button
+    private lateinit var tagsContainer: LinearLayout
+
+    // NUEVOS ELEMENTOS - Visibilidad
+    private lateinit var radioGroupVisibility: RadioGroup
+    private lateinit var radioPublic: RadioButton
+    private lateinit var radioPrivate: RadioButton
 
     // Variables para almacenar datos
     private var duracionSeleccionada = 30 // Por defecto 30 días
@@ -46,6 +56,10 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     private var ubicacionSeleccionada: String? = null
     private var latitudSeleccionada: Double? = null
     private var longitudSeleccionada: Double? = null
+
+    // NUEVAS VARIABLES - Etiquetas y visibilidad
+    private val etiquetasAgregadas = mutableListOf<String>()
+    private var esPublico = true // Por defecto público
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -103,12 +117,22 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         option45Days = view.findViewById(R.id.option45Days)
         option75Days = view.findViewById(R.id.option75Days)
 
-        // Ubicación - NUEVOS ELEMENTOS
+        // Ubicación
         layoutSelectLocation = view.findViewById(R.id.layoutSelectLocation)
         textUbicacionSeleccionada = view.findViewById(R.id.textUbicacionSeleccionada)
         buttonObtenerUbicacion = view.findViewById(R.id.buttonObtenerUbicacion)
         buttonEliminarUbicacion = view.findViewById(R.id.buttonEliminarUbicacion)
         checkboxUbicacionOpcional = view.findViewById(R.id.checkboxUbicacionOpcional)
+
+        // NUEVAS INICIALIZACIONES - Etiquetas
+        inputNewTag = view.findViewById(R.id.inputNewTag)
+        buttonAddTag = view.findViewById(R.id.buttonAddTag)
+        tagsContainer = view.findViewById(R.id.tagsContainer)
+
+        // NUEVAS INICIALIZACIONES - Visibilidad
+        radioGroupVisibility = view.findViewById(R.id.radioGroupVisibility)
+        radioPublic = view.findViewById(R.id.radioPublic)
+        radioPrivate = view.findViewById(R.id.radioPrivate)
 
         // Establecer 30 días como seleccionado por defecto
         seleccionarDuracion(option30Days, 30)
@@ -126,7 +150,19 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         // Agregar hábito
         agregarHabitoButton.setOnClickListener { agregarNuevoHabito() }
 
-        // Eventos de ubicación - NUEVOS
+        // NUEVOS EVENTOS - Etiquetas
+        buttonAddTag.setOnClickListener { agregarEtiqueta() }
+        inputNewTag.setOnEditorActionListener { _, _, _ ->
+            agregarEtiqueta()
+            true
+        }
+
+        // NUEVOS EVENTOS - Visibilidad
+        radioGroupVisibility.setOnCheckedChangeListener { _, checkedId ->
+            esPublico = checkedId == R.id.radioPublic
+        }
+
+        // Eventos de ubicación
         checkboxUbicacionOpcional.setOnCheckedChangeListener { _, isChecked ->
             layoutSelectLocation.visibility = if (isChecked) View.VISIBLE else View.GONE
             if (!isChecked) {
@@ -140,6 +176,81 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         // Botones principales
         crearButton.setOnClickListener { guardarDesafio() }
         cancelarButton.setOnClickListener { cancelarCreacion() }
+    }
+
+    // NUEVOS MÉTODOS - Gestión de etiquetas
+    private fun agregarEtiqueta() {
+        val nuevaEtiqueta = inputNewTag.text.toString().trim()
+
+        when {
+            nuevaEtiqueta.isEmpty() -> {
+                Toast.makeText(context, "Escribe una etiqueta", Toast.LENGTH_SHORT).show()
+                return
+            }
+            nuevaEtiqueta.length > 20 -> {
+                Toast.makeText(context, "La etiqueta no puede superar 20 caracteres", Toast.LENGTH_SHORT).show()
+                return
+            }
+            etiquetasAgregadas.contains(nuevaEtiqueta.lowercase()) -> {
+                Toast.makeText(context, "Esta etiqueta ya fue agregada", Toast.LENGTH_SHORT).show()
+                return
+            }
+            etiquetasAgregadas.size >= 10 -> {
+                Toast.makeText(context, "No puedes agregar más de 10 etiquetas", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+
+        etiquetasAgregadas.add(nuevaEtiqueta)
+        crearVistaEtiqueta(nuevaEtiqueta)
+        inputNewTag.text.clear()
+    }
+
+    private fun crearVistaEtiqueta(etiqueta: String) {
+        val etiquetaView = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setBackgroundResource(R.drawable.duration_selected_background)
+            setPadding(24, 16, 16, 16)
+
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = 16
+                bottomMargin = 8
+            }
+        }
+
+        val textoEtiqueta = TextView(requireContext()).apply {
+            text = etiqueta
+            textSize = 14f
+            setTextColor(resources.getColor(R.color.green_primary, null))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = 8
+            }
+        }
+
+        val botonEliminar = TextView(requireContext()).apply {
+            text = "×"
+            textSize = 16f
+            setTextColor(resources.getColor(R.color.green_primary, null))
+            setPadding(8, 0, 0, 0)
+            setOnClickListener {
+                eliminarEtiqueta(etiqueta, etiquetaView)
+            }
+        }
+
+        etiquetaView.addView(textoEtiqueta)
+        etiquetaView.addView(botonEliminar)
+        tagsContainer.addView(etiquetaView)
+    }
+
+    private fun eliminarEtiqueta(etiqueta: String, vista: View) {
+        etiquetasAgregadas.remove(etiqueta)
+        tagsContainer.removeView(vista)
     }
 
     private fun seleccionarDuracion(opcionSeleccionada: TextView, dias: Int) {
@@ -196,8 +307,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         }
     }
 
-    // NUEVOS MÉTODOS PARA GEOLOCALIZACIÓN
-
+    // Métodos de geolocalización (sin cambios)
     private fun solicitarUbicacion() {
         if (tienePermisosUbicacion()) {
             obtenerUbicacionActual()
@@ -346,7 +456,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 null
             }
 
-        // Crear estructura similar a getInitialChallengeForObjective
+        // Crear estructura del desafío incluyendo etiquetas y visibilidad
         val desafioBase = hashMapOf(
             "nombre" to nombre,
             "descripcion" to "Desafío personalizado de $duracionSeleccionada días",
@@ -358,9 +468,13 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             "diaActual" to 1,
             "completados" to 0,
             "totalHabitos" to habitos.size,
-            "ubicacion" to ubicacionData, // NUEVA: datos de ubicación completos
+            "ubicacion" to ubicacionData,
             "creadoPor" to uid,
             "estado" to "activo",
+            // NUEVOS CAMPOS - Etiquetas y visibilidad
+            "etiquetas" to etiquetasAgregadas.toList(),
+            "esPublico" to esPublico,
+            "visibilidad" to if (esPublico) "publico" else "privado",
             "habitos" to habitos.map { habito ->
                 mapOf(
                     "nombre" to habito,
@@ -387,7 +501,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 val batch = firestore.batch()
 
                 // 2. Crear los días dentro del desafío con sus hábitos
-                // Convertir hábitos a la estructura con completado = false
                 val habitosParaDias = habitos.map { habito ->
                     mapOf(
                         "nombre" to habito,
@@ -396,15 +509,10 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 }
 
                 val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-// Obtener la fecha actual
                 val calendar = Calendar.getInstance()
 
                 for (i in 1..duracionSeleccionada) {
                     val diaRef = documentRef.collection("dias").document("dia_$i")
-
-                    // Calcular la fecha de realización sumando (i-1) días a la fecha actual
-                    // Usamos (i-1) porque el día 1 debe ser hoy, día 2 mañana, etc.
                     val fechaRealizacion = Calendar.getInstance().apply {
                         add(Calendar.DAY_OF_YEAR, i - 1)
                     }
@@ -420,7 +528,22 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                     batch.set(diaRef, dataDia)
                 }
 
-                // 3. Commit de batch
+                // 3. Si es público, también guardarlo en la colección pública
+                if (esPublico) {
+                    val desafioPublico = desafioBase.toMutableMap().apply {
+                        put("autorId", uid)
+                        put("autorNombre", auth.currentUser?.displayName ?: "Usuario")
+                        put("fechaPublicacion", currentTime)
+                        put("desafioOriginalId", documentRef.id)
+                        put("seguidores", 0)
+                        put("meGusta", 0)
+                    }
+
+                    val publicRef = firestore.collection("desafiosPublicos").document()
+                    batch.set(publicRef, desafioPublico)
+                }
+
+                // 4. Commit de batch
                 batch.commit().addOnSuccessListener {
                     Toast.makeText(context, "¡Desafío creado exitosamente!", Toast.LENGTH_SHORT)
                         .show()
@@ -450,7 +573,8 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
         // Mostrar diálogo de confirmación si hay datos ingresados
         val hayDatos = nombreInput.text.toString().trim().isNotEmpty() ||
-                recopilarHabitos().isNotEmpty()
+                recopilarHabitos().isNotEmpty() ||
+                etiquetasAgregadas.isNotEmpty()
 
         if (hayDatos) {
             androidx.appcompat.app.AlertDialog.Builder(requireContext())

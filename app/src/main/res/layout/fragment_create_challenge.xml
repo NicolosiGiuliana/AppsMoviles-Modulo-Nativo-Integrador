@@ -180,6 +180,137 @@
 
         </LinearLayout>
 
+        <!-- Sección de Etiquetas -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tags"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tags_description"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Input para agregar etiquetas -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <EditText
+                android:id="@+id/inputNewTag"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:hint="@string/add_tag_hint"
+                android:inputType="text"
+                android:background="@drawable/edittext_background"
+                android:padding="12dp"
+                android:textColorHint="#CCCCCC"
+                android:layout_marginEnd="8dp"
+                android:maxLength="20" />
+
+            <Button
+                android:id="@+id/buttonAddTag"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="@string/add"
+                android:background="@drawable/button_secondary_background"
+                android:textColor="#4CAF50"
+                android:textSize="14sp"
+                android:paddingHorizontal="16dp" />
+
+        </LinearLayout>
+
+        <!-- Contenedor de etiquetas agregadas -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/tagsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="4dp" />
+
+        </HorizontalScrollView>
+
+        <!-- Visibilidad del desafío -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/challenge_visibility"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/visibility_description"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:layout_marginBottom="12dp" />
+
+        <!-- RadioGroup para visibilidad -->
+        <RadioGroup
+            android:id="@+id/radioGroupVisibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/radioPublic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/public_challenge"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:checked="true"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/public_description"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:layout_marginStart="32dp"
+                android:layout_marginBottom="12dp" />
+
+            <RadioButton
+                android:id="@+id/radioPrivate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/private_challenge"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/private_description"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:layout_marginStart="32dp"
+                android:layout_marginBottom="12dp" />
+
+        </RadioGroup>
+
         <!-- Sección de Ubicación Opcional -->
         <CheckBox
             android:id="@+id/checkboxUbicacionOpcional"
