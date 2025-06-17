@@ -5,8 +5,8 @@
     android:layout_height="wrap_content"
     android:text="#fitness"
     android:textSize="10sp"
-    android:textColor="@color/primary_green"
-    android:background="@drawable/tag_outline_background"
+    android:textColor="@color/white"
+    android:background="@drawable/tag_solid_background"
     android:paddingHorizontal="8dp"
     android:paddingVertical="4dp"
     android:layout_marginEnd="4dp" />

@@ -15,7 +15,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header with title and menu -->
+        <!-- Header with title, visibility tag and menu -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,13 +26,31 @@
             <!-- Challenge Name -->
             <TextView
                 android:id="@+id/challenge_name"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="@string/exercise_30_days"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_dark" />
+                android:textColor="@color/text_dark"
+                android:layout_marginEnd="8dp" />
+
+            <!-- Visibility Tag -->
+            <TextView
+                android:id="@+id/visibility_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Privado"
+                android:textSize="10sp"
+                android:textColor="@color/primary_green"
+                android:background="@drawable/tag_outline_background"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp" />
+
+            <!-- Spacer to push menu button to the right -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
 
             <!-- Menu Button -->
             <ImageView
@@ -71,12 +89,12 @@
                 android:id="@+id/progress_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DÃ­a 18 de 30"
+                android:text="Día 18 de 30"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary" />
         </LinearLayout>
 
-        <!-- Tags Container -->
+        <!-- Tags Container (now only for additional tags) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -84,25 +102,11 @@
             android:layout_marginTop="8dp"
             android:gravity="center_vertical">
 
-            <!-- Visibility Tag -->
-            <TextView
-                android:id="@+id/visibility_tag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Privado"
-                android:textSize="10sp"
-                android:textColor="@color/primary_green"
-                android:background="@drawable/tag_outline_background"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:layout_marginEnd="6dp" />
-
             <!-- Tags RecyclerView or FlexboxLayout for dynamic tags -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tags_recycler"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="horizontal" />
         </LinearLayout>
 
