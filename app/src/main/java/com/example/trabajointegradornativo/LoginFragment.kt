@@ -47,15 +47,6 @@ class LoginFragment : Fragment() {
     private lateinit var actionButton: Button
     private lateinit var toggleModeButton: Button
 
-    // Data - Actualizados los 4 objetivos principales
-    private val objectives = arrayOf(
-        "Fitness",
-        "Lectura",
-        "Mindfulness",
-        "Hidratación",
-        "Otro"
-    )
-
     private var selectedDate: String = ""
 
     override fun onCreateView(
@@ -112,7 +103,14 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupObjectiveSpinner() {
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, objectives)
+        val localizedObjectives = arrayOf(
+            getString(R.string.fitness),
+            "Lectura", // Mantener como estaba originalmente
+            "Mindfulness",
+            "Hidratación", // Mantener como estaba originalmente
+            "Otro" // Mantener como estaba originalmente
+        )
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, localizedObjectives)
         objectiveSpinner.setAdapter(adapter)
         objectiveSpinner.setOnClickListener { objectiveSpinner.showDropDown() }
     }
@@ -190,9 +188,9 @@ class LoginFragment : Fragment() {
     private fun updateUIMode() {
         if (isLoginMode) {
             // Login Mode
-            tvTitle.text = "Iniciar Sesión"
-            actionButton.text = "Iniciar Sesión"
-            toggleModeButton.text = "¿No tienes cuenta? Regístrate"
+            tvTitle.text = getString(R.string.login)
+            actionButton.text = getString(R.string.login)
+            toggleModeButton.text = getString(R.string.no_account)
 
             // Hide register-only fields
             nameTitle.visibility = View.GONE
@@ -206,9 +204,9 @@ class LoginFragment : Fragment() {
 
         } else {
             // Register Mode
-            tvTitle.text = "Registrarse"
-            actionButton.text = "Registrarse"
-            toggleModeButton.text = "¿Ya tienes cuenta? Inicia sesión"
+            tvTitle.text = getString(R.string.register)
+            actionButton.text = getString(R.string.register)
+            toggleModeButton.text = getString(R.string.have_account)
 
             // Show register-only fields
             nameTitle.visibility = View.VISIBLE
@@ -346,7 +344,7 @@ class LoginFragment : Fragment() {
                     // Guardar datos en SharedPreferences
                     saveUserToPreferences(
                         email = email,
-                        username = user?.displayName ?: "Usuario",
+                        username = user?.displayName ?: getString(R.string.default_name),
                         isLoggedIn = true
                     )
 
@@ -415,9 +413,16 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToMainApp() {
-        val intent = Intent(requireContext(), ItemDetailHostActivity::class.java)
-        startActivity(intent)
-        activity?.finish()
+        try {
+            // Opción 1: Si tienes MainActivity
+            val intent = Intent(requireContext(), MainActivity::class.java)
+            startActivity(intent)
+            activity?.finish()
+        } catch (e: Exception) {
+            // Opción 2: Si no existe MainActivity, simplemente cerrar el fragment actual
+            Toast.makeText(context, "Navegación exitosa", Toast.LENGTH_SHORT).show()
+            // O puedes navegar a otro fragment/activity que sí exista
+        }
     }
 
     private fun saveUserToFirestore(

@@ -94,7 +94,7 @@ class ItemListFragment : Fragment() {
                     document.getString("name") ?:
                     document.getString("displayName") ?:
                     auth.currentUser?.displayName ?:
-                    "Usuario"
+                    getString(R.string.default_name)
 
                     // Save to SharedPreferences for future use
                     sharedPreferences.edit()
@@ -104,19 +104,28 @@ class ItemListFragment : Fragment() {
                     updateWelcomeText(userName)
                 } else {
                     // If no user document exists, try to get from Firebase Auth
-                    val userName = auth.currentUser?.displayName ?: "Usuario"
+                    val userName = auth.currentUser?.displayName ?: getString(R.string.default_name)
                     updateWelcomeText(userName)
                 }
             }
             .addOnFailureListener {
                 // Fallback to Firebase Auth or default
-                val userName = auth.currentUser?.displayName ?: "Usuario"
+                val userName = auth.currentUser?.displayName ?: getString(R.string.default_name)
                 updateWelcomeText(userName)
             }
     }
 
     private fun updateWelcomeText(userName: String) {
-        binding.welcomeText?.text = "Hola, $userName"
+        // Crear el texto de saludo personalizado usando el formato de string
+        val helloText = getString(R.string.hello_user)
+        // Reemplazar "Usuario" o "User" o "Usuário" con el nombre real
+        val personalizedText = when {
+            helloText.contains("Usuario") -> helloText.replace("Usuario", userName)
+            helloText.contains("User") -> helloText.replace("User", userName)
+            helloText.contains("Usuário") -> helloText.replace("Usuário", userName)
+            else -> "Hola, $userName" // Fallback
+        }
+        binding.welcomeText?.text = personalizedText
     }
 
     private fun setupRecyclerViews() {
@@ -159,7 +168,7 @@ class ItemListFragment : Fragment() {
 
     private fun setupCurrentDayCard() {
         // Get current date
-        val dateFormat = SimpleDateFormat("EEEE d MMM", Locale("es", "ES"))
+        val dateFormat = SimpleDateFormat("EEEE d MMM", Locale.getDefault())
         val currentDate = dateFormat.format(Date())
         binding.currentDate?.text = currentDate
 
@@ -216,24 +225,24 @@ class ItemListFragment : Fragment() {
                 updateCurrentProgress()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(context, "Error al cargar desafíos: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.error_format, e.message), Toast.LENGTH_LONG).show()
             }
     }
 
     private fun updateCurrentProgress() {
         if (activeChallenges.isNotEmpty()) {
             val currentChallenge = activeChallenges.first()
-            binding.currentProgress?.text = "${currentChallenge.completados}/${currentChallenge.totalHabitos} completados"
+            binding.currentProgress?.text = getString(R.string.completed_format, currentChallenge.completados, currentChallenge.totalHabitos)
         }
     }
 
     private fun cargarDesafiosPorDefecto() {
         defaultChallenges.clear()
         defaultChallenges.addAll(listOf(
-            DefaultChallenge("Fitness", "💪", "30 días", "fitness"),
-            DefaultChallenge("Lectura", "📚", "21 días", "lectura"),
-            DefaultChallenge("Mindfulness", "🧘", "30 días", "mindfulness"),
-            DefaultChallenge("Hidratación", "💧", "15 días", "hidratacion")
+            DefaultChallenge(getString(R.string.fitness), "💪", getString(R.string.days_30), "fitness"),
+            DefaultChallenge(getString(R.string.reading), "📚", "21 ${getString(R.string.days_30).split(" ")[1]}", "lectura"),
+            DefaultChallenge("Mindfulness", "🧘", getString(R.string.days_30), "mindfulness"),
+            DefaultChallenge(getString(R.string.hydration), "💧", "15 ${getString(R.string.days_30).split(" ")[1]}", "hidratacion")
         ))
         binding.defaultChallengesGrid?.adapter?.notifyDataSetChanged()
     }
@@ -261,7 +270,7 @@ class ItemListFragment : Fragment() {
 
             val progress = ((challenge.diaActual.toFloat() / challenge.dias.toFloat()) * 100).toInt()
             holder.progressBar.progress = progress
-            holder.progressText.text = "Día ${challenge.diaActual} de ${challenge.dias}"
+            holder.progressText.text = getString(R.string.day_format, challenge.diaActual, challenge.dias)
 
             holder.itemView.setOnClickListener {
                 val bundle = Bundle().apply {
@@ -336,15 +345,15 @@ class ItemListFragment : Fragment() {
                 // 3. Ejecutar el batch
                 batch.commit()
                     .addOnSuccessListener {
-                        Toast.makeText(context, "Desafío '${defaultChallenge.title}' iniciado correctamente", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.registration_successful).replace("Registro", "Desafío '${defaultChallenge.title}'"), Toast.LENGTH_SHORT).show()
                         cargarDesafios() // Recargar la lista de desafíos activos
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(context, "Error al crear la estructura del desafío: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, getString(R.string.error_saving_data, e.message), Toast.LENGTH_LONG).show()
                     }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(context, "Error al crear desafío: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.error_saving_data, e.message), Toast.LENGTH_LONG).show()
             }
     }
 
@@ -352,8 +361,8 @@ class ItemListFragment : Fragment() {
         val currentTime = com.google.firebase.Timestamp.now()
         return when (objective) {
             "fitness" -> hashMapOf(
-                "nombre" to "Rutina de Fitness",
-                "descripcion" to "Desafío de 30 días para mejorar tu condición física",
+                "nombre" to getString(R.string.initial_fitness_challenge),
+                "descripcion" to getString(R.string.fitness_challenge_description),
                 "tipo" to "fitness",
                 "completado" to false,
                 "fechaCreacion" to currentTime,
@@ -364,16 +373,16 @@ class ItemListFragment : Fragment() {
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "habitos" to listOf(
-                    mapOf("nombre" to "30 minutos de ejercicio", "completado" to false),
-                    mapOf("nombre" to "10 flexiones", "completado" to false),
-                    mapOf("nombre" to "15 sentadillas", "completado" to false),
-                    mapOf("nombre" to "Caminar 5000 pasos", "completado" to false),
-                    mapOf("nombre" to "Estiramientos", "completado" to false)
+                    mapOf("nombre" to getString(R.string.walk_30_minutes), "completado" to false),
+                    mapOf("nombre" to getString(R.string.stretch_15_minutes), "completado" to false),
+                    mapOf("nombre" to getString(R.string.drink_2_liters_water), "completado" to false),
+                    mapOf("nombre" to getString(R.string.sleep_7_8_hours), "completado" to false),
+                    mapOf("nombre" to getString(R.string.eat_vegetables_portion), "completado" to false)
                 )
             )
             "lectura" -> hashMapOf(
-                "nombre" to "Desafío de Lectura",
-                "descripcion" to "Leer durante 30 días para mejorar tu hábito de lectura",
+                "nombre" to getString(R.string.initial_reading_challenge),
+                "descripcion" to getString(R.string.reading_challenge_description),
                 "tipo" to "lectura",
                 "completado" to false,
                 "fechaCreacion" to currentTime,
@@ -384,16 +393,16 @@ class ItemListFragment : Fragment() {
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "habitos" to listOf(
-                    mapOf("nombre" to "Leer 20 páginas", "completado" to false),
-                    mapOf("nombre" to "Anotar ideas principales", "completado" to false),
-                    mapOf("nombre" to "Resumir un capítulo", "completado" to false),
-                    mapOf("nombre" to "Leer en un lugar tranquilo", "completado" to false),
-                    mapOf("nombre" to "Compartir lo aprendido", "completado" to false)
+                    mapOf("nombre" to getString(R.string.take_reading_notes), "completado" to false),
+                    mapOf("nombre" to getString(R.string.reflect_on_reading), "completado" to false),
+                    mapOf("nombre" to getString(R.string.share_learned), "completado" to false),
+                    mapOf("nombre" to getString(R.string.read_quiet_place), "completado" to false),
+                    mapOf("nombre" to getString(R.string.habit_5), "completado" to false)
                 )
             )
             "mindfulness" -> hashMapOf(
-                "nombre" to "Práctica de Mindfulness",
-                "descripcion" to "Practicar mindfulness durante 30 días para reducir el estrés",
+                "nombre" to getString(R.string.initial_mindfulness_challenge),
+                "descripcion" to getString(R.string.mindfulness_challenge_description),
                 "tipo" to "mindfulness",
                 "completado" to false,
                 "fechaCreacion" to currentTime,
@@ -404,16 +413,16 @@ class ItemListFragment : Fragment() {
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "habitos" to listOf(
-                    mapOf("nombre" to "Meditar 10 minutos", "completado" to false),
-                    mapOf("nombre" to "Respiración consciente", "completado" to false),
-                    mapOf("nombre" to "Escribir gratitud", "completado" to false),
-                    mapOf("nombre" to "Caminar en la naturaleza", "completado" to false),
-                    mapOf("nombre" to "Evitar distracciones", "completado" to false)
+                    mapOf("nombre" to getString(R.string.meditate_10_minutes), "completado" to false),
+                    mapOf("nombre" to getString(R.string.practice_conscious_breathing), "completado" to false),
+                    mapOf("nombre" to getString(R.string.write_gratitude_journal), "completado" to false),
+                    mapOf("nombre" to getString(R.string.take_conscious_pause), "completado" to false),
+                    mapOf("nombre" to getString(R.string.observe_environment), "completado" to false)
                 )
             )
             "hidratacion" -> hashMapOf(
-                "nombre" to "Desafío de Hidratación",
-                "descripcion" to "Mantente hidratado durante 30 días",
+                "nombre" to getString(R.string.initial_hydration_challenge),
+                "descripcion" to getString(R.string.hydration_challenge_description),
                 "tipo" to "hidratacion",
                 "completado" to false,
                 "fechaCreacion" to currentTime,
@@ -424,16 +433,16 @@ class ItemListFragment : Fragment() {
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "habitos" to listOf(
-                    mapOf("nombre" to "Beber 2 litros de agua", "completado" to false),
-                    mapOf("nombre" to "Llevar una botella de agua", "completado" to false),
-                    mapOf("nombre" to "Beber agua antes de cada comida", "completado" to false),
-                    mapOf("nombre" to "Evitar bebidas azucaradas", "completado" to false),
-                    mapOf("nombre" to "Registrar consumo de agua", "completado" to false)
+                    mapOf("nombre" to getString(R.string.drink_2_liters_water), "completado" to false),
+                    mapOf("nombre" to getString(R.string.carry_water_bottle), "completado" to false),
+                    mapOf("nombre" to getString(R.string.drink_water_before_meals), "completado" to false),
+                    mapOf("nombre" to getString(R.string.avoid_sugary_drinks), "completado" to false),
+                    mapOf("nombre" to getString(R.string.drink_water_wake_up), "completado" to false)
                 )
             )
             else -> hashMapOf(
-                "nombre" to "Desafío Personalizado",
-                "descripcion" to "Desafío de 30 días para un objetivo personal",
+                "nombre" to getString(R.string.initial_generic_challenge),
+                "descripcion" to getString(R.string.generic_challenge_description),
                 "tipo" to "personalizado",
                 "completado" to false,
                 "fechaCreacion" to currentTime,
@@ -444,11 +453,11 @@ class ItemListFragment : Fragment() {
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "habitos" to listOf(
-                    mapOf("nombre" to "Definir objetivo claro", "completado" to false),
-                    mapOf("nombre" to "Planificar acciones diarias", "completado" to false),
-                    mapOf("nombre" to "Seguir el progreso", "completado" to false),
-                    mapOf("nombre" to "Ajustar el plan si es necesario", "completado" to false),
-                    mapOf("nombre" to "Celebrar los logros", "completado" to false)
+                    mapOf("nombre" to getString(R.string.habit_1), "completado" to false),
+                    mapOf("nombre" to getString(R.string.habit_2), "completado" to false),
+                    mapOf("nombre" to getString(R.string.habit_3), "completado" to false),
+                    mapOf("nombre" to getString(R.string.habit_4), "completado" to false),
+                    mapOf("nombre" to getString(R.string.habit_5), "completado" to false)
                 )
             )
         }
@@ -489,9 +498,9 @@ class ItemListFragment : Fragment() {
         val context = requireContext()
 
         androidx.appcompat.app.AlertDialog.Builder(context)
-            .setTitle("Eliminar desafío")
-            .setMessage("¿Estás seguro de que querés eliminar este desafío?")
-            .setPositiveButton("Sí") { _, _ ->
+            .setTitle(getString(R.string.remove))
+            .setMessage(getString(R.string.logout_confirmation).replace("cerrar sesión", "eliminar este desafío"))
+            .setPositiveButton(getString(R.string.login).replace("Iniciar Sesión", "Sí")) { _, _ ->
                 val uid = auth.currentUser?.uid ?: return@setPositiveButton
                 firestore.collection("usuarios")
                     .document(uid)
@@ -499,14 +508,14 @@ class ItemListFragment : Fragment() {
                     .document(id)
                     .delete()
                     .addOnSuccessListener {
-                        Toast.makeText(context, "Desafío eliminado", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.remove), Toast.LENGTH_SHORT).show()
                         cargarDesafios() // Recargar la lista después de eliminar
                     }
                     .addOnFailureListener {
-                        Toast.makeText(context, "Error al eliminar desafío", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, getString(R.string.error_saving_data, "eliminar desafío"), Toast.LENGTH_LONG).show()
                     }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -523,11 +532,11 @@ class ItemListFragment : Fragment() {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_edit -> {
-                Toast.makeText(context, "Editar desafío", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.options), Toast.LENGTH_SHORT).show()
                 true
             }
             R.id.action_delete -> {
-                Toast.makeText(context, "Eliminar desafío", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.remove), Toast.LENGTH_SHORT).show()
                 true
             }
             R.id.action_share -> {
@@ -572,7 +581,7 @@ class ItemListFragment : Fragment() {
             }
             findNavController().navigate(R.id.action_itemListFragment_to_todayFragment, bundle)
         } catch (e: Exception) {
-            Toast.makeText(context, "Error al navegar: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_navigating_today, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 

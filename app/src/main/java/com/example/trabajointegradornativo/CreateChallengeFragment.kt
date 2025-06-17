@@ -172,7 +172,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 ).apply {
                     bottomMargin = resources.getDimensionPixelSize(R.dimen.margin_small)
                 }
-                hint = "Hábito ${4 + habitosAdicionales.size}"
+                hint = getString(R.string.habit_name_default) + " ${4 + habitosAdicionales.size}"
                 setBackgroundResource(R.drawable.edittext_background)
                 setPadding(
                     resources.getDimensionPixelSize(R.dimen.padding_medium),
@@ -242,16 +242,16 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         textUbicacionSeleccionada.text = address
         actualizarEstadoUbicacion()
 
-        buttonObtenerUbicacion.text = "Obtener mi ubicación"
+        buttonObtenerUbicacion.text = getString(R.string.get_my_location)
         buttonObtenerUbicacion.isEnabled = true
 
         Toast.makeText(context, "Ubicación obtenida correctamente", Toast.LENGTH_SHORT).show()
     }
 
     override fun onLocationError(error: String) {
-        Toast.makeText(context, "Error al obtener ubicación: $error", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, getString(R.string.error_format, error), Toast.LENGTH_LONG).show()
 
-        buttonObtenerUbicacion.text = "Obtener mi ubicación"
+        buttonObtenerUbicacion.text = getString(R.string.get_my_location)
         buttonObtenerUbicacion.isEnabled = true
     }
 
@@ -269,7 +269,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         textUbicacionSeleccionada.visibility = if (tieneUbicacion) View.VISIBLE else View.GONE
         buttonEliminarUbicacion.visibility = if (tieneUbicacion) View.VISIBLE else View.GONE
         buttonObtenerUbicacion.text =
-            if (tieneUbicacion) "Cambiar ubicación" else "Obtener mi ubicación"
+            if (tieneUbicacion) "Cambiar ubicación" else getString(R.string.get_my_location)
     }
 
     private fun recopilarHabitos(): List<String> {
@@ -317,7 +317,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             }
 
             auth.currentUser?.uid == null -> {
-                Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.user_not_authenticated), Toast.LENGTH_SHORT).show()
                 return false
             }
         }
@@ -429,18 +429,18 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 }.addOnFailureListener { e ->
                     Toast.makeText(
                         context,
-                        "Error al crear los días: ${e.message}",
+                        getString(R.string.error_format, e.message),
                         Toast.LENGTH_LONG
                     ).show()
                     crearButton.isEnabled = true
-                    crearButton.text = "Crear Desafío"
+                    crearButton.text = getString(R.string.create_challenge)
                 }
 
             }.addOnFailureListener { e ->
-                Toast.makeText(context, "Error al crear desafío: ${e.message}", Toast.LENGTH_LONG)
+                Toast.makeText(context, getString(R.string.error_format, e.message), Toast.LENGTH_LONG)
                     .show()
                 crearButton.isEnabled = true
-                crearButton.text = "Crear Desafío"
+                crearButton.text = getString(R.string.create_challenge)
             }
     }
 

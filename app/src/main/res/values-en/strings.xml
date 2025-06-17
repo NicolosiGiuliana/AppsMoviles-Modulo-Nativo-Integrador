@@ -51,6 +51,65 @@
     <string name="register">Sign Up</string>
     <string name="no_account">Don\'t have an account? Sign up</string>
     <string name="have_account">Already have an account? Sign in</string>
+    <!-- Validation messages -->
+    <string name="email_required">Email is required</string>
+    <string name="enter_valid_email">Please enter a valid email</string>
+    <string name="password_required">Password is required</string>
+    <string name="password_min_length">Password must be at least 6 characters long</string>
+    <string name="full_name_required">Full name is required</string>
+    <string name="name_min_length">Name must be at least 3 characters long</string>
+    <string name="birth_date_required">Birth date is required</string>
+    <string name="age_requirement">You must be over 10 years old to register</string>
+    <string name="objective_required">You must select a goal</string>
+    <string name="confirm_password_required">You must confirm the password</string>
+    <string name="passwords_dont_match">Passwords do not match</string>
+
+    <!-- Success messages -->
+    <string name="login_successful">Login successful</string>
+    <string name="registration_successful">Registration successful</string>
+
+    <!-- Error messages -->
+    <string name="error_format">Error: %s</string>
+    <string name="error_saving_data">Error saving data: %s</string>
+
+    <!-- Additional objectives -->
+    <string name="reading">Reading</string>
+    <string name="hydration">Hydration</string>
+    <string name="other">Other</string>
+
+    <!-- Challenge names and descriptions -->
+    <string name="initial_fitness_challenge">Initial Fitness Challenge</string>
+    <string name="fitness_challenge_description">Start your journey to better physical fitness.</string>
+    <string name="initial_reading_challenge">Initial Reading Challenge</string>
+    <string name="reading_challenge_description">Develop the habit of reading.</string>
+    <string name="initial_mindfulness_challenge">Initial Mindfulness Challenge</string>
+    <string name="mindfulness_challenge_description">Practice mindfulness daily.</string>
+    <string name="initial_hydration_challenge">Initial Hydration Challenge</string>
+    <string name="hydration_challenge_description">Stay hydrated for better health.</string>
+    <string name="initial_generic_challenge">Initial Generic Challenge</string>
+    <string name="generic_challenge_description">A challenge to start building habits.</string>
+
+    <!-- Habit names -->
+    <string name="walk_30_minutes">Walk 30 minutes</string>
+    <string name="stretch_15_minutes">Do 15 minutes of stretching</string>
+    <string name="drink_2_liters_water">Drink 2 liters of water</string>
+    <string name="sleep_7_8_hours">Sleep 7–8 hours</string>
+    <string name="eat_vegetables_portion">Eat a portion of vegetables</string>
+    <string name="take_reading_notes">Take notes from reading</string>
+    <string name="reflect_on_reading">Reflect on the reading</string>
+    <string name="share_learned">Share what you’ve learned</string>
+    <string name="read_quiet_place">Read in a quiet place</string>
+    <string name="meditate_10_minutes">Meditate for 10 minutes</string>
+    <string name="practice_conscious_breathing">Practice conscious breathing</string>
+    <string name="write_gratitude_journal">Write in a gratitude journal</string>
+    <string name="take_conscious_pause">Take a conscious pause</string>
+    <string name="observe_environment">Observe your surroundings</string>
+    <string name="carry_water_bottle">Carry a water bottle</string>
+    <string name="drink_water_wake_up">Drink a glass of water upon waking</string>
+    <string name="drink_water_before_meals">Drink water before each meal</string>
+    <string name="avoid_sugary_drinks">Avoid sugary drinks</string>
+    <string name="habit_4">Habit 4</string>
+    <string name="habit_5">Habit 5</string>
 
     <!-- Home screen strings -->
     <string name="hello_user">Hello, User</string>
@@ -219,4 +278,14 @@
     <string name="image_set_locally">Image set locally</string>
     <string name="reminders_scheduled">Reminders scheduled for %1$d:%2$s</string>
     <string name="error_scheduling_reminders">Error scheduling reminders</string>
+
+    <string name="day_number">Day %1$d</string>
+    <string name="pending">Pending</string>
+    <string name="settings_coming_soon">Settings coming soon</string>
+    <string name="delete_challenge">Delete challenge</string>
+    <string name="delete_challenge_confirmation">Are you sure you want to delete this challenge?</string>
+    <string name="yes">Yes</string>
+    <string name="challenge_deleted">Challenge deleted</string>
+    <string name="error_deleting_challenge">Error deleting challenge</string>
+
 </resources>

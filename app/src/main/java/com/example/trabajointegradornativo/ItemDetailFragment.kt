@@ -124,9 +124,9 @@ class ItemDetailFragment : Fragment() {
         }
 
         binding.circularProgress!!.progress = percentage
-        binding.progressText!!.text = "$diasCompletadosCount/${desafio.dias}"
+        binding.progressText!!.text = getString(R.string.progress_format, diasCompletadosCount, desafio.dias)
         binding.progressTitle!!.text = desafio.nombre
-        binding.progressSubtitle!!.text = "$diasCompletadosCount días completados"
+        binding.progressSubtitle!!.text = getString(R.string.days_completed_consecutive, diasCompletadosCount)
 
         // Configurar los días dinámicamente
         val dayListContainer = binding.root.findViewById<LinearLayout>(R.id.day_list_container)
@@ -142,14 +142,14 @@ class ItemDetailFragment : Fragment() {
             val subtitle = dayCard.findViewById<TextView>(R.id.day_subtitle)
             val checkIcon = dayCard.findViewById<ImageView>(R.id.day_check_icon)
 
-            title.text = "Día $day"
+            title.text = getString(R.string.day_number, day)
 
             // Verificar si el día está completado
             if (diasCompletados.contains(day)) {
-                subtitle.text = "Completado"
+                subtitle.text = getString(R.string.completed)
                 checkIcon.visibility = View.VISIBLE
             } else {
-                subtitle.text = "Pendiente"
+                subtitle.text = getString(R.string.pending)
                 checkIcon.visibility = View.GONE
             }
 
@@ -187,7 +187,7 @@ class ItemDetailFragment : Fragment() {
         val settingsLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(2) as? LinearLayout
         settingsLayout?.setOnClickListener {
-            Toast.makeText(context, "Configuración próximamente", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.settings_coming_soon), Toast.LENGTH_SHORT).show()
         }
 
         // Establecer colores iniciales (ninguna activa en detalle)
@@ -198,7 +198,7 @@ class ItemDetailFragment : Fragment() {
         try {
             findNavController().navigate(R.id.action_itemDetailFragment_to_itemListFragment)
         } catch (e: Exception) {
-            Toast.makeText(context, "Error al navegar a Home: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_navigating_home, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -209,7 +209,7 @@ class ItemDetailFragment : Fragment() {
             }
             findNavController().navigate(R.id.action_itemListFragment_to_todayFragment, bundle)
         } catch (e: Exception) {
-            Toast.makeText(context, "Error al navegar: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_navigating_today, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -293,9 +293,9 @@ class ItemDetailFragment : Fragment() {
         val context = requireContext()
 
         androidx.appcompat.app.AlertDialog.Builder(context)
-            .setTitle("Eliminar desafío")
-            .setMessage("¿Estás seguro de que querés eliminar este desafío?")
-            .setPositiveButton("Sí") { _, _ ->
+            .setTitle(getString(R.string.delete_challenge))
+            .setMessage(getString(R.string.delete_challenge_confirmation))
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 val uid = auth.currentUser?.uid ?: return@setPositiveButton
                 firestore.collection("usuarios")
                     .document(uid)
@@ -303,19 +303,16 @@ class ItemDetailFragment : Fragment() {
                     .document(id)
                     .delete()
                     .addOnSuccessListener {
-                        Toast.makeText(context, "Desafío eliminado", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.challenge_deleted), Toast.LENGTH_SHORT).show()
                         findNavController().navigate(R.id.action_itemDetailFragment_to_itemListFragment)
                     }
                     .addOnFailureListener {
-                        Toast.makeText(context, "Error al eliminar desafío", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, getString(R.string.error_deleting_challenge), Toast.LENGTH_LONG).show()
                     }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
-
-
-
 
     companion object {
         const val ARG_ITEM_ID = "item_id"

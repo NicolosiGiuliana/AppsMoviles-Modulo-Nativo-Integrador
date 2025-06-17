@@ -53,18 +53,26 @@
             android:paddingBottom="24dp">
 
             <!-- Logo Icon -->
+            <!-- Logo Icon - CardView transparente -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/logoIcon"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/text_primary"
-                app:cardCornerRadius="16dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="0dp"
                 app:cardElevation="0dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/logoImageView"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/ic_launcher" />
 
             </androidx.cardview.widget.CardView>
 

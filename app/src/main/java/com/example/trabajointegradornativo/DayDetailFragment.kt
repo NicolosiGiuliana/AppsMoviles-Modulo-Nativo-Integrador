@@ -42,7 +42,7 @@ class DayDetailFragment : Fragment() {
         arguments?.let {
             dayNumber = it.getInt(ARG_DAY_NUMBER, 1)
             desafio = it.getParcelable("desafio")
-                ?: throw IllegalStateException("Desafio no encontrado en los argumentos")
+                ?: throw IllegalStateException(getString(R.string.error_unknown, "Desafio no encontrado en los argumentos"))
         }
 
         sharedPrefs = requireContext().getSharedPreferences("habit_states", Context.MODE_PRIVATE)
@@ -50,7 +50,7 @@ class DayDetailFragment : Fragment() {
         (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = "${desafio.nombre}"
 
         val dayTextView = view.findViewById<TextView>(R.id.day_detail_text)
-        dayTextView.text = "Día $dayNumber"
+        dayTextView.text = getString(R.string.day_number, dayNumber)
 
         // Cargar hábitos del día específico desde Firestore
         cargarHabitosDesafio(view)
@@ -141,16 +141,16 @@ class DayDetailFragment : Fragment() {
                         }
                         .addOnFailureListener { e ->
                             Log.e("DayDetailFragment", "Error al crear día: ${e.message}")
-                            Toast.makeText(context, "Error al crear día", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, getString(R.string.error_unknown, "Error al crear día"), Toast.LENGTH_SHORT).show()
                         }
                 } else {
                     Log.e("DayDetailFragment", "Documento del desafío no encontrado")
-                    Toast.makeText(context, "Desafío no encontrado", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.challenge_without_name), Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { e ->
                 Log.e("DayDetailFragment", "Error al cargar desafío base: ${e.message}")
-                Toast.makeText(context, "Error al cargar desafío", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_unknown, "Error al cargar desafío"), Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -192,7 +192,7 @@ class DayDetailFragment : Fragment() {
             val nombreHabito = habitoView.findViewById<TextView>(R.id.habito_nombre)
             val iconoHabito = habitoView.findViewById<ImageView>(R.id.habito_icono)
 
-            nombreHabito.text = habito["nombre"] as? String ?: "Hábito $index"
+            nombreHabito.text = habito["nombre"] as? String ?: getString(R.string.habit_name_default)
 
             // Establecer estado inicial del ícono
             val completado = habitosCompletados[index] ?: false
@@ -244,7 +244,7 @@ class DayDetailFragment : Fragment() {
             )
             .addOnFailureListener { e ->
                 Log.e("DayDetailFragment", "Error al guardar hábito: ${e.message}")
-                Toast.makeText(context, "Error al guardar cambios", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_saving_progress, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -257,7 +257,7 @@ class DayDetailFragment : Fragment() {
         }
 
         if (!todosCompletados) {
-            Toast.makeText(context, "Completa todos los hábitos para finalizar el día", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, getString(R.string.mark_completed_habits), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -274,7 +274,7 @@ class DayDetailFragment : Fragment() {
                 "fecha_completado" to com.google.firebase.Timestamp.now()
             ))
             .addOnSuccessListener {
-                Toast.makeText(context, "¡Día $dayNumber completado!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.day_number, dayNumber) + " " + getString(R.string.completed) + "!", Toast.LENGTH_SHORT).show()
 
                 // Actualizar contador de días completados en el desafío
                 actualizarContadorDiasCompletados()
@@ -284,7 +284,7 @@ class DayDetailFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 Log.e("DayDetailFragment", "Error al completar día: ${e.message}")
-                Toast.makeText(context, "Error al completar día", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_unknown, "Error al completar día"), Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -332,7 +332,7 @@ class DayDetailFragment : Fragment() {
         val settingsLayout = view.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(2) as? LinearLayout
         settingsLayout?.setOnClickListener {
-            Toast.makeText(context, "Configuración próximamente", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.settings_coming_soon), Toast.LENGTH_SHORT).show()
         }
 
         // Establecer colores iniciales
@@ -347,7 +347,7 @@ class DayDetailFragment : Fragment() {
                 findNavController().popBackStack(R.id.itemListFragment, false)
             } catch (ex: Exception) {
                 Log.e("Navigation", "Error al navegar: ${ex.message}", ex)
-                Toast.makeText(context, "Error al volver a Home", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.error_navigating_home, ex.message ?: ""), Toast.LENGTH_LONG).show()
             }
         }
     }

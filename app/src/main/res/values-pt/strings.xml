@@ -51,6 +51,67 @@
     <string name="register">Cadastrar</string>
     <string name="no_account">Não tem conta? Cadastre-se</string>
     <string name="have_account">Já tem conta? Entre</string>
+    <!-- Validation messages -->
+    <string name="email_required">O e-mail é obrigatório</string>
+    <string name="enter_valid_email">Insira um e-mail válido</string>
+    <string name="password_required">A senha é obrigatória</string>
+    <string name="password_min_length">A senha deve ter pelo menos 6 caracteres</string>
+    <string name="full_name_required">O nome completo é obrigatório</string>
+    <string name="name_min_length">O nome deve ter pelo menos 3 caracteres</string>
+    <string name="birth_date_required">A data de nascimento é obrigatória</string>
+    <string name="age_requirement">Você deve ter mais de 10 anos para se registrar</string>
+    <string name="objective_required">Você deve selecionar um objetivo</string>
+    <string name="confirm_password_required">Você deve confirmar a senha</string>
+    <string name="passwords_dont_match">As senhas não coincidem</string>
+
+    <!-- Success messages -->
+    <string name="login_successful">Login realizado com sucesso</string>
+    <string name="registration_successful">Cadastro realizado com sucesso</string>
+
+    <!-- Error messages -->
+    <string name="error_format">Erro: %s</string>
+    <string name="error_saving_data">Erro ao salvar os dados: %s</string>
+
+    <!-- Additional objectives -->
+    <string name="reading">Leitura</string>
+    <string name="hydration">Hidratação</string>
+    <string name="other">Outro</string>
+
+    <!-- Challenge names and descriptions -->
+    <string name="initial_fitness_challenge">Desafio de Fitness Inicial</string>
+    <string name="fitness_challenge_description">Comece sua jornada rumo a uma melhor forma física.</string>
+    <string name="initial_reading_challenge">Desafio de Leitura Inicial</string>
+    <string name="reading_challenge_description">Desenvolva o hábito da leitura.</string>
+    <string name="initial_mindfulness_challenge">Desafio de Atenção Plena Inicial</string>
+    <string name="mindfulness_challenge_description">Pratique a atenção plena diariamente.</string>
+    <string name="initial_hydration_challenge">Desafio de Hidratação Inicial</string>
+    <string name="hydration_challenge_description">Mantenha-se hidratado para uma saúde melhor.</string>
+    <string name="initial_generic_challenge">Desafio Genérico Inicial</string>
+    <string name="generic_challenge_description">Um desafio para começar a construir hábitos.</string>
+
+    <!-- Habit names -->
+    <string name="walk_30_minutes">Caminhar por 30 minutos</string>
+    <string name="stretch_15_minutes">Fazer 15 minutos de alongamento</string>
+    <string name="drink_2_liters_water">Beber 2 litros de água</string>
+    <string name="sleep_7_8_hours">Dormir de 7 a 8 horas</string>
+    <string name="eat_vegetables_portion">Comer uma porção de vegetais</string>
+    <string name="take_reading_notes">Anotar o que leu</string>
+    <string name="reflect_on_reading">Refletir sobre a leitura</string>
+    <string name="share_learned">Compartilhar o que aprendeu</string>
+    <string name="read_quiet_place">Ler em um lugar tranquilo</string>
+    <string name="meditate_10_minutes">Meditar por 10 minutos</string>
+    <string name="practice_conscious_breathing">Praticar a respiração consciente</string>
+    <string name="write_gratitude_journal">Escrever em um diário de gratidão</string>
+    <string name="take_conscious_pause">Fazer uma pausa consciente</string>
+    <string name="observe_environment">Observar o ambiente</string>
+    <string name="carry_water_bottle">Levar uma garrafa de água</string>
+    <string name="drink_water_wake_up">Beber um copo de água ao acordar</string>
+    <string name="drink_water_before_meals">Beber água antes de cada refeição</string>
+    <string name="avoid_sugary_drinks">Evitar bebidas açucaradas</string>
+    <string name="habit_4">Hábito 4</string>
+    <string name="habit_5">Hábito 5</string>
+
+
 
     <!-- Home screen strings -->
     <string name="hello_user">Olá, Usuário</string>
@@ -219,4 +280,14 @@
     <string name="image_set_locally">Imagem definida localmente</string>
     <string name="reminders_scheduled">Lembretes programados para %1$d:%2$s</string>
     <string name="error_scheduling_reminders">Erro ao programar lembretes</string>
+
+
+    <string name="day_number">Dia %1$d</string>
+    <string name="pending">Pendente</string>
+    <string name="settings_coming_soon">Configurações em breve</string>
+    <string name="delete_challenge">Excluir desafio</string>
+    <string name="delete_challenge_confirmation">Tem certeza de que deseja excluir este desafio?</string>
+    <string name="yes">Sim</string>
+    <string name="challenge_deleted">Desafio excluído</string>
+    <string name="error_deleting_challenge">Erro ao excluir desafio</string>
 </resources>
