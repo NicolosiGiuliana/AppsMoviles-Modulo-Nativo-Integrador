@@ -330,14 +330,26 @@ class ItemListFragment : Fragment() {
                     )
                 }
 
+                // Obtener la fecha actual para calcular las fechas de cada día
+                val fechaInicio = Calendar.getInstance()
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
                 // Crear cada día del desafío
                 for (i in 1..dias) {
                     val diaRef = documentRef.collection("dias").document("dia_$i")
+
+                    // Calcular la fecha para este día (día 1 = hoy, día 2 = mañana, etc.)
+                    val fechaDia = Calendar.getInstance().apply {
+                        time = fechaInicio.time
+                        add(Calendar.DAY_OF_YEAR, i - 1) // día 1 = +0 días, día 2 = +1 día, etc.
+                    }
+
                     val dataDia = hashMapOf(
                         "dia" to i,
                         "habitos" to habitosParaDias,
                         "completado" to false,
-                        "fecha_creacion" to com.google.firebase.Timestamp.now()
+                        "fecha_creacion" to com.google.firebase.Timestamp.now(),
+                        "fechaRealizacion" to dateFormat.format(fechaDia.time)
                     )
                     batch.set(diaRef, dataDia)
                 }

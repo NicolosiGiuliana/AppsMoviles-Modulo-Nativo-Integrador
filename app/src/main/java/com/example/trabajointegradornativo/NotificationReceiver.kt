@@ -79,7 +79,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     db.collection("usuarios").document(userId)
                         .collection("desafios").document(desafioId)
                         .collection("dias")
-                        .whereEqualTo("fecha", fechaHoy)
+                        .whereEqualTo("fechaRealizacion", fechaHoy)
                         .get()
                         .addOnSuccessListener { diasSnapshot ->
 
