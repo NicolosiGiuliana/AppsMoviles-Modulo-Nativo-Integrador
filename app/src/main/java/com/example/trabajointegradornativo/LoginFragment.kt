@@ -105,10 +105,10 @@ class LoginFragment : Fragment() {
     private fun setupObjectiveSpinner() {
         val localizedObjectives = arrayOf(
             getString(R.string.fitness),
-            "Lectura", // Mantener como estaba originalmente
+            getString(R.string.reading_objective),
             "Mindfulness",
-            "Hidratación", // Mantener como estaba originalmente
-            "Otro" // Mantener como estaba originalmente
+            getString(R.string.hydration_objective),
+            getString(R.string.other_objective)
         )
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, localizedObjectives)
         objectiveSpinner.setAdapter(adapter)
@@ -236,19 +236,19 @@ class LoginFragment : Fragment() {
 
         // Email validation
         if (email.isEmpty()) {
-            emailInput.error = "El email es requerido"
+            emailInput.error = getString(R.string.email_required)
             isValid = false
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailInput.error = "Ingrese un email válido"
+            emailInput.error = getString(R.string.enter_valid_email)
             isValid = false
         }
 
         // Password validation
         if (password.isEmpty()) {
-            passwordInput.error = "La contraseña es requerida"
+            passwordInput.error = getString(R.string.password_required)
             isValid = false
         } else if (password.length < 6) {
-            passwordInput.error = "La contraseña debe tener al menos 6 caracteres"
+            passwordInput.error = getString(R.string.password_min_length)
             isValid = false
         }
 
@@ -256,34 +256,34 @@ class LoginFragment : Fragment() {
         if (!isLoginMode) {
             // Username validation
             if (username.isEmpty()) {
-                usernameInput.error = "El nombre completo es requerido"
+                usernameInput.error = getString(R.string.full_name_required)
                 isValid = false
             } else if (username.length < 3) {
-                usernameInput.error = "El nombre debe tener al menos 3 caracteres"
+                usernameInput.error = getString(R.string.name_min_length)
                 isValid = false
             }
 
             // Birth date validation
             if (birthDate.isEmpty()) {
-                dateInput.error = "La fecha de nacimiento es requerida"
+                dateInput.error = getString(R.string.birth_date_required)
                 isValid = false
             } else if (!isValidAge(birthDate)) {
-                dateInput.error = "Debe ser mayor de 10 años para registrarse"
+                dateInput.error = getString(R.string.age_requirement)
                 isValid = false
             }
 
             // Objective validation
             if (objective.isEmpty()) {
-                objectiveSpinner.error = "Debe seleccionar un objetivo"
+                objectiveSpinner.error = getString(R.string.objective_required)
                 isValid = false
             }
 
             // Confirm password validation
             if (confirmPassword.isEmpty()) {
-                confirmPasswordInput.error = "Debe confirmar la contraseña"
+                confirmPasswordInput.error = getString(R.string.confirm_password_required)
                 isValid = false
             } else if (password != confirmPassword) {
-                confirmPasswordInput.error = "Las contraseñas no coinciden"
+                confirmPasswordInput.error = getString(R.string.passwords_dont_match)
                 isValid = false
             }
         }
@@ -348,10 +348,10 @@ class LoginFragment : Fragment() {
                         isLoggedIn = true
                     )
 
-                    Toast.makeText(context, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.login_successful), Toast.LENGTH_SHORT).show()
                     navigateToMainApp()
                 } else {
-                    Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, getString(R.string.login_error, task.exception?.message ?: ""), Toast.LENGTH_LONG).show()
                 }
             }
 
@@ -380,17 +380,17 @@ class LoginFragment : Fragment() {
                                 birthDate = birthDate,
                                 objective = objective,
                                 onSuccess = {
-                                    Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, getString(R.string.registration_successful), Toast.LENGTH_SHORT).show()
                                     navigateToMainApp()
                                 },
                                 onError = { e ->
-                                    Toast.makeText(context, "Error al guardar datos: ${e.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, getString(R.string.error_saving_data, e.message ?: ""), Toast.LENGTH_LONG).show()
                                 }
                             )
                         }
                     }
                 } else {
-                    Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, getString(R.string.registration_error, task.exception?.message ?: ""), Toast.LENGTH_LONG).show()
                 }
             }
     }
@@ -420,7 +420,7 @@ class LoginFragment : Fragment() {
             activity?.finish()
         } catch (e: Exception) {
             // Opción 2: Si no existe MainActivity, simplemente cerrar el fragment actual
-            Toast.makeText(context, "Navegación exitosa", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.navigation_successful), Toast.LENGTH_SHORT).show()
             // O puedes navegar a otro fragment/activity que sí exista
         }
     }
@@ -449,7 +449,7 @@ class LoginFragment : Fragment() {
         db.collection("usuarios").document(user.uid).set(userData)
             .addOnSuccessListener {
                 // Solo crear el desafío inicial si NO eligió "Otro"
-                if (objective != "Otro") {
+                if (objective != getString(R.string.other_objective)) {
                     createInitialChallenge(db, user.uid, objective, onSuccess, onError)
                 } else {
                     onSuccess()
@@ -513,76 +513,76 @@ class LoginFragment : Fragment() {
 
     private fun getInitialChallengeForObjective(objective: String): Map<String, Any> {
         return when (objective) {
-            "Fitness" -> mapOf(
-                "nombre" to "Reto de Fitness Inicial",
-                "descripcion" to "Comienza tu camino hacia una mejor forma física.",
+            getString(R.string.fitness) -> mapOf(
+                "nombre" to getString(R.string.initial_fitness_challenge),
+                "descripcion" to getString(R.string.fitness_challenge_description),
                 "dias" to 30,
                 "habitos" to listOf(
-                    mapOf("nombre" to "Caminar 30 minutos"),
-                    mapOf("nombre" to "Hacer 15 minutos de estiramientos"),
-                    mapOf("nombre" to "Beber 2 litros de agua"),
-                    mapOf("nombre" to "Dormir 7-8 horas"),
-                    mapOf("nombre" to "Comer una porción de vegetales")
+                    mapOf("nombre" to getString(R.string.walk_30_minutes)),
+                    mapOf("nombre" to getString(R.string.stretch_15_minutes)),
+                    mapOf("nombre" to getString(R.string.drink_2_liters_water)),
+                    mapOf("nombre" to getString(R.string.sleep_7_8_hours)),
+                    mapOf("nombre" to getString(R.string.eat_vegetables_portion))
                 ),
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "progreso" to 0
             )
-            "Lectura" -> mapOf(
-                "nombre" to "Reto de Lectura Inicial",
-                "descripcion" to "Desarrolla el hábito de la lectura.",
+            getString(R.string.reading_objective) -> mapOf(
+                "nombre" to getString(R.string.initial_reading_challenge),
+                "descripcion" to getString(R.string.reading_challenge_description),
                 "dias" to 30,
                 "habitos" to listOf(
-                    mapOf("nombre" to "Leer 20 páginas"),
-                    mapOf("nombre" to "Tomar notas de lo leído"),
-                    mapOf("nombre" to "Reflexionar sobre la lectura"),
-                    mapOf("nombre" to "Compartir lo aprendido"),
-                    mapOf("nombre" to "Leer en un lugar tranquilo")
+                    mapOf("nombre" to getString(R.string.read_20_pages)),
+                    mapOf("nombre" to getString(R.string.take_reading_notes)),
+                    mapOf("nombre" to getString(R.string.reflect_on_reading)),
+                    mapOf("nombre" to getString(R.string.share_learned)),
+                    mapOf("nombre" to getString(R.string.read_quiet_place))
                 ),
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "progreso" to 0
             )
             "Mindfulness" -> mapOf(
-                "nombre" to "Reto de Mindfulness Inicial",
-                "descripcion" to "Practica la atención plena diariamente.",
+                "nombre" to getString(R.string.initial_mindfulness_challenge),
+                "descripcion" to getString(R.string.mindfulness_challenge_description),
                 "dias" to 30,
                 "habitos" to listOf(
-                    mapOf("nombre" to "Meditar 10 minutos"),
-                    mapOf("nombre" to "Practicar la respiración consciente"),
-                    mapOf("nombre" to "Escribir en un diario de gratitud"),
-                    mapOf("nombre" to "Hacer una pausa consciente"),
-                    mapOf("nombre" to "Observar el entorno")
+                    mapOf("nombre" to getString(R.string.meditate_10_minutes)),
+                    mapOf("nombre" to getString(R.string.practice_conscious_breathing)),
+                    mapOf("nombre" to getString(R.string.write_gratitude_journal)),
+                    mapOf("nombre" to getString(R.string.take_conscious_pause)),
+                    mapOf("nombre" to getString(R.string.observe_environment))
                 ),
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "progreso" to 0
             )
-            "Hidratación" -> mapOf(
-                "nombre" to "Reto de Hidratación Inicial",
-                "descripcion" to "Mantente hidratado para una mejor salud.",
+            getString(R.string.hydration_objective) -> mapOf(
+                "nombre" to getString(R.string.initial_hydration_challenge),
+                "descripcion" to getString(R.string.hydration_challenge_description),
                 "dias" to 30,
                 "habitos" to listOf(
-                    mapOf("nombre" to "Beber 2 litros de agua"),
-                    mapOf("nombre" to "Llevar una botella de agua"),
-                    mapOf("nombre" to "Beber un vaso de agua al despertar"),
-                    mapOf("nombre" to "Beber agua antes de cada comida"),
-                    mapOf("nombre" to "Evitar bebidas azucaradas")
+                    mapOf("nombre" to getString(R.string.drink_2_liters_water)),
+                    mapOf("nombre" to getString(R.string.carry_water_bottle)),
+                    mapOf("nombre" to getString(R.string.drink_water_wake_up)),
+                    mapOf("nombre" to getString(R.string.drink_water_before_meals)),
+                    mapOf("nombre" to getString(R.string.avoid_sugary_drinks))
                 ),
                 "totalHabitos" to 5,
                 "estado" to "activo",
                 "progreso" to 0
             )
             else -> mapOf(
-                "nombre" to "Reto Genérico Inicial",
-                "descripcion" to "Un reto para empezar a construir hábitos.",
+                "nombre" to getString(R.string.initial_generic_challenge),
+                "descripcion" to getString(R.string.generic_challenge_description),
                 "dias" to 30,
                 "habitos" to listOf(
-                    mapOf("nombre" to "Hábito 1"),
-                    mapOf("nombre" to "Hábito 2"),
-                    mapOf("nombre" to "Hábito 3"),
-                    mapOf("nombre" to "Hábito 4"),
-                    mapOf("nombre" to "Hábito 5")
+                    mapOf("nombre" to getString(R.string.habit_1)),
+                    mapOf("nombre" to getString(R.string.habit_2)),
+                    mapOf("nombre" to getString(R.string.habit_3)),
+                    mapOf("nombre" to getString(R.string.habit_4)),
+                    mapOf("nombre" to getString(R.string.habit_5))
                 ),
                 "totalHabitos" to 5,
                 "estado" to "activo",

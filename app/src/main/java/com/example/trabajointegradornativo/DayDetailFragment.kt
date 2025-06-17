@@ -141,7 +141,7 @@ class DayDetailFragment : Fragment() {
                         }
                         .addOnFailureListener { e ->
                             Log.e("DayDetailFragment", "Error al crear día: ${e.message}")
-                            Toast.makeText(context, getString(R.string.error_unknown, "Error al crear día"), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, getString(R.string.error_saving_data, e.message ?: ""), Toast.LENGTH_SHORT).show()
                         }
                 } else {
                     Log.e("DayDetailFragment", "Documento del desafío no encontrado")
@@ -150,7 +150,7 @@ class DayDetailFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 Log.e("DayDetailFragment", "Error al cargar desafío base: ${e.message}")
-                Toast.makeText(context, getString(R.string.error_unknown, "Error al cargar desafío"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_saving_data, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -274,7 +274,9 @@ class DayDetailFragment : Fragment() {
                 "fecha_completado" to com.google.firebase.Timestamp.now()
             ))
             .addOnSuccessListener {
-                Toast.makeText(context, getString(R.string.day_number, dayNumber) + " " + getString(R.string.completed) + "!", Toast.LENGTH_SHORT).show()
+                // Mensaje de día completado traducido correctamente
+                val dayCompletedMessage = "${getString(R.string.day_number, dayNumber)} ${getString(R.string.completed)}!"
+                Toast.makeText(context, dayCompletedMessage, Toast.LENGTH_SHORT).show()
 
                 // Actualizar contador de días completados en el desafío
                 actualizarContadorDiasCompletados()
@@ -284,7 +286,7 @@ class DayDetailFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 Log.e("DayDetailFragment", "Error al completar día: ${e.message}")
-                Toast.makeText(context, getString(R.string.error_unknown, "Error al completar día"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_saving_progress, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
     }
 

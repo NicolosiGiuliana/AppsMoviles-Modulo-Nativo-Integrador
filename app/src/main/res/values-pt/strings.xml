@@ -290,4 +290,17 @@
     <string name="yes">Sim</string>
     <string name="challenge_deleted">Desafio excluído</string>
     <string name="error_deleting_challenge">Erro ao excluir desafio</string>
+
+    <!-- Validation messages -->
+
+    <!-- Toast messages -->
+    <string name="navigation_successful">Navegação bem-sucedida</string>
+    <string name="login_error">Erro no login: %s</string>
+    <string name="registration_error">Erro no cadastro: %s</string>
+
+    <!-- Objectives -->
+    <string name="reading_objective">Leitura</string>
+    <string name="hydration_objective">Hidratação</string>
+    <string name="other_objective">Outro</string>
+
 </resources>

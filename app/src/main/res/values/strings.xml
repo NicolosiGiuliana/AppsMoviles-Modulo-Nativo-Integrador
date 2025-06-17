@@ -53,64 +53,16 @@
     <string name="no_account">¿No tenes cuenta? Regístrate</string>
     <string name="have_account">¿Ya tienes cuenta? Inicia sesión</string>
     <!-- Validation messages -->
-    <string name="email_required">El email es requerido</string>
-    <string name="enter_valid_email">Ingrese un email válido</string>
-    <string name="password_required">La contraseña es requerida</string>
-    <string name="password_min_length">La contraseña debe tener al menos 6 caracteres</string>
-    <string name="full_name_required">El nombre completo es requerido</string>
-    <string name="name_min_length">El nombre debe tener al menos 3 caracteres</string>
-    <string name="birth_date_required">La fecha de nacimiento es requerida</string>
-    <string name="age_requirement">Debe ser mayor de 10 años para registrarse</string>
-    <string name="objective_required">Debe seleccionar un objetivo</string>
-    <string name="confirm_password_required">Debe confirmar la contraseña</string>
-    <string name="passwords_dont_match">Las contraseñas no coinciden</string>
 
     <!-- Success messages -->
-    <string name="login_successful">Inicio de sesión exitoso</string>
-    <string name="registration_successful">Registro exitoso</string>
 
     <!-- Error messages -->
     <string name="error_format">Error: %s</string>
-    <string name="error_saving_data">Error al guardar datos: %s</string>
 
     <!-- Additional objectives -->
     <string name="reading">Lectura</string>
     <string name="hydration">Hidratación</string>
     <string name="other">Otro</string>
-
-    <!-- Challenge names and descriptions -->
-    <string name="initial_fitness_challenge">Reto de Fitness Inicial</string>
-    <string name="fitness_challenge_description">Comienza tu camino hacia una mejor forma física.</string>
-    <string name="initial_reading_challenge">Reto de Lectura Inicial</string>
-    <string name="reading_challenge_description">Desarrolla el hábito de la lectura.</string>
-    <string name="initial_mindfulness_challenge">Reto de Mindfulness Inicial</string>
-    <string name="mindfulness_challenge_description">Practica la atención plena diariamente.</string>
-    <string name="initial_hydration_challenge">Reto de Hidratación Inicial</string>
-    <string name="hydration_challenge_description">Mantente hidratado para una mejor salud.</string>
-    <string name="initial_generic_challenge">Reto Genérico Inicial</string>
-    <string name="generic_challenge_description">Un reto para empezar a construir hábitos.</string>
-
-    <!-- Habit names -->
-    <string name="walk_30_minutes">Caminar 30 minutos</string>
-    <string name="stretch_15_minutes">Hacer 15 minutos de estiramientos</string>
-    <string name="drink_2_liters_water">Beber 2 litros de agua</string>
-    <string name="sleep_7_8_hours">Dormir 7-8 horas</string>
-    <string name="eat_vegetables_portion">Comer una porción de vegetales</string>
-    <string name="take_reading_notes">Tomar notas de lo leído</string>
-    <string name="reflect_on_reading">Reflexionar sobre la lectura</string>
-    <string name="share_learned">Compartir lo aprendido</string>
-    <string name="read_quiet_place">Leer en un lugar tranquilo</string>
-    <string name="meditate_10_minutes">Meditar 10 minutos</string>
-    <string name="practice_conscious_breathing">Practicar la respiración consciente</string>
-    <string name="write_gratitude_journal">Escribir en un diario de gratitud</string>
-    <string name="take_conscious_pause">Hacer una pausa consciente</string>
-    <string name="observe_environment">Observar el entorno</string>
-    <string name="carry_water_bottle">Llevar una botella de agua</string>
-    <string name="drink_water_wake_up">Beber un vaso de agua al despertar</string>
-    <string name="drink_water_before_meals">Beber agua antes de cada comida</string>
-    <string name="avoid_sugary_drinks">Evitar bebidas azucaradas</string>
-    <string name="habit_4">Hábito 4</string>
-    <string name="habit_5">Hábito 5</string>
     <!-- Home screen strings -->
     <string name="hello_user">Hola, Usuario</string>
     <string name="build_best_version">Construye tu mejor versión</string>
@@ -287,4 +239,64 @@
     <string name="yes">Sí</string>
     <string name="challenge_deleted">Desafío eliminado</string>
     <string name="error_deleting_challenge">Error al eliminar desafío</string>
+
+    <!-- Validation messages -->
+    <string name="email_required">El email es requerido</string>
+    <string name="enter_valid_email">Ingrese un email válido</string>
+    <string name="password_required">La contraseña es requerida</string>
+    <string name="password_min_length">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="full_name_required">El nombre completo es requerido</string>
+    <string name="name_min_length">El nombre debe tener al menos 3 caracteres</string>
+    <string name="birth_date_required">La fecha de nacimiento es requerida</string>
+    <string name="age_requirement">Debe ser mayor de 10 años para registrarse</string>
+    <string name="objective_required">Debe seleccionar un objetivo</string>
+    <string name="confirm_password_required">Debe confirmar la contraseña</string>
+    <string name="passwords_dont_match">Las contraseñas no coinciden</string>
+
+    <!-- Toast messages -->
+    <string name="login_successful">Inicio de sesión exitoso</string>
+    <string name="registration_successful">Registro exitoso</string>
+    <string name="navigation_successful">Navegación exitosa</string>
+    <string name="login_error">Error de inicio de sesión: %s</string>
+    <string name="registration_error">Error de registro: %s</string>
+    <string name="error_saving_data">Error al guardar datos: %s</string>
+
+    <!-- Objectives -->
+    <string name="reading_objective">Lectura</string>
+    <string name="hydration_objective">Hidratación</string>
+    <string name="other_objective">Otro</string>
+
+    <!-- Challenge data -->
+    <string name="initial_fitness_challenge">Reto de Fitness Inicial</string>
+    <string name="fitness_challenge_description">Comienza tu camino hacia una mejor forma física.</string>
+    <string name="initial_reading_challenge">Reto de Lectura Inicial</string>
+    <string name="reading_challenge_description">Desarrolla el hábito de la lectura.</string>
+    <string name="initial_mindfulness_challenge">Reto de Mindfulness Inicial</string>
+    <string name="mindfulness_challenge_description">Practica la atención plena diariamente.</string>
+    <string name="initial_hydration_challenge">Reto de Hidratación Inicial</string>
+    <string name="hydration_challenge_description">Mantente hidratado para una mejor salud.</string>
+    <string name="initial_generic_challenge">Reto Genérico Inicial</string>
+    <string name="generic_challenge_description">Un reto para empezar a construir hábitos.</string>
+
+    <!-- Habit names -->
+    <string name="walk_30_minutes">Caminar 30 minutos</string>
+    <string name="stretch_15_minutes">Hacer 15 minutos de estiramientos</string>
+    <string name="drink_2_liters_water">Beber 2 litros de agua</string>
+    <string name="sleep_7_8_hours">Dormir 7-8 horas</string>
+    <string name="eat_vegetables_portion">Comer una porción de vegetales</string>
+    <string name="take_reading_notes">Tomar notas de lo leído</string>
+    <string name="reflect_on_reading">Reflexionar sobre la lectura</string>
+    <string name="share_learned">Compartir lo aprendido</string>
+    <string name="read_quiet_place">Leer en un lugar tranquilo</string>
+    <string name="meditate_10_minutes">Meditar 10 minutos</string>
+    <string name="practice_conscious_breathing">Practicar la respiración consciente</string>
+    <string name="write_gratitude_journal">Escribir en un diario de gratitud</string>
+    <string name="take_conscious_pause">Hacer una pausa consciente</string>
+    <string name="observe_environment">Observar el entorno</string>
+    <string name="carry_water_bottle">Llevar una botella de agua</string>
+    <string name="drink_water_wake_up">Beber un vaso de agua al despertar</string>
+    <string name="drink_water_before_meals">Beber agua antes de cada comida</string>
+    <string name="avoid_sugary_drinks">Evitar bebidas azucaradas</string>
+    <string name="habit_4">Hábito 4</string>
+    <string name="habit_5">Hábito 5</string>
 </resources>
