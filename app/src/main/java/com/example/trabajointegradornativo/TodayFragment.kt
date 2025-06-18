@@ -43,7 +43,7 @@ data class Habito(
 data class Desafio(
     val id: String,
     val nombre: String,
-    val diaActual: Int,
+    var diaActual: Int,
     val totalDias: Int,
     val habitos: MutableList<Habito>
 )
@@ -70,7 +70,7 @@ class TodayFragment : Fragment() {
     // Listeners para detectar cambios en tiempo real
     private val firestoreListeners = mutableListOf<ListenerRegistration>()
 
-    // Launcher para tomar fotos con cámara - ACTUALIZADO
+    // Launcher para tomar fotos con cámara
     private val takePictureLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -83,7 +83,7 @@ class TodayFragment : Fragment() {
         }
     }
 
-    // Launcher para seleccionar foto de galería - ACTUALIZADO
+    // Launcher para seleccionar foto de galería
     private val pickImageLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -105,7 +105,7 @@ class TodayFragment : Fragment() {
         }
     }
 
-    // Launcher para permisos de almacenamiento - ACTUALIZADO
+    // Launcher para permisos de almacenamiento
     private val requestStoragePermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -160,7 +160,6 @@ class TodayFragment : Fragment() {
     }
 
     private fun configurarFechaActual() {
-        // Usar formateo de fecha simple y compatible con internacionalización
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("EEEE, d 'de' MMMM", Locale.getDefault())
         val fechaFormateada = dateFormat.format(calendar.time)
@@ -227,6 +226,13 @@ class TodayFragment : Fragment() {
 
                 val diaEstaCompletado = completadosSnapshot != null && !completadosSnapshot.isEmpty
 
+                // Si el día está completado, no mostrar este desafío en Today
+                if (diaEstaCompletado) {
+                    Log.d(TAG, "Día completado para $nombreDesafio, removiendo de Today")
+                    removerDesafioDeInterfaz(desafioId)
+                    return@addSnapshotListener
+                }
+
                 val habitosListener = firestore.collection("usuarios")
                     .document(uid)
                     .collection("desafios")
@@ -242,15 +248,9 @@ class TodayFragment : Fragment() {
                         if (document != null && document.exists()) {
                             val habitosData = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
                             val habitos = habitosData.map { habitoMap: Map<String, Any> ->
-                                val habitoCompletado = if (diaEstaCompletado) {
-                                    true
-                                } else {
-                                    habitoMap["completado"] as? Boolean ?: false
-                                }
-
                                 Habito(
                                     nombre = habitoMap["nombre"] as? String ?: "",
-                                    completado = habitoCompletado,
+                                    completado = habitoMap["completado"] as? Boolean ?: false,
                                     fotoUrl = habitoMap["fotoUrl"] as? String,
                                     comentario = habitoMap["comentario"] as? String
                                 )
@@ -265,7 +265,7 @@ class TodayFragment : Fragment() {
                                 desafiosActivos.add(desafio)
                             }
 
-                            Log.d(TAG, "Desafío actualizado: $nombreDesafio, día completado: $diaEstaCompletado")
+                            Log.d(TAG, "Desafío actualizado: $nombreDesafio")
                             actualizarInterfaz()
                         }
                     }
@@ -274,6 +274,18 @@ class TodayFragment : Fragment() {
             }
 
         firestoreListeners.add(diaCompletadoListener)
+    }
+
+    private fun removerDesafioDeInterfaz(desafioId: String) {
+        val posicionDesafio = desafiosActivos.indexOfFirst { it.id == desafioId }
+        if (posicionDesafio != -1) {
+            desafiosActivos.removeAt(posicionDesafio)
+
+            // Actualizar la interfaz completa
+            actualizarInterfaz()
+
+            Log.d(TAG, "Desafío removido de la interfaz: $desafioId")
+        }
     }
 
     private fun mostrarMensajeSinDesafios() {
@@ -286,7 +298,7 @@ class TodayFragment : Fragment() {
         }
 
         val textoMensaje = TextView(requireContext()).apply {
-            text = getString(R.string.no_active_challenges_message)
+            text = "🎉\n\n¡Excelente trabajo!\n\nHas completado todos tus desafíos por hoy.\n¡Sigue así mañana!"
             textSize = 16f
             gravity = android.view.Gravity.CENTER
             setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray))
@@ -300,6 +312,11 @@ class TodayFragment : Fragment() {
 
     private fun actualizarInterfaz() {
         activitiesContainer.removeAllViews()
+
+        if (desafiosActivos.isEmpty()) {
+            mostrarMensajeSinDesafios()
+            return
+        }
 
         for (desafio in desafiosActivos) {
             agregarDesafioALaInterfaz(desafio)
@@ -430,7 +447,6 @@ class TodayFragment : Fragment() {
     private fun verificarSiDiaEstaCompletado(desafio: Desafio, callback: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: return
 
-        // Primero verificar en el documento del día
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -443,7 +459,6 @@ class TodayFragment : Fragment() {
                 callback(completado)
             }
             .addOnFailureListener {
-                // Fallback: verificar en dias_completados
                 firestore.collection("usuarios")
                     .document(uid)
                     .collection("desafios")
@@ -466,7 +481,6 @@ class TodayFragment : Fragment() {
         if (todosCompletados) {
             marcarDiaComoCompletado(desafio)
         } else {
-            // Si no todos están completados, asegurarse de que el día no esté marcado como completado
             desmarcarDiaComoCompletado(desafio)
         }
     }
@@ -474,7 +488,6 @@ class TodayFragment : Fragment() {
     private fun marcarDiaComoCompletado(desafio: Desafio) {
         val uid = auth.currentUser?.uid ?: return
 
-        // Actualizar el documento del día específico
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -483,7 +496,6 @@ class TodayFragment : Fragment() {
             .document("dia_${desafio.diaActual}")
             .update("completado", true)
             .addOnSuccessListener {
-                // Opcional: También crear/actualizar el registro en dias_completados
                 val diaCompletadoData = hashMapOf(
                     "dia" to desafio.diaActual,
                     "fecha_completado" to com.google.firebase.Timestamp.now(),
@@ -497,15 +509,19 @@ class TodayFragment : Fragment() {
                     .collection("dias_completados")
                     .document("dia_${desafio.diaActual}")
                     .set(diaCompletadoData, com.google.firebase.firestore.SetOptions.merge())
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Día marcado como completado, será removido automáticamente por el listener")
+                        Toast.makeText(context, "¡Día completado! 🎉", Toast.LENGTH_SHORT).show()
+                    }
             }
             .addOnFailureListener { e ->
                 Toast.makeText(context, "Error al marcar día como completado: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
     private fun desmarcarDiaComoCompletado(desafio: Desafio) {
         val uid = auth.currentUser?.uid ?: return
 
-        // Actualizar el documento del día específico
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -514,7 +530,6 @@ class TodayFragment : Fragment() {
             .document("dia_${desafio.diaActual}")
             .update("completado", false)
             .addOnSuccessListener {
-                // DESPUÉS de actualizar el día, eliminar de dias_completados
                 firestore.collection("usuarios")
                     .document(uid)
                     .collection("desafios")
@@ -522,6 +537,9 @@ class TodayFragment : Fragment() {
                     .collection("dias_completados")
                     .document("dia_${desafio.diaActual}")
                     .delete()
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Día desmarcado como completado")
+                    }
             }
             .addOnFailureListener { e ->
                 Toast.makeText(context, "Error al desmarcar día: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -589,10 +607,7 @@ class TodayFragment : Fragment() {
         )
 
         guardarProgresoHabito(desafio, habito)
-
-        // AGREGAR: Verificar si todos los hábitos están completados
         verificarYMarcarDiaCompletado(desafio)
-
         actualizarResumenProgreso()
     }
 
