@@ -40,7 +40,7 @@ class ItemListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-//        (activity as AppCompatActivity).supportActionBar?.hide()
+        (activity as AppCompatActivity).supportActionBar?.hide()
 
         _binding = FragmentItemListBinding.inflate(inflater, container, false)
         return binding.root
@@ -170,7 +170,7 @@ class ItemListFragment : Fragment() {
         // Get current date
         val dateFormat = SimpleDateFormat("EEEE d MMM", Locale.getDefault())
         val currentDate = dateFormat.format(Date())
-        binding.currentDate?.text = currentDate
+//        binding.currentDate?.text = currentDate
 
         // Setup current day card click
         binding.currentDayCard?.setOnClickListener {
@@ -226,19 +226,19 @@ class ItemListFragment : Fragment() {
                 filteredActiveChallenges.addAll(activeChallenges)
                 binding.activeChallengesList?.adapter?.notifyDataSetChanged()
 
-                updateCurrentProgress()
+//                updateCurrentProgress()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(context, getString(R.string.error_format, e.message), Toast.LENGTH_LONG).show()
             }
     }
 
-    private fun updateCurrentProgress() {
-        if (activeChallenges.isNotEmpty()) {
-            val currentChallenge = activeChallenges.first()
-            binding.currentProgress?.text = getString(R.string.completed_format, currentChallenge.completados, currentChallenge.totalHabitos)
-        }
-    }
+//    private fun updateCurrentProgress() {
+//        if (activeChallenges.isNotEmpty()) {
+//            val currentChallenge = activeChallenges.first()
+////            binding.currentProgress?.text = getString(R.string.completed_format, currentChallenge.completados, currentChallenge.totalHabitos)
+//        }
+//    }
 
     inner class TagsAdapter(private val tags: List<String>) :
         RecyclerView.Adapter<TagsAdapter.TagViewHolder>() {
