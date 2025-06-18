@@ -126,7 +126,10 @@ class ItemDetailFragment : Fragment() {
                     val dias = document.getLong("dias")?.toInt() ?: 0
                     val diaActual = document.getLong("diaActual")?.toInt() ?: 1
                     val estado = document.getString("estado") ?: "Indefinido"
-                    val completados = diasCompletados.size // Usar los días completados cargados
+                    val completados = diasCompletados.size
+
+                    // Agregar esta línea para obtener las etiquetas
+                    val etiquetas = document.get("etiquetas") as? List<String> ?: emptyList()
 
                     // Obtener los hábitos del desafío (base)
                     val habitosBase = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
@@ -148,10 +151,10 @@ class ItemDetailFragment : Fragment() {
 
                         // Actualizar también la información general en la UI
                         actualizarInformacionGeneral(nombre, descripcion, dias, diaActual, completados, estado)
+
+                        // Agregar esta línea para mostrar las etiquetas
+                        mostrarEtiquetas(etiquetas)
                     }
-                } else {
-                    Log.e("Firestore", "Documento del desafío no encontrado")
-                    Toast.makeText(context, "Error: Desafío no encontrado", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { exception ->
@@ -311,6 +314,26 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    private fun mostrarEtiquetas(etiquetas: List<String>) {
+        val tagsContainer = binding.root.findViewById<com.google.android.flexbox.FlexboxLayout>(R.id.tags_container)
+        tagsContainer?.removeAllViews()
+
+        val inflater = LayoutInflater.from(requireContext())
+
+        for (etiqueta in etiquetas) {
+            val tagView = inflater.inflate(R.layout.item_tag, tagsContainer, false)
+            val tagText = tagView.findViewById<TextView>(R.id.tag_text)
+            tagText?.text = etiqueta
+            tagsContainer?.addView(tagView)
+        }
+
+        // Si no hay etiquetas, mostrar mensaje
+        if (etiquetas.isEmpty()) {
+            val emptyView = inflater.inflate(R.layout.empty_tags_view, tagsContainer, false)
+            tagsContainer?.addView(emptyView)
+        }
+    }
+
     private fun actualizarUI(
         nombre: String,
         descripcion: String,
@@ -429,7 +452,8 @@ class ItemDetailFragment : Fragment() {
                     "dia" to diaActual,
                     "fechaRealizacion" to fecha,
                     "fecha_creacion" to com.google.firebase.Timestamp.now(),
-                    "habitos" to habitosDelDia
+                    "habitos" to habitosDelDia,
+                    "etiquetas" to emptyList<String>() // Agregar esta línea
                 )
 
                 firestore.collection("usuarios")

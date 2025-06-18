@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation(libs.places)
     implementation(libs.firebase.dataconnect)
+    implementation ("com.google.android.flexbox:flexbox:3.0.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -34,6 +34,23 @@
                 android:layout_marginBottom="24dp"
                 android:lineSpacingExtra="4dp" />
 
+            <!-- Botón Editar -->
+            <Button
+                android:id="@+id/btn_edit_challenge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="@string/edit"
+                android:textSize="14sp"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/complete_button_background"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:layout_marginBottom="16dp"
+                android:drawableStart="@drawable/button_secondary_background"
+                android:drawablePadding="8dp"
+                app:drawableTint="#FFFFFF" />
+
             <!-- Banner circular con contador de días -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/progress_card"
@@ -200,6 +217,46 @@
                         <!-- Agregar más hábitos aquí programáticamente -->
 
                     </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Etiquetas del Desafío -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:backgroundTint="#F8F9FA">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tags_title"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#2E3A59"
+                        android:layout_marginBottom="12dp" />
+
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:id="@+id/tags_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:flexWrap="wrap"
+                        app:alignItems="center"
+                        app:justifyContent="flex_start">
+
+                        <!-- Las etiquetas se agregan programáticamente aquí -->
+
+                    </com.google.android.flexbox.FlexboxLayout>
 
                 </LinearLayout>
 

@@ -5,6 +5,10 @@
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
 
+    <string name="edit">Editar</string>
+    <string name="tags_title">Etiquetas</string>
+
+    <string name="no_tags">Sin etiquetas</string>
 
     <!-- Profile strings -->
     <string name="profile_title">Perfil</string>
