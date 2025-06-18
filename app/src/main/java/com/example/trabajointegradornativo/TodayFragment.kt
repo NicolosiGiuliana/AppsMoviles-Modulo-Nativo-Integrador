@@ -430,18 +430,101 @@ class TodayFragment : Fragment() {
     private fun verificarSiDiaEstaCompletado(desafio: Desafio, callback: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: return
 
+        // Primero verificar en el documento del día
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
             .document(desafio.id)
-            .collection("dias_completados")
-            .whereEqualTo("dia", desafio.diaActual)
+            .collection("dias")
+            .document("dia_${desafio.diaActual}")
             .get()
-            .addOnSuccessListener { documents ->
-                callback(!documents.isEmpty)
+            .addOnSuccessListener { document ->
+                val completado = document.getBoolean("completado") ?: false
+                callback(completado)
             }
             .addOnFailureListener {
-                callback(false)
+                // Fallback: verificar en dias_completados
+                firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(desafio.id)
+                    .collection("dias_completados")
+                    .whereEqualTo("dia", desafio.diaActual)
+                    .get()
+                    .addOnSuccessListener { documents ->
+                        callback(!documents.isEmpty)
+                    }
+                    .addOnFailureListener {
+                        callback(false)
+                    }
+            }
+    }
+
+    private fun verificarYMarcarDiaCompletado(desafio: Desafio) {
+        val todosCompletados = desafio.habitos.all { it.completado }
+
+        if (todosCompletados) {
+            marcarDiaComoCompletado(desafio)
+        } else {
+            // Si no todos están completados, asegurarse de que el día no esté marcado como completado
+            desmarcarDiaComoCompletado(desafio)
+        }
+    }
+
+    private fun marcarDiaComoCompletado(desafio: Desafio) {
+        val uid = auth.currentUser?.uid ?: return
+
+        // Actualizar el documento del día específico
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .document("dia_${desafio.diaActual}")
+            .update("completado", true)
+            .addOnSuccessListener {
+                // Opcional: También crear/actualizar el registro en dias_completados
+                val diaCompletadoData = hashMapOf(
+                    "dia" to desafio.diaActual,
+                    "fecha_completado" to com.google.firebase.Timestamp.now(),
+                    "desafio_id" to desafio.id
+                )
+
+                firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(desafio.id)
+                    .collection("dias_completados")
+                    .document("dia_${desafio.diaActual}")
+                    .set(diaCompletadoData, com.google.firebase.firestore.SetOptions.merge())
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error al marcar día como completado: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+    private fun desmarcarDiaComoCompletado(desafio: Desafio) {
+        val uid = auth.currentUser?.uid ?: return
+
+        // Actualizar el documento del día específico
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .document("dia_${desafio.diaActual}")
+            .update("completado", false)
+            .addOnSuccessListener {
+                // DESPUÉS de actualizar el día, eliminar de dias_completados
+                firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(desafio.id)
+                    .collection("dias_completados")
+                    .document("dia_${desafio.diaActual}")
+                    .delete()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Error al desmarcar día: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -506,6 +589,10 @@ class TodayFragment : Fragment() {
         )
 
         guardarProgresoHabito(desafio, habito)
+
+        // AGREGAR: Verificar si todos los hábitos están completados
+        verificarYMarcarDiaCompletado(desafio)
+
         actualizarResumenProgreso()
     }
 
