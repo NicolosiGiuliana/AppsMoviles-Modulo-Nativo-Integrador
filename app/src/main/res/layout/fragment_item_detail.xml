@@ -74,7 +74,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
-                            android:text="@string/progress_format"
                             android:textSize="24sp"
                             android:textStyle="bold"
                             android:textColor="#FFFFFF"
@@ -135,7 +134,6 @@
                         android:id="@+id/challenge_description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="hola"
                         android:textSize="16sp"
                         android:textColor="#5A6C7D"
                         android:lineSpacingExtra="4dp" />
@@ -194,7 +192,6 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="hola2"
                                 android:textSize="16sp"
                                 android:textColor="#2E3A59" />
 
