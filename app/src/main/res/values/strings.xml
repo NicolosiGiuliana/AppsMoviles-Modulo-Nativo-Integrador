@@ -266,6 +266,25 @@
     <string name="hydration_objective">Hidratación</string>
     <string name="other_objective">Otro</string>
 
+    <string name="challenge_title">Título del Desafío</string>
+    <string name="description_title">Descripción</string>
+    <string name="habits_title">Hábitos incluidos</string>
+    <string name="duration_title">Duración</string>
+    <string name="day_status_title">Estado de hoy</string>
+    <string name="duration_days_format">%d días</string>
+    <string name="day_completed">Completado</string>
+
+    <string name="all_habits_completed">Todos los hábitos están completados. No puedes desmarcar.</string>
+
+    <string name="day_pending">Pendiente</string>
+    <string name="default_challenge_description">Este desafío te ayudará a desarrollar hábitos positivos</string>
+    <string name="default_habit_1">Hacer ejercicio diario</string>
+    <string name="default_habit_2">Beber 8 vasos de agua</string>
+    <string name="default_habit_3">Meditar 10 minutos</string>
+    <string name="good_progress">Buen progreso</string>
+    <string name="keep_going">¡Sigue así!</string>
+    <string name="just_started">Recién comenzando</string>
+
     <!-- Para etiquetas -->
     <string name="tags">Etiquetas</string>
     <string name="tags_description">Agrega etiquetas para categorizar tu desafío</string>

@@ -63,6 +63,8 @@ dependencies {
     implementation ("com.google.firebase:firebase-firestore:24.10.0")
     // LÍNEA CORREGIDA - agregadas las comillas
     implementation("androidx.cardview:cardview:1.0.0")
+    implementation(libs.places)
+    implementation(libs.firebase.dataconnect)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
