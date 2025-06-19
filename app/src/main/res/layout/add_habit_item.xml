@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/btn_add_habit"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/add_habit"
+    android:textSize="16sp"
+    android:textColor="#2196F3"
+    android:background="@drawable/button_secondary_background"
+    android:padding="12dp"
+    android:layout_marginBottom="8dp"
+    android:drawableStart="@drawable/ic_add"
+    android:drawablePadding="8dp"
+    app:drawableTint="#2196F3" />

@@ -79,8 +79,18 @@ class ItemDetailFragment : Fragment() {
         Log.d("ItemDetailFragment", "onCreateView: Llamando a updateContent")
         cargarDiasCompletados()
         setupBottomNavigation()
+
+        // Configuración del botón para editar desafío
+        binding.btnEditChallenge!!.setOnClickListener {
+            val bundle = Bundle().apply {
+                putParcelable("desafio", desafio) // Pasar datos del desafío si es necesario
+            }
+            findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
+        }
+
         return rootView
     }
+
 
     private fun cargarDiasCompletados() {
         val uid = auth.currentUser?.uid ?: return
@@ -617,7 +627,7 @@ class ItemDetailFragment : Fragment() {
                 val bundle = Bundle().apply {
                     putParcelable("desafio", desafio)
                 }
-//                findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
+                findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
                 true
             }
             R.id.action_delete -> {

@@ -6,6 +6,8 @@
     <color name="green_button">#48BB78</color>
     <color name="green_light">#E6F4EA</color>
 
+    <color name="border_color">#E0E0E0</color>
+
     <color name="red_primary_ubi">#F44336</color>
     <color name="text_hint_ubi">#9E9E9E</color>
     <color name="text_secondary_ubi">#757575</color>

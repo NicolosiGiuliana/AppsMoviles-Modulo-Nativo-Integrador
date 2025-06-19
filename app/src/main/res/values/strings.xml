@@ -9,6 +9,23 @@
     <string name="tags_title">Etiquetas</string>
 
     <string name="no_tags">Sin etiquetas</string>
+    <string name="edit_habits">Editar hábitos</string>
+    <string name="save_changes">Guardar cambios</string>
+    <string name="habit_name_hint">Nombre del hábito</string>
+
+    <string name="edit_challenge">Editar Desafío</string>
+    <string name="edit_description">Editar Descripción</string>
+    <string name="edit_duration">Editar Duración</string>
+    <string name="edit_tags">Editar Etiquetas</string>
+    <string name="add_tag">Agregar Etiqueta</string>
+    <string name="delete_tag">Eliminar Etiqueta</string>
+    <string name="description_hint">Ingresa la descripción del desafío</string>
+    <string name="days_hint">Días</string>
+    <string name="tag_hint">Etiqueta</string>
+    <string name="challenge_updated">Desafío actualizado exitosamente</string>
+    <string name="error_saving_challenge">Error al guardar los cambios</string>
+    <string name="days_must_be_positive">Los días deben ser mayor a 0</string>
+    <string name="at_least_one_habit">Debe tener al menos un hábito</string>
 
     <!-- Profile strings -->
     <string name="profile_title">Perfil</string>

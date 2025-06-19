@@ -49,6 +49,10 @@
         <action
             android:id="@+id/action_itemDetailFragment_to_itemListFragment"
             app:destination="@id/itemListFragment" />
+
+        <action
+            android:id="@+id/action_itemDetailFragment_to_editDesafioFragment"
+            app:destination="@id/editDesafioFragment" />
     </fragment>
 
     <!-- Detalle del día (Hoy) -->
@@ -92,5 +96,11 @@
         android:name="com.example.trabajointegradornativo.TodayFragment"
         android:label="Hoy"
         tools:layout="@layout/action_to_today_fragment" />
+
+    <fragment
+        android:id="@+id/editDesafioFragment"
+        android:name="com.example.trabajointegradornativo.EditDesafioFragment"
+        android:label="Editar Desafío"
+        tools:layout="@layout/fragment_edit_desafio" />
 
 </navigation>

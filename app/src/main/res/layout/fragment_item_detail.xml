@@ -34,23 +34,6 @@
                 android:layout_marginBottom="24dp"
                 android:lineSpacingExtra="4dp" />
 
-            <!-- Botón Editar -->
-            <Button
-                android:id="@+id/btn_edit_challenge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="@string/edit"
-                android:textSize="14sp"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/complete_button_background"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:layout_marginBottom="16dp"
-                android:drawableStart="@drawable/button_secondary_background"
-                android:drawablePadding="8dp"
-                app:drawableTint="#FFFFFF" />
-
             <!-- Banner circular con contador de días -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/progress_card"
@@ -366,6 +349,22 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Botón Circular de Edición - Flotante REPOSICIONADO -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_edit_challenge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="100dp"
+        android:src="@drawable/ic_edit"
+        android:contentDescription="@string/edit"
+        app:backgroundTint="#4CAF50"
+        app:tint="#FFFFFF"
+        app:fabSize="normal"
+        app:elevation="8dp"
+        app:pressedTranslationZ="12dp" />
 
     <!-- Bottom Navigation -->
     <LinearLayout
