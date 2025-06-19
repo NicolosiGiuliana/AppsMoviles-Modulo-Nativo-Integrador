@@ -141,6 +141,9 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
         // Configurar estado inicial de ubicación
         actualizarEstadoUbicacion()
+        if (esPublico) {
+            checkboxUbicacionOpcional.visibility = View.GONE
+        }
     }
 
     private fun configurarEventos() {
@@ -162,6 +165,17 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         // NUEVOS EVENTOS - Visibilidad
         radioGroupVisibility.setOnCheckedChangeListener { _, checkedId ->
             esPublico = checkedId == R.id.radioPublic
+
+            // Si se selecciona público, ocultar y limpiar ubicación
+            if (esPublico) {
+                checkboxUbicacionOpcional.visibility = View.GONE
+                checkboxUbicacionOpcional.isChecked = false
+                layoutSelectLocation.visibility = View.GONE
+                limpiarUbicacion()
+            } else {
+                // Si se selecciona privado, mostrar opción de ubicación
+                checkboxUbicacionOpcional.visibility = View.VISIBLE
+            }
         }
 
         // Eventos de ubicación
@@ -431,6 +445,11 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             habitos.size > 5 -> {
                 Toast.makeText(context, "No puedes agregar más de 5 hábitos", Toast.LENGTH_SHORT)
                     .show()
+                return false
+            }
+
+            esPublico && ubicacionSeleccionada != null -> {
+                Toast.makeText(context, "Los desafíos públicos no pueden tener ubicación por privacidad", Toast.LENGTH_SHORT).show()
                 return false
             }
 
