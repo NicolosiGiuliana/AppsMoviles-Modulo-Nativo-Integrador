@@ -16,6 +16,9 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class EditDesafioFragment : Fragment() {
 
@@ -38,6 +41,10 @@ class EditDesafioFragment : Fragment() {
     // Data
     private val habitos = mutableListOf<HabitoItem>()
     private val etiquetas = mutableListOf<String>()
+
+    // AGREGAR estas variables:
+    private val habitosOriginales = mutableListOf<HabitoItem>() // Estado original de los hábitos
+    private val cambiosPendientes = mutableMapOf<Int, Boolean>() // Cambios temporales por índice
 
     data class HabitoItem(
         var nombre: String,
@@ -96,8 +103,24 @@ class EditDesafioFragment : Fragment() {
         }
 
         btnCancelar.setOnClickListener {
+            revertirCambios()
             findNavController().navigateUp()
         }
+    }
+
+    private fun revertirCambios() {
+        // Restaurar estados originales
+        for (i in habitos.indices) {
+            if (i < habitosOriginales.size) {
+                habitos[i].completado = habitosOriginales[i].completado
+            }
+        }
+
+        // Limpiar cambios pendientes
+        cambiosPendientes.clear()
+
+        // Actualizar UI para mostrar estados originales
+        actualizarUIHabitos()
     }
 
     private fun cargarDatosDesafio() {
@@ -140,11 +163,50 @@ class EditDesafioFragment : Fragment() {
 
                     actualizarUIHabitos()
                     actualizarUIEtiquetas()
+                    cargarEstadoHabitosDelDiaActual()
                 }
             }
             .addOnFailureListener { e ->
                 Log.e("EditDesafio", "Error al cargar datos: ${e.message}")
                 Toast.makeText(context, "Error al cargar los datos", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun cargarEstadoHabitosDelDiaActual() {
+        val uid = auth.currentUser?.uid ?: return
+        val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .whereEqualTo("fechaRealizacion", fechaHoy)
+            .get()
+            .addOnSuccessListener { diasSnapshot ->
+                if (!diasSnapshot.isEmpty) {
+                    val diaDoc = diasSnapshot.documents[0]
+                    val habitosDelDia = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+
+                    // Actualizar el estado de los hábitos con los datos del día actual
+                    for ((index, habitoDelDia) in habitosDelDia.withIndex()) {
+                        if (index < habitos.size) {
+                            val completado = habitoDelDia["completado"] as? Boolean ?: false
+                            habitos[index].completado = completado
+                        }
+                    }
+                    habitosOriginales.clear()
+                    habitosOriginales.addAll(habitos.map { it.copy() })
+
+                    // Limpiar cambios pendientes
+                    cambiosPendientes.clear()
+
+                    // Refrescar la UI con los estados actualizados
+                    actualizarUIHabitos()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("EditDesafio", "Error al cargar estado de hábitos del día: ${e.message}")
             }
     }
 
@@ -169,9 +231,11 @@ class EditDesafioFragment : Fragment() {
                 }
             }
 
-            // Listener para cambios en el estado
+            // Listener para cambios en el estado - MEJORADO
             switchCompletado.setOnCheckedChangeListener { _, isChecked ->
                 habitos[index].completado = isChecked
+                // NO guardar inmediatamente, solo marcar como cambio pendiente
+                cambiosPendientes[index] = isChecked
             }
 
             // Listener para eliminar hábito
@@ -189,6 +253,66 @@ class EditDesafioFragment : Fragment() {
 
             habitosContainer.addView(habitoView)
         }
+    }
+
+//    // NUEVO MeTODO: Guardar estado del hábito inmediatamente
+//    private fun guardarEstadoHabito(habitoIndex: Int, completado: Boolean) {
+//        val uid = auth.currentUser?.uid ?: return
+//
+//        // Preparar los datos actualizados de todos los hábitos
+//        val habitosMap = habitos.mapIndexed { index, habito ->
+//            mapOf(
+//                "nombre" to habito.nombre,
+//                "completado" to if (index == habitoIndex) completado else habito.completado
+//            )
+//        }
+//
+//        // Actualizar en el documento principal del desafío
+//        firestore.collection("usuarios")
+//            .document(uid)
+//            .collection("desafios")
+//            .document(desafio.id)
+//            .update("habitos", habitosMap)
+//            .addOnSuccessListener {
+//                Log.d("EditDesafio", "Estado del hábito actualizado correctamente")
+//                // Opcional: mostrar un pequeño feedback visual
+//                // Toast.makeText(context, "Estado guardado", Toast.LENGTH_SHORT).show()
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e("EditDesafio", "Error al actualizar estado del hábito: ${e.message}")
+//                // Revertir el cambio en la UI si falla
+//                habitos[habitoIndex].completado = !completado
+//                actualizarUIHabitos()
+//                Toast.makeText(context, "Error al guardar el estado", Toast.LENGTH_SHORT).show()
+//            }
+//        actualizarHabitoEnDiaActual(habitoIndex, completado)
+//    }
+
+    private fun actualizarHabitoEnDiaActual(habitoIndex: Int, completado: Boolean) {
+        val uid = auth.currentUser?.uid ?: return
+        val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .whereEqualTo("fechaRealizacion", fechaHoy)
+            .get()
+            .addOnSuccessListener { diasSnapshot ->
+                if (!diasSnapshot.isEmpty) {
+                    val diaDoc = diasSnapshot.documents[0]
+                    val habitosDelDia = (diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()).toMutableList()
+
+                    if (habitoIndex < habitosDelDia.size) {
+                        val habitoActualizado = habitosDelDia[habitoIndex].toMutableMap()
+                        habitoActualizado["completado"] = completado
+                        habitosDelDia[habitoIndex] = habitoActualizado
+
+                        diaDoc.reference.update("habitos", habitosDelDia)
+                    }
+                }
+            }
     }
 
     private fun actualizarUIEtiquetas() {
@@ -333,7 +457,7 @@ class EditDesafioFragment : Fragment() {
             "descripcion" to descripcion,
             "dias" to duracion,
             "habitos" to habitosMap,
-            "etiquetas" to etiquetas  // Añadir etiquetas a las actualizaciones
+            "etiquetas" to etiquetas
         )
 
         // Mostrar progress
@@ -349,18 +473,68 @@ class EditDesafioFragment : Fragment() {
             .document(desafio.id)
             .update(updates)
             .addOnSuccessListener {
-                progressDialog.dismiss()
-
-                // Actualizar días existentes si hay cambios en hábitos
-                actualizarDiasConNuevosHabitos(uid, duracion) {
-                    Toast.makeText(context, "Cambios guardados exitosamente", Toast.LENGTH_SHORT).show()
-                    findNavController().navigateUp()
+                // AGREGAR: Guardar cambios de hábitos del día actual
+                guardarCambiosHabitosDelDia {
+                    progressDialog.dismiss()
+                    actualizarDiasConNuevosHabitos(uid, duracion) {
+                        Toast.makeText(context, "Cambios guardados exitosamente", Toast.LENGTH_SHORT).show()
+                        findNavController().navigateUp()
+                    }
                 }
             }
             .addOnFailureListener { e ->
                 progressDialog.dismiss()
                 Log.e("EditDesafio", "Error al guardar: ${e.message}")
                 Toast.makeText(context, "Error al guardar los cambios", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun guardarCambiosHabitosDelDia(callback: () -> Unit) {
+        if (cambiosPendientes.isEmpty()) {
+            callback()
+            return
+        }
+
+        val uid = auth.currentUser?.uid ?: return
+        val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .whereEqualTo("fechaRealizacion", fechaHoy)
+            .get()
+            .addOnSuccessListener { diasSnapshot ->
+                if (!diasSnapshot.isEmpty) {
+                    val diaDoc = diasSnapshot.documents[0]
+                    val habitosDelDia = (diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()).toMutableList()
+
+                    // Aplicar todos los cambios pendientes
+                    for ((index, nuevoEstado) in cambiosPendientes) {
+                        if (index < habitosDelDia.size) {
+                            val habitoActualizado = habitosDelDia[index].toMutableMap()
+                            habitoActualizado["completado"] = nuevoEstado
+                            habitosDelDia[index] = habitoActualizado
+                        }
+                    }
+
+                    diaDoc.reference.update("habitos", habitosDelDia)
+                        .addOnSuccessListener {
+                            cambiosPendientes.clear()
+                            callback()
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("EditDesafio", "Error al guardar cambios de hábitos: ${e.message}")
+                            callback() // Continuar aunque falle
+                        }
+                } else {
+                    callback()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("EditDesafio", "Error al buscar día actual: ${e.message}")
+                callback()
             }
     }
 
@@ -390,10 +564,10 @@ class EditDesafioFragment : Fragment() {
                                 "completado" to (habitoExistente["completado"] as? Boolean ?: false)
                             ))
                         } else {
-                            // Nuevo hábito
+                            // Nuevo hábito - usar el estado del hábito principal
                             nuevosHabitos.add(mapOf(
                                 "nombre" to nuevoHabito.nombre,
-                                "completado" to false
+                                "completado" to nuevoHabito.completado
                             ))
                         }
                     }
