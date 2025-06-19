@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.setFragmentResult
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -42,7 +43,7 @@ class EditDesafioFragment : Fragment() {
     private val habitos = mutableListOf<HabitoItem>()
     private val etiquetas = mutableListOf<String>()
 
-    // AGREGAR estas variables:
+    private var cambiosRealizados = false
     private val habitosOriginales = mutableListOf<HabitoItem>() // Estado original de los hábitos
     private val cambiosPendientes = mutableMapOf<Int, Boolean>() // Cambios temporales por índice
 
@@ -477,6 +478,15 @@ class EditDesafioFragment : Fragment() {
                 guardarCambiosHabitosDelDia {
                     progressDialog.dismiss()
                     actualizarDiasConNuevosHabitos(uid, duracion) {
+                        // Marcar que se realizaron cambios
+                        cambiosRealizados = true
+
+                        // Enviar resultado al ItemDetailFragment
+                        val bundle = Bundle().apply {
+                            putBoolean("cambios_realizados", true)
+                        }
+                        setFragmentResult("desafio_editado", bundle)
+
                         Toast.makeText(context, "Cambios guardados exitosamente", Toast.LENGTH_SHORT).show()
                         findNavController().navigateUp()
                     }
@@ -519,8 +529,18 @@ class EditDesafioFragment : Fragment() {
                         }
                     }
 
-                    diaDoc.reference.update("habitos", habitosDelDia)
+                    // Verificar si todos los hábitos están completados para actualizar el estado del día
+                    val todosCompletados = habitosDelDia.all { (it["completado"] as? Boolean) == true }
+
+                    // Actualizar tanto los hábitos como el estado del día
+                    val updatesDelDia = mapOf(
+                        "habitos" to habitosDelDia,
+                        "completado" to todosCompletados
+                    )
+
+                    diaDoc.reference.update(updatesDelDia)
                         .addOnSuccessListener {
+                            Log.d("EditDesafio", "Día actualizado: completado = $todosCompletados")
                             cambiosPendientes.clear()
                             callback()
                         }
@@ -603,5 +623,17 @@ class EditDesafioFragment : Fragment() {
                 Log.e("EditDesafio", "Error al obtener días: ${e.message}")
                 callback() // Continuar aunque falle
             }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // Si hay cambios sin guardar, también envía la señal
+        if (cambiosRealizados) {
+            val bundle = Bundle().apply {
+                putBoolean("cambios_realizados", true)
+            }
+            setFragmentResult("desafio_editado", bundle)
+        }
     }
 }

@@ -61,6 +61,7 @@ dependencies {
     // Asegúrate de tener también estas (probablemente ya las tienes)
     implementation ("com.google.firebase:firebase-auth:22.3.0")
     implementation ("com.google.firebase:firebase-firestore:24.10.0")
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
     // LÍNEA CORREGIDA - agregadas las comillas
     implementation("androidx.cardview:cardview:1.0.0")
     implementation(libs.places)

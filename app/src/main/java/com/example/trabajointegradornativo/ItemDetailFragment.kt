@@ -19,6 +19,9 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.example.trabajointegradornativo.databinding.FragmentItemDetailBinding
 import com.example.trabajointegradornativo.placeholder.PlaceholderContent
 import com.google.firebase.auth.FirebaseAuth
@@ -35,6 +38,7 @@ class ItemDetailFragment : Fragment() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private var diasCompletados = mutableSetOf<Int>()
+    private var isUpdatingContent = false
 
     private val dragListener = View.OnDragListener { _, event ->
         if (event.action == DragEvent.ACTION_DROP) {
@@ -48,7 +52,16 @@ class ItemDetailFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true) // Habilita el menú en el Toolbar
+        setHasOptionsMenu(true)
+
+        // Configurar listener para detectar cuando vuelves de la pantalla de edición
+        setFragmentResultListener("desafio_editado") { _, bundle ->
+            val desafioEditado = bundle.getBoolean("cambios_realizados", false)
+            if (desafioEditado) {
+                // Recargar los datos cuando hay cambios
+                cargarDiasCompletados()
+            }
+        }
 
         arguments?.let {
             desafio = it.getParcelable("desafio") ?: throw IllegalStateException("Desafio no encontrado en los argumentos")
@@ -102,31 +115,47 @@ class ItemDetailFragment : Fragment() {
             .whereEqualTo("completado", true)
             .get()
             .addOnSuccessListener { result ->
+                val diasCompletadosAnterior = diasCompletados.size
                 diasCompletados.clear()
+
                 for (document in result) {
                     val dia = document.getLong("dia")?.toInt() ?: 0
                     if (dia > 0) {
                         diasCompletados.add(dia)
                     }
                 }
-                Log.d("ItemDetailFragment", "Días completados cargados: $diasCompletados")
-                updateContent()
+
+                val diasCompletadosNuevo = diasCompletados.size
+                Log.d("ItemDetailFragment", "Días completados: $diasCompletadosAnterior -> $diasCompletadosNuevo")
+
+                // Solo actualizar si no estamos ya actualizando y si hay cambios
+                if (!isUpdatingContent) {
+                    updateContent()
+                }
             }
             .addOnFailureListener { e ->
                 Log.e("ItemDetailFragment", "Error al cargar días completados: ${e.message}")
-                updateContent() // Continuar sin días completados
+                if (!isUpdatingContent) {
+                    updateContent()
+                }
             }
     }
 
     private fun updateContent() {
+        // Evitar múltiples actualizaciones simultáneas
+        if (isUpdatingContent) {
+            Log.d("ItemDetailFragment", "Ya se está actualizando el contenido, saltando...")
+            return
+        }
+
+        isUpdatingContent = true
         val uid = auth.currentUser?.uid ?: return
-        val desafioId = desafio.id
 
         // Obtener la información actualizada del desafío desde Firestore
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
-            .document(desafioId)
+            .document(desafio.id)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
@@ -137,15 +166,12 @@ class ItemDetailFragment : Fragment() {
                     val estado = document.getString("estado") ?: "Indefinido"
                     val completados = diasCompletados.size
 
-                    // Agregar esta línea para obtener las etiquetas
                     val etiquetas = document.get("etiquetas") as? List<String> ?: emptyList()
-
-                    // Obtener los hábitos del desafío (base)
                     val habitosBase = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
                     val totalHabitos = habitosBase.size
 
-                    // Ahora obtener los hábitos del día actual con su estado
-                    obtenerHabitosDiaActual(uid, desafioId) { habitosDelDia ->
+                    // Obtener los hábitos del día actual con su estado
+                    obtenerHabitosDiaActual(uid, desafio.id) { habitosDelDia ->
                         // Configurar UI con los datos de Firestore
                         actualizarUI(
                             nombre = nombre,
@@ -158,17 +184,20 @@ class ItemDetailFragment : Fragment() {
                             habitos = habitosDelDia
                         )
 
-                        // Actualizar también la información general en la UI
                         actualizarInformacionGeneral(nombre, descripcion, dias, diaActual, completados, estado)
-
-                        // Agregar esta línea para mostrar las etiquetas
                         mostrarEtiquetas(etiquetas)
+
+                        // Liberar el flag
+                        isUpdatingContent = false
                     }
+                } else {
+                    isUpdatingContent = false
                 }
             }
             .addOnFailureListener { exception ->
                 Log.e("Firestore", "Error al obtener los datos del desafío", exception)
                 Toast.makeText(context, "Error al cargar el desafío", Toast.LENGTH_SHORT).show()
+                isUpdatingContent = false
             }
     }
 
@@ -196,15 +225,49 @@ class ItemDetailFragment : Fragment() {
         progressBar?.let {
             it.max = dias
             it.progress = completados
+            Log.d("ItemDetailFragment", "Progress bar actualizada: $completados/$dias")
         }
 
         // Actualizar porcentaje
         val porcentaje = if (dias > 0) (completados * 100) / dias else 0
         binding.root.findViewById<TextView>(R.id.progress_text)?.text = "$porcentaje%"
 
-        // El estado se actualiza ahora basado en el campo "completado" del día
-        // No usamos el parámetro estado directamente
+        Log.d("ItemDetailFragment", "Porcentaje actualizado: $porcentaje% ($completados/$dias días completados)")
     }
+    private fun verificarCambiosEnDias() {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .whereEqualTo("completado", true)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.w("ItemDetailFragment", "Error al escuchar cambios", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshots != null) {
+                    val nuevosCompletados = mutableSetOf<Int>()
+                    for (document in snapshots) {
+                        val dia = document.getLong("dia")?.toInt() ?: 0
+                        if (dia > 0) {
+                            nuevosCompletados.add(dia)
+                        }
+                    }
+
+                    // Solo actualizar si hay cambios
+                    if (nuevosCompletados != diasCompletados) {
+                        Log.d("ItemDetailFragment", "Cambios detectados via listener: ${diasCompletados.size} -> ${nuevosCompletados.size}")
+                        diasCompletados = nuevosCompletados
+                        updateContent()
+                    }
+                }
+            }
+    }
+
 
     private fun obtenerDiaActual(uid: String, desafioId: String, callback: (String?) -> Unit) {
         val fechaHoy = LocalDate.now().toString() // Fecha actual en formato "yyyy-MM-dd"
@@ -371,7 +434,11 @@ class ItemDetailFragment : Fragment() {
         estado: String,
         habitos: List<Map<String, Any>>
     ) {
+        Log.d("ItemDetailFragment", "Actualizando UI con ${habitos.size} hábitos")
+
         val habitsContainer = binding.root.findViewById<LinearLayout>(R.id.habits_container)
+
+        // IMPORTANTE: Limpiar el contenedor antes de agregar nuevos elementos
         habitsContainer.removeAllViews()
 
         val inflater = LayoutInflater.from(requireContext())
@@ -381,58 +448,71 @@ class ItemDetailFragment : Fragment() {
         // Crear una lista mutable para manejar el estado local
         val habitosLocales = habitos.map { it.toMutableMap() }.toMutableList()
 
+        // Verificar si TODOS los hábitos están completados
+        val todosHabitosCompletados = habitosLocales.all { (it["completado"] as? Boolean) == true }
+
         obtenerDiaActual(uid, desafioId) { diaId ->
             if (diaId != null) {
-                for ((index, habit) in habitosLocales.withIndex()) {
-                    val habitName = habit["nombre"] as? String ?: "Hábito sin nombre"
-                    val habitCompleted = habit["completado"] as? Boolean ?: false
+                // Verificar si el día está marcado como completado en Firestore
+                verificarSiDiaEstaCompletado(uid, desafioId, diaId) { diaCompletado ->
+                    Log.d("ItemDetailFragment", "Creando ${habitosLocales.size} elementos de hábitos")
+                    Log.d("ItemDetailFragment", "Día completado: $diaCompletado, Todos hábitos completados: $todosHabitosCompletados")
 
-                    val habitView = inflater.inflate(R.layout.habito_item, habitsContainer, false)
-                    val habitNameText = habitView.findViewById<TextView>(R.id.habito_nombre)
-                    val habitIcon = habitView.findViewById<ImageView>(R.id.habito_icono)
+                    for ((index, habit) in habitosLocales.withIndex()) {
+                        val habitName = habit["nombre"] as? String ?: "Hábito sin nombre"
+                        val habitCompleted = habit["completado"] as? Boolean ?: false
 
-                    habitNameText.text = habitName
-                    habitIcon.setImageResource(
-                        if (habitCompleted) R.drawable.ic_check_green else R.drawable.ic_circle_empty
-                    )
+                        val habitView = inflater.inflate(R.layout.habito_item, habitsContainer, false)
+                        val habitNameText = habitView.findViewById<TextView>(R.id.habito_nombre)
+                        val habitIcon = habitView.findViewById<ImageView>(R.id.habito_icono)
 
-                    habitIcon.setOnClickListener {
-                        val estadoActual = habitosLocales[index]["completado"] as? Boolean ?: false
-                        val nuevoEstado = !estadoActual
-
-                        // Verificar si se intenta desmarcar cuando todos están completados
-//                        if (!nuevoEstado) { // Si se intenta desmarcar
-//                            val todosCompletados = habitosLocales.all { (it["completado"] as? Boolean) == true }
-//                            if (todosCompletados) {
-//                                Toast.makeText(context, "No puedes desmarcar hábitos cuando todos están completados", Toast.LENGTH_SHORT).show()
-//                                return@setOnClickListener
-//                            }
-//                        }
-
-                        // Actualizar el estado local inmediatamente
-                        habitosLocales[index]["completado"] = nuevoEstado
-
-                        // Actualizar la UI inmediatamente
+                        habitNameText.text = habitName
                         habitIcon.setImageResource(
-                            if (nuevoEstado) R.drawable.ic_check_green else R.drawable.ic_circle_empty
+                            if (habitCompleted) R.drawable.ic_check_green else R.drawable.ic_circle_empty
                         )
 
-                        // Actualizar en Firestore (pasando los hábitos actuales para validación)
-                        actualizarEstadoHabitoDelDia(uid, desafioId, diaId, index, nuevoEstado, habitosLocales)
+                        habitIcon.setOnClickListener {
+                            val estadoActual = habitosLocales[index]["completado"] as? Boolean ?: false
+                            val nuevoEstado = !estadoActual
+
+                            // VALIDACIÓN: Si el día está completado y todos los hábitos están marcados,
+                            // no permitir desmarcar ningún hábito
+                            if (diaCompletado && todosHabitosCompletados && !nuevoEstado) {
+                                Toast.makeText(
+                                    context,
+                                    "No puedes desmarcar hábitos de un día ya completado",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                return@setOnClickListener
+                            }
+
+                            // Actualizar el estado local inmediatamente
+                            habitosLocales[index]["completado"] = nuevoEstado
+
+                            // Actualizar la UI inmediatamente
+                            habitIcon.setImageResource(
+                                if (nuevoEstado) R.drawable.ic_check_green else R.drawable.ic_circle_empty
+                            )
+
+                            // Actualizar en Firestore
+                            actualizarEstadoHabitoDelDia(uid, desafioId, diaId, index, nuevoEstado, habitosLocales)
+                        }
+
+                        habitsContainer.addView(habitView)
                     }
 
-                    habitsContainer.addView(habitView)
-                }
+                    // Actualizar el estado inicial en la UI basado en si todos están completados
+                    actualizarEstadoUI(todosHabitosCompletados)
 
-                // Actualizar el estado inicial en la UI basado en si todos están completados
-                val todosCompletados = habitosLocales.all { (it["completado"] as? Boolean) == true }
-                actualizarEstadoUI(todosCompletados)
+                    Log.d("ItemDetailFragment", "UI actualizada con ${habitsContainer.childCount} elementos")
+                }
             } else {
                 Log.e("Firestore", "No se encontró el día actual.")
                 Toast.makeText(context, "No se encontró información del día actual", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
 
     private fun verificarSiDiaEstaCompletado(uid: String, desafioId: String, diaId: String, callback: (Boolean) -> Unit) {
@@ -682,6 +762,14 @@ class ItemDetailFragment : Fragment() {
 
     companion object {
         const val ARG_ITEM_ID = "item_id"
+    }
+    override fun onResume() {
+        super.onResume()
+        // Solo recargar si no estamos ya actualizando
+        if (!isUpdatingContent) {
+            Log.d("ItemDetailFragment", "onResume: Recargando datos")
+            cargarDiasCompletados()
+        }
     }
 
     override fun onDestroyView() {
