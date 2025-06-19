@@ -87,7 +87,6 @@ class ItemDetailFragment : Fragment() {
             }
             findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
         }
-
         return rootView
     }
 
@@ -233,24 +232,42 @@ class ItemDetailFragment : Fragment() {
     private fun verificarEstadoDia(uid: String, desafioId: String, diaId: String, habitos: List<Map<String, Any>>) {
         val todosCompletados = habitos.all { (it["completado"] as? Boolean) == true }
 
+        // Primero verificar el estado anterior del día
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
             .document(desafioId)
             .collection("dias")
             .document(diaId)
-            .update("completado", todosCompletados)
-            .addOnSuccessListener {
-                Log.d("Firestore", "Estado del día actualizado: completado = $todosCompletados")
-                if (todosCompletados) {
-                    // Recargar días completados para actualizar el contador
-                    cargarDiasCompletados()
+            .get()
+            .addOnSuccessListener { document ->
+                val estadoAnterior = document.getBoolean("completado") ?: false
+
+                // Solo actualizar si hay un cambio de estado
+                if (estadoAnterior != todosCompletados) {
+                    firestore.collection("usuarios")
+                        .document(uid)
+                        .collection("desafios")
+                        .document(desafioId)
+                        .collection("dias")
+                        .document(diaId)
+                        .update("completado", todosCompletados)
+                        .addOnSuccessListener {
+                            Log.d("Firestore", "Estado del día actualizado: completado = $todosCompletados")
+
+                            // Recargar días completados para actualizar el contador
+                            cargarDiasCompletados()
+
+                            // Actualizar el estado en la UI
+                            actualizarEstadoUI(todosCompletados)
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("Firestore", "Error al actualizar el estado del día", e)
+                        }
+                } else {
+                    // Solo actualizar la UI si no hay cambio en Firestore
+                    actualizarEstadoUI(todosCompletados)
                 }
-                // Actualizar el estado en la UI sin recargar todo el contenido
-                actualizarEstadoUI(todosCompletados)
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error al actualizar el estado del día", e)
             }
     }
 
@@ -261,13 +278,13 @@ class ItemDetailFragment : Fragment() {
 
     private fun actualizarEstadoHabitoDelDia(uid: String, desafioId: String, diaId: String, habitIndex: Int, completado: Boolean, habitosActuales: List<Map<String, Any>>) {
         // Verificar si TODOS los hábitos actuales están completados antes de permitir desmarcar
-        if (!completado) { // Si se intenta desmarcar
-            val todosCompletados = habitosActuales.all { (it["completado"] as? Boolean) == true }
-            if (todosCompletados) {
-                Toast.makeText(context, "No puedes desmarcar hábitos cuando todos están completados", Toast.LENGTH_SHORT).show()
-                return
-            }
-        }
+//        if (!completado) { // Si se intenta desmarcar
+//            val todosCompletados = habitosActuales.all { (it["completado"] as? Boolean) == true }
+//            if (todosCompletados) {
+//                Toast.makeText(context, "No puedes desmarcar hábitos cuando todos están completados", Toast.LENGTH_SHORT).show()
+//                return
+//            }
+//        }
 
         firestore.collection("usuarios")
             .document(uid)
@@ -384,13 +401,13 @@ class ItemDetailFragment : Fragment() {
                         val nuevoEstado = !estadoActual
 
                         // Verificar si se intenta desmarcar cuando todos están completados
-                        if (!nuevoEstado) { // Si se intenta desmarcar
-                            val todosCompletados = habitosLocales.all { (it["completado"] as? Boolean) == true }
-                            if (todosCompletados) {
-                                Toast.makeText(context, "No puedes desmarcar hábitos cuando todos están completados", Toast.LENGTH_SHORT).show()
-                                return@setOnClickListener
-                            }
-                        }
+//                        if (!nuevoEstado) { // Si se intenta desmarcar
+//                            val todosCompletados = habitosLocales.all { (it["completado"] as? Boolean) == true }
+//                            if (todosCompletados) {
+//                                Toast.makeText(context, "No puedes desmarcar hábitos cuando todos están completados", Toast.LENGTH_SHORT).show()
+//                                return@setOnClickListener
+//                            }
+//                        }
 
                         // Actualizar el estado local inmediatamente
                         habitosLocales[index]["completado"] = nuevoEstado
