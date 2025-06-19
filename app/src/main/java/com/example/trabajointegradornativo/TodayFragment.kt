@@ -177,6 +177,7 @@ class TodayFragment : Fragment() {
         }
 
         limpiarListeners()
+        desafiosActivos.clear() // Limpiar la lista antes de cargar
 
         val desafiosListener = firestore.collection("usuarios")
             .document(uid)
@@ -190,17 +191,26 @@ class TodayFragment : Fragment() {
 
                 if (documents != null) {
                     if (documents.isEmpty) {
+                        desafiosActivos.clear()
                         mostrarMensajeSinDesafios()
                         return@addSnapshotListener
                     }
 
+                    val desafiosEncontrados = mutableSetOf<String>()
+
                     for (document in documents) {
                         val desafioId = document.id
+                        desafiosEncontrados.add(desafioId)
                         val nombre = document.getString("nombre") ?: getString(R.string.challenge_without_name)
                         val diaActual = document.getLong("diaActual")?.toInt() ?: 1
                         val totalDias = document.getLong("dias")?.toInt() ?: 30
 
                         cargarHabitosDelDiaConListener(desafioId, nombre, diaActual, totalDias)
+                    }
+
+                    // Remover desafíos que ya no existen
+                    desafiosActivos.removeAll { desafio ->
+                        !desafiosEncontrados.contains(desafio.id)
                     }
                 }
             }
@@ -267,12 +277,11 @@ class TodayFragment : Fragment() {
         val posicionDesafio = desafiosActivos.indexOfFirst { it.id == desafioId }
         if (posicionDesafio != -1) {
             desafiosActivos.removeAt(posicionDesafio)
-
-            // Actualizar la interfaz completa
-            actualizarInterfaz()
-
             Log.d(TAG, "Desafío removido de la interfaz: $desafioId")
         }
+
+        // Actualizar la interfaz después de remover
+        actualizarInterfaz()
     }
 
     private fun mostrarMensajeSinDesafios() {
@@ -294,7 +303,8 @@ class TodayFragment : Fragment() {
         mensajeLayout.addView(textoMensaje)
         activitiesContainer.addView(mensajeLayout)
 
-        progressTextView.text = getString(R.string.progress_format, 0, 0)
+        // Asegurar que el texto de progreso se mantenga correcto
+        progressTextView.text = "¡Todos los desafíos completados!"
     }
 
     private fun actualizarInterfaz() {
@@ -302,7 +312,7 @@ class TodayFragment : Fragment() {
 
         if (desafiosActivos.isEmpty()) {
             mostrarMensajeSinDesafios()
-            return
+            return // Importante: salir aquí para evitar que se llame actualizarResumenProgreso()
         }
 
         for (desafio in desafiosActivos) {
@@ -609,12 +619,14 @@ class TodayFragment : Fragment() {
     }
 
     private fun actualizarResumenProgreso() {
-        val totalHabitos = desafiosActivos.sumOf { it.habitos.size }
-        val habitosCompletados = desafiosActivos.sumOf { desafio ->
-            desafio.habitos.count { it.completado }
+        // Solo actualizar si hay desafíos activos
+        if (desafiosActivos.isNotEmpty()) {
+            val totalHabitos = desafiosActivos.sumOf { it.habitos.size }
+            val habitosCompletados = desafiosActivos.sumOf { desafio ->
+                desafio.habitos.count { it.completado }
+            }
+            progressTextView.text = getString(R.string.progress_format, habitosCompletados, totalHabitos)
         }
-
-        progressTextView.text = getString(R.string.progress_format, habitosCompletados, totalHabitos)
     }
 
     private fun verificarPermisosCamara() {
