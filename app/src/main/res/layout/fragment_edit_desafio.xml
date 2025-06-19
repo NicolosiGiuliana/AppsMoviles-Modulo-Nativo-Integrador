@@ -68,6 +68,43 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Sección de Etiquetas -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Etiquetas"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_green" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_agregar_etiqueta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_add"
+                app:backgroundTint="@color/primary_green"
+                app:tint="@android:color/white"
+                app:fabSize="mini" />
+
+        </LinearLayout>
+
+        <!-- ChipGroup para mostrar etiquetas -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_etiquetas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:chipSpacingHorizontal="8dp"
+            app:chipSpacingVertical="4dp" />
+
         <!-- Sección de Hábitos -->
         <LinearLayout
             android:layout_width="match_parent"

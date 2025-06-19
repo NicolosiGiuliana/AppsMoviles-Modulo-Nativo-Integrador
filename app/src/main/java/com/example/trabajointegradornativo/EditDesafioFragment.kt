@@ -12,6 +12,10 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 class EditDesafioFragment : Fragment() {
 
@@ -27,8 +31,13 @@ class EditDesafioFragment : Fragment() {
     private lateinit var btnGuardar: Button
     private lateinit var btnCancelar: Button
 
+    // Nuevos componentes para etiquetas
+    private lateinit var chipGroupEtiquetas: ChipGroup
+    private lateinit var btnAgregarEtiqueta: FloatingActionButton
+
     // Data
     private val habitos = mutableListOf<HabitoItem>()
+    private val etiquetas = mutableListOf<String>()
 
     data class HabitoItem(
         var nombre: String,
@@ -65,11 +74,19 @@ class EditDesafioFragment : Fragment() {
         btnAgregarHabito = view.findViewById(R.id.btn_agregar_habito)
         btnGuardar = view.findViewById(R.id.btn_guardar)
         btnCancelar = view.findViewById(R.id.btn_cancelar)
+
+        // Inicializar componentes de etiquetas
+        chipGroupEtiquetas = view.findViewById(R.id.chip_group_etiquetas)
+        btnAgregarEtiqueta = view.findViewById(R.id.btn_agregar_etiqueta)
     }
 
     private fun setupListeners() {
         btnAgregarHabito.setOnClickListener {
             mostrarDialogoAgregarHabito()
+        }
+
+        btnAgregarEtiqueta.setOnClickListener {
+            mostrarDialogoAgregarEtiqueta()
         }
 
         btnGuardar.setOnClickListener {
@@ -116,7 +133,13 @@ class EditDesafioFragment : Fragment() {
                         habitos.add(HabitoItem("Nuevo hábito ${habitos.size + 1}", false, true))
                     }
 
+                    // Cargar etiquetas
+                    val etiquetasBase = document.get("etiquetas") as? List<String> ?: emptyList()
+                    etiquetas.clear()
+                    etiquetas.addAll(etiquetasBase)
+
                     actualizarUIHabitos()
+                    actualizarUIEtiquetas()
                 }
             }
             .addOnFailureListener { e ->
@@ -133,7 +156,7 @@ class EditDesafioFragment : Fragment() {
             val habitoView = inflater.inflate(R.layout.item_edit_habito, habitosContainer, false)
 
             val etNombre = habitoView.findViewById<EditText>(R.id.et_habito_nombre)
-            val switchCompletado = habitoView.findViewById<CheckBox >(R.id.checkbox_completado)
+            val switchCompletado = habitoView.findViewById<CheckBox>(R.id.checkbox_completado)
             val btnEliminar = habitoView.findViewById<ImageButton>(R.id.btn_eliminar_habito)
 
             etNombre.setText(habito.nombre)
@@ -168,18 +191,67 @@ class EditDesafioFragment : Fragment() {
         }
     }
 
+    private fun actualizarUIEtiquetas() {
+        chipGroupEtiquetas.removeAllViews()
+
+        for (etiqueta in etiquetas) {
+            val chip = Chip(requireContext()).apply {
+                text = etiqueta
+                isCloseIconVisible = true
+
+                // Configurar estilo del chip
+                setChipBackgroundColorResource(R.color.primary_green)
+                setTextColor(resources.getColor(android.R.color.white, null))
+                setCloseIconTintResource(android.R.color.white)
+
+                // Listener para eliminar etiqueta
+                setOnCloseIconClickListener {
+                    etiquetas.remove(etiqueta)
+                    actualizarUIEtiquetas()
+                }
+            }
+            chipGroupEtiquetas.addView(chip)
+        }
+    }
+
     private fun mostrarDialogoAgregarHabito() {
         val builder = AlertDialog.Builder(requireContext())
-        val input = EditText(requireContext())
-        input.hint = "Nombre del hábito"
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_agregar_habito, null)
+        val inputLayout = dialogView.findViewById<TextInputLayout>(R.id.til_habito)
+        val input = dialogView.findViewById<TextInputEditText>(R.id.et_habito)
 
         builder.setTitle("Agregar Hábito")
-            .setView(input)
+            .setView(dialogView)
             .setPositiveButton("Agregar") { _, _ ->
                 val nombre = input.text.toString().trim()
                 if (nombre.isNotEmpty()) {
                     habitos.add(HabitoItem(nombre, false, true))
                     actualizarUIHabitos()
+                } else {
+                    Toast.makeText(context, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDialogoAgregarEtiqueta() {
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_agregar_etiqueta, null)
+        val inputLayout = dialogView.findViewById<TextInputLayout>(R.id.til_etiqueta)
+        val input = dialogView.findViewById<TextInputEditText>(R.id.et_etiqueta)
+
+        builder.setTitle("Agregar Etiqueta")
+            .setView(dialogView)
+            .setPositiveButton("Agregar") { _, _ ->
+                val etiqueta = input.text.toString().trim()
+                if (etiqueta.isNotEmpty()) {
+                    if (!etiquetas.contains(etiqueta)) {
+                        etiquetas.add(etiqueta)
+                        actualizarUIEtiquetas()
+                    } else {
+                        Toast.makeText(context, "Esta etiqueta ya existe", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(context, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show()
                 }
@@ -260,7 +332,8 @@ class EditDesafioFragment : Fragment() {
         val updates = mapOf(
             "descripcion" to descripcion,
             "dias" to duracion,
-            "habitos" to habitosMap
+            "habitos" to habitosMap,
+            "etiquetas" to etiquetas  // Añadir etiquetas a las actualizaciones
         )
 
         // Mostrar progress
