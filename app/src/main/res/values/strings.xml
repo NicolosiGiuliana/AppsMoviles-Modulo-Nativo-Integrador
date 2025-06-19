@@ -7,6 +7,8 @@
 
     <string name="edit">Editar</string>
     <string name="tags_title">Etiquetas</string>
+    <string name="challenge_description">Descripción</string>
+    <string name="challenge_description_hint">Añade una descripción</string>
 
     <string name="no_tags">Sin etiquetas</string>
     <string name="edit_habits">Editar hábitos</string>

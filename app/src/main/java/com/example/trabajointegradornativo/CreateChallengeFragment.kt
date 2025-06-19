@@ -21,6 +21,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
     // Views principales
     private lateinit var nombreInput: EditText
+    private lateinit var descripcionInput: EditText
     private lateinit var habitoInput1: EditText
     private lateinit var habitoInput2: EditText
     private lateinit var habitoInput3: EditText
@@ -103,6 +104,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     private fun inicializarViews(view: View) {
         // Inputs principales
         nombreInput = view.findViewById(R.id.inputChallengeName)
+        descripcionInput = view.findViewById(R.id.inputChallengeDescription)
         habitoInput1 = view.findViewById(R.id.inputHabit1)
         habitoInput2 = view.findViewById(R.id.inputHabit2)
         habitoInput3 = view.findViewById(R.id.inputHabit3)
@@ -405,12 +407,18 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
     private fun validarFormulario(): Boolean {
         val nombre = nombreInput.text.toString().trim()
+        val descripcion = descripcionInput.text.toString().trim()
         val habitos = recopilarHabitos()
 
         when {
             nombre.isEmpty() -> {
                 Toast.makeText(context, "El nombre del desafío es obligatorio", Toast.LENGTH_SHORT)
                     .show()
+                return false
+            }
+
+            descripcion.isEmpty() -> {
+                Toast.makeText(context, "La descripción del desafío es obligatoria", Toast.LENGTH_SHORT).show()
                 return false
             }
 
@@ -439,6 +447,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         if (!validarFormulario()) return
 
         val nombre = nombreInput.text.toString().trim()
+        val descripcion = descripcionInput.text.toString().trim()
         val habitos = recopilarHabitos()
         val uid = auth.currentUser?.uid!!
         val currentTime = com.google.firebase.Timestamp.now()
@@ -459,7 +468,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         // Crear estructura del desafío incluyendo etiquetas y visibilidad
         val desafioBase = hashMapOf(
             "nombre" to nombre,
-            "descripcion" to "Desafío personalizado de $duracionSeleccionada días",
+            "descripcion" to descripcion,
             "tipo" to "personalizado",
             "completado" to false,
             "fechaCreacion" to currentTime,
@@ -573,6 +582,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
         // Mostrar diálogo de confirmación si hay datos ingresados
         val hayDatos = nombreInput.text.toString().trim().isNotEmpty() ||
+                descripcionInput.text.toString().trim().isNotEmpty() || // Nueva línea
                 recopilarHabitos().isNotEmpty() ||
                 etiquetasAgregadas.isNotEmpty()
 

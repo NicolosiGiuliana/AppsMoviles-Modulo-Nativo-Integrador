@@ -50,6 +50,29 @@
             android:textColorHint="#CCCCCC"
             android:layout_marginBottom="24dp" />
 
+        <!-- Descripción del desafío -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/challenge_description"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/inputChallengeDescription"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:hint="@string/challenge_description_hint"
+            android:inputType="textMultiLine|textCapSentences"
+            android:background="@drawable/edittext_background"
+            android:padding="12dp"
+            android:textColorHint="#CCCCCC"
+            android:gravity="top"
+            android:maxLength="250"
+            android:layout_marginBottom="24dp" />
+
         <!-- Duración -->
         <TextView
             android:layout_width="wrap_content"
