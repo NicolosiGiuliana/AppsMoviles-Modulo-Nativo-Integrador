@@ -55,6 +55,7 @@ class TodayFragment : Fragment() {
         private const val TAG = "TodayFragment"
         private const val MAX_IMAGE_SIZE = 1024 // Tamaño máximo en píxeles
         private const val JPEG_QUALITY = 80 // Calidad de compresión JPEG
+        private const val PREF_LAST_DATE = "last_date_checked" // Nueva constante
     }
 
     private lateinit var dateTextView: TextView
@@ -67,6 +68,7 @@ class TodayFragment : Fragment() {
 
     private var desafiosActivos = mutableListOf<Desafio>()
     private var habitoSeleccionadoParaFoto: Pair<String, String>? = null
+    private var ultimaFechaVerificada: String? = null
 
     // Listeners para detectar cambios en tiempo real
     private val firestoreListeners = mutableListOf<ListenerRegistration>()
@@ -127,14 +129,24 @@ class TodayFragment : Fragment() {
         inicializarViews(view)
         configurarFechaActual()
         setupBottomNavigation(view)
+        iniciarVerificacionFecha()
 
         return view
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume: Recargando datos")
-        cargarDesafiosDelUsuario()
+        Log.d(TAG, "onResume: Verificando cambio de fecha")
+
+        // Verificar si cambió la fecha antes de recargar
+        val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        if (ultimaFechaVerificada != fechaActual) {
+            Log.d(TAG, "onResume: Fecha cambió, recargando datos")
+            configurarFechaActual()
+        } else {
+            Log.d(TAG, "onResume: Misma fecha, recargando datos normalmente")
+            cargarDesafiosDelUsuario()
+        }
     }
 
     override fun onPause() {
@@ -167,6 +179,53 @@ class TodayFragment : Fragment() {
         dateTextView.text = fechaFormateada.replaceFirstChar {
             if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
         }
+
+        // Guardar la fecha actual para comparar cambios
+        val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+        val sharedPrefs = requireActivity().getSharedPreferences("today_fragment", android.content.Context.MODE_PRIVATE)
+
+        if (ultimaFechaVerificada == null) {
+            ultimaFechaVerificada = sharedPrefs.getString(PREF_LAST_DATE, null)
+        }
+
+        // Si cambió la fecha, recargar datos
+        if (ultimaFechaVerificada != fechaActual) {
+            ultimaFechaVerificada = fechaActual
+            sharedPrefs.edit().putString(PREF_LAST_DATE, fechaActual).apply()
+            Log.d(TAG, "Fecha cambió a: $fechaActual - Recargando datos")
+            cargarDesafiosDelUsuario()
+        }
+    }
+    private fun calcularDiaSegunFecha(desafioId: String, callback: (Int?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return
+        val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        Log.d(TAG, "Buscando día para fecha: $fechaHoy en desafío: $desafioId")
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafioId)
+            .collection("dias")
+            .whereEqualTo("fechaRealizacion", fechaHoy)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val document = documents.first()
+                    val nombreDia = document.id // Ejemplo: "dia_5"
+                    val numeroDia = nombreDia.removePrefix("dia_").toIntOrNull()
+                    Log.d(TAG, "Encontrado día $numeroDia para fecha $fechaHoy")
+                    callback(numeroDia)
+                } else {
+                    Log.d(TAG, "No se encontró día para fecha $fechaHoy en desafío $desafioId")
+                    callback(null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error al buscar día por fecha: ${e.message}")
+                callback(null)
+            }
     }
 
     private fun cargarDesafiosDelUsuario() {
@@ -177,51 +236,81 @@ class TodayFragment : Fragment() {
         }
 
         limpiarListeners()
-        desafiosActivos.clear() // Limpiar la lista antes de cargar
+        desafiosActivos.clear()
 
-        val desafiosListener = firestore.collection("usuarios")
+        val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        Log.d(TAG, "Cargando desafíos para fecha: $fechaHoy")
+
+        // Primero obtener todos los desafíos activos
+        firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
             .whereEqualTo("estado", "activo")
-            .addSnapshotListener { documents, error ->
-                if (error != null) {
-                    Log.e(TAG, "Error al escuchar desafíos: ${error.message}")
-                    return@addSnapshotListener
+            .get()
+            .addOnSuccessListener { desafiosSnapshot ->
+                if (desafiosSnapshot.isEmpty) {
+                    mostrarMensajeSinDesafios()
+                    return@addOnSuccessListener
                 }
 
-                if (documents != null) {
-                    if (documents.isEmpty) {
-                        desafiosActivos.clear()
-                        mostrarMensajeSinDesafios()
-                        return@addSnapshotListener
-                    }
+                var desafiosEncontrados = 0
+                val totalDesafios = desafiosSnapshot.size()
 
-                    val desafiosEncontrados = mutableSetOf<String>()
+                for (desafioDoc in desafiosSnapshot) {
+                    val desafioId = desafioDoc.id
+                    val nombreDesafio = desafioDoc.getString("nombre") ?: getString(R.string.challenge_without_name)
+                    val totalDias = desafioDoc.getLong("dias")?.toInt() ?: 30
 
-                    for (document in documents) {
-                        val desafioId = document.id
-                        desafiosEncontrados.add(desafioId)
-                        val nombre = document.getString("nombre") ?: getString(R.string.challenge_without_name)
-                        val diaActual = document.getLong("diaActual")?.toInt() ?: 1
-                        val totalDias = document.getLong("dias")?.toInt() ?: 30
+                    // Buscar si este desafío tiene un día para hoy
+                    firestore.collection("usuarios")
+                        .document(uid)
+                        .collection("desafios")
+                        .document(desafioId)
+                        .collection("dias")
+                        .whereEqualTo("fechaRealizacion", fechaHoy)
+                        .limit(1)
+                        .get()
+                        .addOnSuccessListener { diasSnapshot ->
+                            desafiosEncontrados++
 
-                        cargarHabitosDelDiaConListener(desafioId, nombre, diaActual, totalDias)
-                    }
+                            if (!diasSnapshot.isEmpty) {
+                                val diaDoc = diasSnapshot.first()
+                                val nombreDia = diaDoc.id
+                                val numeroDia = nombreDia.removePrefix("dia_").toIntOrNull() ?: 1
 
-                    // Remover desafíos que ya no existen
-                    desafiosActivos.removeAll { desafio ->
-                        !desafiosEncontrados.contains(desafio.id)
-                    }
+                                Log.d(TAG, "Desafío $nombreDesafio tiene día $numeroDia para hoy")
+                                cargarHabitosDelDiaConListener(desafioId, nombreDesafio, numeroDia, totalDias)
+                            } else {
+                                Log.d(TAG, "Desafío $nombreDesafio no tiene día para hoy")
+                            }
+
+                            // Si ya procesamos todos los desafíos y no encontramos ninguno para hoy
+                            if (desafiosEncontrados == totalDesafios && desafiosActivos.isEmpty()) {
+                                mostrarMensajeSinDesafios()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error al buscar días para desafío $desafioId: ${e.message}")
+                            desafiosEncontrados++
+                            if (desafiosEncontrados == totalDesafios && desafiosActivos.isEmpty()) {
+                                mostrarMensajeSinDesafios()
+                            }
+                        }
                 }
             }
-
-        firestoreListeners.add(desafiosListener)
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error al cargar desafíos: ${e.message}")
+                Toast.makeText(context, "Error al cargar desafíos: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun cargarHabitosDelDiaConListener(desafioId: String, nombreDesafio: String, diaActual: Int, totalDias: Int) {
         val uid = auth.currentUser?.uid ?: return
+        val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        // Listener para el campo 'completado' del día
+        Log.d(TAG, "Configurando listener para desafío: $nombreDesafio, día: $diaActual")
+
+        // Listener para el documento del día específico
         val diaListener = firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -235,15 +324,24 @@ class TodayFragment : Fragment() {
                 }
 
                 if (document != null && document.exists()) {
+                    val fechaRealizacion = document.getString("fechaRealizacion")
                     val diaCompletado = document.getBoolean("completado") ?: false
 
-                    if (diaCompletado) {
-                        // Si el día está completado, remover de la interfaz
-                        removerDesafioDeInterfaz(desafioId)
-                    } else {
-                        // Si el día no está completado, asegurar que aparezca en la interfaz
+                    Log.d(TAG, "Día $diaActual - Fecha realización: $fechaRealizacion, Completado: $diaCompletado, Fecha hoy: $fechaHoy")
+
+                    // Solo mostrar si es para hoy y no está completado
+                    if (fechaRealizacion == fechaHoy && !diaCompletado) {
                         cargarHabitosDelDia(desafioId, nombreDesafio, diaActual, totalDias, document)
+                    } else if (fechaRealizacion == fechaHoy && diaCompletado) {
+                        // Si está completado, remover de la interfaz
+                        removerDesafioDeInterfaz(desafioId)
+                    } else if (fechaRealizacion != fechaHoy) {
+                        // Si no es para hoy, remover de la interfaz
+                        removerDesafioDeInterfaz(desafioId)
                     }
+                } else {
+                    Log.d(TAG, "Documento del día $diaActual no existe")
+                    removerDesafioDeInterfaz(desafioId)
                 }
             }
 
@@ -282,6 +380,22 @@ class TodayFragment : Fragment() {
 
         // Actualizar la interfaz después de remover
         actualizarInterfaz()
+    }
+
+    private fun iniciarVerificacionFecha() {
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        val runnable = object : Runnable {
+            override fun run() {
+                val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                if (ultimaFechaVerificada != fechaActual) {
+                    Log.d(TAG, "Cambio de fecha detectado: $ultimaFechaVerificada -> $fechaActual")
+                    configurarFechaActual()
+                }
+                // Verificar cada 30 segundos
+                handler.postDelayed(this, 30000)
+            }
+        }
+        handler.post(runnable)
     }
 
     private fun mostrarMensajeSinDesafios() {
