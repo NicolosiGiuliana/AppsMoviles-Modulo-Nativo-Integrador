@@ -300,7 +300,7 @@ class ItemListFragment : Fragment() {
 
             holder.visibilityTag.text = if (challenge.visibilidad == "publico") "Público" else "Privado"
 
-// Configurar etiquetas
+            // Configurar etiquetas
             val tagsLayoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
             holder.tagsRecycler.layoutManager = tagsLayoutManager
             holder.tagsRecycler.adapter = TagsAdapter(challenge.etiquetas)
@@ -608,11 +608,20 @@ class ItemListFragment : Fragment() {
             navigateToToday()
         }
 
-        // Profile (cambiar de "Configuración" a "Profile")
-        val profileLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
+        // Explorar (nuevo botón)
+        val exploreLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(2) as? LinearLayout
+        exploreLayout?.setOnClickListener {
+            findNavController().navigate(R.id.action_itemListFragment_to_publicChallengeFragment)
+            updateBottomNavigationColors("explore")
+        }
+
+        // Profile (ahora es el índice 3)
+        val profileLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
+            ?.getChildAt(3) as? LinearLayout
         profileLayout?.setOnClickListener {
             findNavController().navigate(R.id.profileFragment)
+            updateBottomNavigationColors("profile")
         }
 
         // Establecer colores iniciales

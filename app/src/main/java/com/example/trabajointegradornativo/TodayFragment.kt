@@ -973,7 +973,17 @@ class TodayFragment : Fragment() {
             Toast.makeText(context, getString(R.string.already_in_today), Toast.LENGTH_SHORT).show()
         }
 
-        val profileLayout = bottomNav.getChildAt(2) as? LinearLayout
+        val exploreLayout = bottomNav.getChildAt(2) as? LinearLayout
+        exploreLayout?.setOnClickListener {
+            try {
+                findNavController().navigate(R.id.publicChallengeFragment)
+//                updateBottomNavigationColors("today")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        val profileLayout = bottomNav.getChildAt(3) as? LinearLayout
         profileLayout?.setOnClickListener {
             try {
                 findNavController().navigate(R.id.profileFragment)

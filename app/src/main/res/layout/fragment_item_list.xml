@@ -184,14 +184,14 @@
                 android:layout_height="24dp"
                 android:src="@drawable/add_home"
                 android:contentDescription="@string/home"
-                app:tint="#333333" />
+                app:tint="@color/gray_text" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/home"
                 android:textSize="12sp"
-                android:textColor="#333333"
+                android:textColor="@color/gray_text"
                 android:layout_marginTop="4dp" />
         </LinearLayout>
 
@@ -208,14 +208,38 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_today"
                 android:contentDescription="@string/today"
-                app:tint="#333333" />
+                app:tint="@color/gray_text" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/today"
                 android:textSize="12sp"
-                android:textColor="#333333"
+                android:textColor="@color/gray_text"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_search"
+                android:contentDescription="@string/explore"
+                app:tint="@color/gray_text" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/explore"
+                android:textSize="12sp"
+                android:textColor="@color/gray_text"
                 android:layout_marginTop="4dp" />
         </LinearLayout>
 
@@ -232,14 +256,14 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_settings"
                 android:contentDescription="@string/profile"
-                app:tint="#333333" />
+                app:tint="@color/gray_text" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile"
                 android:textSize="12sp"
-                android:textColor="#333333"
+                android:textColor="@color/gray_text"
                 android:layout_marginTop="4dp" />
         </LinearLayout>
     </LinearLayout>

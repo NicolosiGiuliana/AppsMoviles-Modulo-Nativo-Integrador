@@ -91,7 +91,7 @@ class ItemDetailFragment : Fragment() {
 
         Log.d("ItemDetailFragment", "onCreateView: Llamando a updateContent")
         cargarDiasCompletados()
-        setupBottomNavigation()
+        setupBottomNavigation(rootView)
 
         // Configuración del botón para editar desafío
         binding.btnEditChallenge!!.setOnClickListener {
@@ -614,30 +614,47 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
-    private fun setupBottomNavigation() {
-        // Home
-        val homeLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
-            ?.getChildAt(0) as? LinearLayout
+    private fun setupBottomNavigation(view: View) {
+        val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
+
+        val homeLayout = bottomNav.getChildAt(0) as? LinearLayout
         homeLayout?.setOnClickListener {
-            navigateToHome()
+            try {
+                findNavController().navigate(R.id.itemListFragment)
+            } catch (e: Exception) {
+                Toast.makeText(context, getString(R.string.error_navigating_home), Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Hoy
-        val todayLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
-            ?.getChildAt(1) as? LinearLayout
+        val todayLayout = bottomNav.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
-            navigateToToday()
+            try {
+                findNavController().navigate(R.id.todayFragment)
+            } catch (e: Exception) {
+                Toast.makeText(context, getString(R.string.error_navigating_home), Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Configuración (deshabilitado por ahora)
-        val settingsLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
-            ?.getChildAt(2) as? LinearLayout
-        settingsLayout?.setOnClickListener {
-            Toast.makeText(context, getString(R.string.settings_coming_soon), Toast.LENGTH_SHORT).show()
+        val exploreLayout = bottomNav.getChildAt(2) as? LinearLayout
+        exploreLayout?.setOnClickListener {
+            try {
+                findNavController().navigate(R.id.publicChallengeFragment)
+//                updateBottomNavigationColors("today")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
-        // Establecer colores iniciales (ninguna activa en detalle)
-        updateBottomNavigationColors("detalle")
+        val profileLayout = bottomNav.getChildAt(3) as? LinearLayout
+        profileLayout?.setOnClickListener {
+            try {
+                findNavController().navigate(R.id.profileFragment)
+            } catch (e: Exception) {
+                Toast.makeText(context, getString(R.string.error_navigating_profile), Toast.LENGTH_SHORT).show()
+            }
+        }
+
+//        updateBottomNavigationColors(view, "today")
     }
 
     private fun navigateToHome() {

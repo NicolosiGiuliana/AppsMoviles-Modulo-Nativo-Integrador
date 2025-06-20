@@ -87,7 +87,7 @@ class ProfileFragment : Fragment() {
         loadUserData()
         setupClickListeners()
         setupSwitches()
-        setupBottomNavigation(view)
+        setupBottomNavigation()
         loadSettings()
         loadProfileImage()
     }
@@ -100,84 +100,94 @@ class ProfileFragment : Fragment() {
         )
     }
 
-    private fun setupBottomNavigation(view: View) {
-        val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
+    private fun setupBottomNavigation() {
+        val bottomNavigation = view?.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        // Home
-        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
+        // Home (índice 0) - Navega a itemListFragment
+        val homeLayout = bottomNavigation?.getChildAt(0) as? LinearLayout
         homeLayout?.setOnClickListener {
             try {
-                findNavController().navigate(R.id.itemListFragment)
+                findNavController().navigate(R.id.action_profileFragment_to_itemListFragment)
+//                updateBottomNavigationColors("home")
             } catch (e: Exception) {
-                Toast.makeText(context, getString(R.string.error_navigating_home, e.message), Toast.LENGTH_SHORT).show()
-                Log.e(TAG, "Error navegando a Home", e)
+                e.printStackTrace()
             }
         }
 
-        // Today
-        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
+        // Today (índice 1)
+        val todayLayout = bottomNavigation?.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
             try {
-                findNavController().navigate(R.id.todayFragment)
+                findNavController().navigate(R.id.action_profileFragment_to_todayFragment)
+//                updateBottomNavigationColors("today")
             } catch (e: Exception) {
-                Toast.makeText(context, getString(R.string.error_navigating_today, e.message), Toast.LENGTH_SHORT).show()
-                Log.e(TAG, "Error navegando a Today", e)
+                e.printStackTrace()
             }
         }
 
-        // Profile (ya estamos aquí)
-        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
-        profileLayout?.setOnClickListener {
-            Toast.makeText(context, getString(R.string.already_in_profile), Toast.LENGTH_SHORT).show()
+        // Explorar (índice 2) - ya estamos aquí
+        val exploreLayout = bottomNavigation?.getChildAt(2) as? LinearLayout
+        exploreLayout?.setOnClickListener {
+            try {
+                findNavController().navigate(R.id.action_profileFragment_to_publicChallengeFragment)
+//                updateBottomNavigationColors("today")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
-        updateBottomNavigationColors(view, "profile")
+        // Profile (índice 3)
+        val profileLayout = bottomNavigation?.getChildAt(3) as? LinearLayout
+        profileLayout?.setOnClickListener {
+        }
+        // Establecer colores iniciales (Explorar activo)
+//        updateBottomNavigationColors("explore")
     }
 
     private fun updateBottomNavigationColors(view: View, activeTab: String) {
-        val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
-
-        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
-        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
-        val homeText = homeLayout?.getChildAt(1) as? TextView
-
-        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
-        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
-        val todayText = todayLayout?.getChildAt(1) as? TextView
-
-        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
-        val profileIcon = profileLayout?.getChildAt(0) as? ImageView
-        val profileText = profileLayout?.getChildAt(1) as? TextView
-
-        val activeColor = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
-        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
-
-        when (activeTab) {
-            "home" -> {
-                homeIcon?.setColorFilter(activeColor)
-                homeText?.setTextColor(activeColor)
-                todayIcon?.setColorFilter(inactiveColor)
-                todayText?.setTextColor(inactiveColor)
-                profileIcon?.setColorFilter(inactiveColor)
-                profileText?.setTextColor(inactiveColor)
-            }
-            "today" -> {
-                homeIcon?.setColorFilter(inactiveColor)
-                homeText?.setTextColor(inactiveColor)
-                todayIcon?.setColorFilter(activeColor)
-                todayText?.setTextColor(activeColor)
-                profileIcon?.setColorFilter(inactiveColor)
-                profileText?.setTextColor(inactiveColor)
-            }
-            "profile" -> {
-                homeIcon?.setColorFilter(inactiveColor)
-                homeText?.setTextColor(inactiveColor)
-                todayIcon?.setColorFilter(inactiveColor)
-                todayText?.setTextColor(inactiveColor)
-                profileIcon?.setColorFilter(activeColor)
-                profileText?.setTextColor(activeColor)
-            }
-        }
+//        val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
+//
+//        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
+//        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
+//        val homeText = homeLayout?.getChildAt(1) as? TextView
+//
+//        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
+//        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
+//        val todayText = todayLayout?.getChildAt(1) as? TextView
+//
+//        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
+//        val profileIcon = profileLayout?.getChildAt(0) as? ImageView
+//        val profileText = profileLayout?.getChildAt(1) as? TextView
+//
+//        val activeColor = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
+//        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
+//
+//        when (activeTab) {
+//            "home" -> {
+//                homeIcon?.setColorFilter(activeColor)
+//                homeText?.setTextColor(activeColor)
+//                todayIcon?.setColorFilter(inactiveColor)
+//                todayText?.setTextColor(inactiveColor)
+//                profileIcon?.setColorFilter(inactiveColor)
+//                profileText?.setTextColor(inactiveColor)
+//            }
+//            "today" -> {
+//                homeIcon?.setColorFilter(inactiveColor)
+//                homeText?.setTextColor(inactiveColor)
+//                todayIcon?.setColorFilter(activeColor)
+//                todayText?.setTextColor(activeColor)
+//                profileIcon?.setColorFilter(inactiveColor)
+//                profileText?.setTextColor(inactiveColor)
+//            }
+//            "profile" -> {
+//                homeIcon?.setColorFilter(inactiveColor)
+//                homeText?.setTextColor(inactiveColor)
+//                todayIcon?.setColorFilter(inactiveColor)
+//                todayText?.setTextColor(inactiveColor)
+//                profileIcon?.setColorFilter(activeColor)
+//                profileText?.setTextColor(activeColor)
+//            }
+//        }
     }
 
     private fun initFirebase() {

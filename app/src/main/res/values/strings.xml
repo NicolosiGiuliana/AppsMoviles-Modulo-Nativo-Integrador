@@ -10,6 +10,8 @@
     <string name="challenge_description">Descripción</string>
     <string name="challenge_description_hint">Añade una descripción</string>
 
+    <string name="explore">Explorar</string>
+
     <string name="no_tags">Sin etiquetas</string>
     <string name="edit_habits">Editar hábitos</string>
     <string name="save_changes">Guardar cambios</string>
