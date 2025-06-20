@@ -16,8 +16,10 @@ data class DesafioPublico(
     val esPublico: Boolean = true,
     val estado: String = "activo",
     val etiquetas: List<String> = emptyList(),
+    val habitos: List<Habito> = emptyList(),
     val fechaCreacion: com.google.firebase.Timestamp? = null
 )
+
 {
     // Constructor vacío requerido por Firebase
     constructor() : this(
@@ -36,6 +38,7 @@ data class DesafioPublico(
         esPublico = true,
         estado = "activo",
         etiquetas = emptyList(),
+        habitos = emptyList(),
         fechaCreacion = null
     )
 }

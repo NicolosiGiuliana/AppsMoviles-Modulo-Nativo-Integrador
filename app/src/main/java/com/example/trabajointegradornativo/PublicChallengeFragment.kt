@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -96,8 +97,16 @@ class PublicChallengeFragment: Fragment() {
 
                 for (document in documents) {
                     try {
-                        val challenge = document.toObject(DesafioPublico::class.java)
-                        challenge.id = document.id
+                        val data = document.data
+                        val challenge = DesafioPublico(
+                            id = document.id,
+                            nombre = data["nombre"] as? String ?: "",
+                            autorNombre = data["autorNombre"] as? String ?: "",
+                            descripcion = data["descripcion"] as? String ?: "",
+                            dias = (data["dias"] as? Long)?.toInt() ?: 30,
+                            etiquetas = data["etiquetas"] as? List<String> ?: emptyList(),
+                            fechaCreacion = data["fechaCreacion"] as? com.google.firebase.Timestamp
+                        )
                         allChallenges.add(challenge)
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -114,6 +123,7 @@ class PublicChallengeFragment: Fragment() {
                 showEmptyState(true)
             }
     }
+
 
     private fun displayChallenges() {
         challengesContainer.removeAllViews()
@@ -205,11 +215,20 @@ class PublicChallengeFragment: Fragment() {
     }
 
     private fun onJoinChallenge(challenge: DesafioPublico) {
-        // Ejemplo de navegación (ajusta según tu navigation graph)
-        // val bundle = Bundle().apply {
-        //     putString("challengeId", challenge.id)
-        // }
-        // findNavController().navigate(R.id.action_to_challenge_detail, bundle)
+        // Navegar al fragmento de previsualización pasando el ID del desafío
+        val bundle = Bundle().apply {
+            putString("challengeId", challenge.id)
+        }
+
+        try {
+            findNavController().navigate(
+                R.id.action_publicChallengeFragment_to_challengePreviewFragment,
+                bundle
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Error al abrir la previsualización", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showLoading(show: Boolean) {

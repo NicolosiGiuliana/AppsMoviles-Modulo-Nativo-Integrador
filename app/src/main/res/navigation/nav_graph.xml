@@ -160,6 +160,9 @@
         <action
             android:id="@+id/action_publicChallengeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_publicChallengeFragment_to_challengePreviewFragment"
+            app:destination="@id/challengePreviewFragment" />
     </fragment>
 
     <!-- Edit Desafio Fragment -->
@@ -168,5 +171,11 @@
         android:name="com.example.trabajointegradornativo.EditDesafioFragment"
         android:label="Editar Desafío"
         tools:layout="@layout/fragment_edit_desafio" />
+
+    <fragment
+        android:id="@+id/challengePreviewFragment"
+        android:name="com.example.trabajointegradornativo.ChallengePreviewFragment"
+        android:label="Challenge Preview"
+        tools:layout="@layout/fragment_preview_challenge" />
 
 </navigation>
