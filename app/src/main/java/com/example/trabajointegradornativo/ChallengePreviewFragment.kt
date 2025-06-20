@@ -408,14 +408,78 @@ class ChallengePreviewFragment : Fragment() {
             "totalHabitos" to challenge.habitos.size
         )
 
+        // Primero guardar el desafío principal
         db.collection("usuarios")
             .document(userId)
             .collection("desafios")
             .add(personalChallenge)
             .addOnSuccessListener { documentReference ->
+                // Una vez guardado el desafío, crear todos los días
+                createDaysForChallenge(documentReference.id, challenge.dias, challenge.habitos)
+            }
+            .addOnFailureListener { exception ->
+                exception.printStackTrace()
                 Toast.makeText(
                     requireContext(),
-                    "¡Desafío '${challenge.nombre}' agregado a tus desafíos!",
+                    "Error al guardar el desafío. Inténtalo de nuevo.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+
+    private fun createDaysForChallenge(desafioId: String, duracionDias: Int, habitos: List<Habito>) {
+        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        val userId = currentUser?.uid ?: return
+
+        val batch = db.batch()
+        val diasCollection = db.collection("usuarios")
+            .document(userId)
+            .collection("desafios")
+            .document(desafioId)
+            .collection("dias")
+
+        // Obtener la fecha actual para calcular las fechas de cada día
+        val calendar = java.util.Calendar.getInstance()
+
+        for (i in 1..duracionDias) {
+            // Crear los hábitos para este día
+            val habitosDia = habitos.map { habito ->
+                hashMapOf(
+                    "nombre" to habito.nombre,
+                    "completado" to false
+                )
+            }
+
+            // Formatear la fecha en formato YYYY-MM-DD
+            val fechaRealizacion = String.format(
+                "%04d-%02d-%02d",
+                calendar.get(java.util.Calendar.YEAR),
+                calendar.get(java.util.Calendar.MONTH) + 1, // Los meses van de 0-11
+                calendar.get(java.util.Calendar.DAY_OF_MONTH)
+            )
+
+            val diaData = hashMapOf(
+                "dia" to i,
+                "fechaRealizacion" to fechaRealizacion,
+                "fecha_creacion" to com.google.firebase.Timestamp.now(),
+                "completado" to false,
+                "habitos" to habitosDia
+            )
+
+            // Agregar al batch
+            val diaDocRef = diasCollection.document("dia_$i")
+            batch.set(diaDocRef, diaData)
+
+            // Avanzar al siguiente día
+            calendar.add(java.util.Calendar.DAY_OF_MONTH, 1)
+        }
+
+        // Ejecutar el batch para crear todos los días de una vez
+        batch.commit()
+            .addOnSuccessListener {
+                Toast.makeText(
+                    requireContext(),
+                    "¡Desafío agregado a tus desafíos con $duracionDias días creados!",
                     Toast.LENGTH_LONG
                 ).show()
                 findNavController().popBackStack()
@@ -424,7 +488,7 @@ class ChallengePreviewFragment : Fragment() {
                 exception.printStackTrace()
                 Toast.makeText(
                     requireContext(),
-                    "Error al guardar el desafío. Inténtalo de nuevo.",
+                    "Error al crear los días del desafío. Inténtalo de nuevo.",
                     Toast.LENGTH_LONG
                 ).show()
             }
