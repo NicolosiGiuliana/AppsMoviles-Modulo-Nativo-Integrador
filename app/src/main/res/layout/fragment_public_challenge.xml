@@ -89,7 +89,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="Populares esta semana"
+                android:text="Lo Más Popular"
                 android:textColor="#1F2937"
                 android:textSize="20sp"
                 android:textStyle="bold" />
