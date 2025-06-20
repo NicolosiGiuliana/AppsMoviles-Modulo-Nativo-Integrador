@@ -531,12 +531,47 @@ class ItemListFragment : Fragment() {
             holder.challengeDuration.text = challenge.duration
 
             holder.itemView.setOnClickListener {
-                // Crear nuevo desafío basado en el por defecto
-                createChallengeFromDefault(challenge)
+                // En lugar de crear directamente, abrir previsualización
+                openDefaultChallengePreview(challenge)
             }
         }
 
         override fun getItemCount() = challenges.size
+    }
+
+    private fun openDefaultChallengePreview(defaultChallenge: DefaultChallenge) {
+        val challengeData = getInitialChallengeForObjective(defaultChallenge.type)
+
+        // Crear un DesafioPublico temporal para la previsualización
+        val previewChallenge = DesafioPublico(
+            id = "", // ID temporal
+            nombre = challengeData["nombre"] as? String ?: "",
+            autorNombre = "Sistema", // Indicar que es un desafío del sistema
+            descripcion = challengeData["descripcion"] as? String ?: "",
+            dias = challengeData["dias"] as? Int ?: 30,
+            etiquetas = listOf(challengeData["tipo"] as? String ?: "general"),
+            habitos = (challengeData["habitos"] as? List<Map<String, Any>>)?.map { habitMap ->
+                Habito(
+                    nombre = habitMap["nombre"] as? String ?: "",
+                    completado = false
+                )
+            } ?: emptyList(),
+            fechaCreacion = com.google.firebase.Timestamp.now()
+        )
+
+        // Navegar a la previsualización con datos especiales para desafíos por defecto
+        val bundle = Bundle().apply {
+            putString("challengeName", previewChallenge.nombre)
+            putString("challengeAuthor", previewChallenge.autorNombre)
+            putString("challengeDescription", previewChallenge.descripcion)
+            putInt("challengeDuration", previewChallenge.dias)
+            putStringArrayList("challengeTags", ArrayList(previewChallenge.etiquetas))
+            putStringArrayList("challengeHabits", ArrayList(previewChallenge.habitos.map { it.nombre }))
+            putBoolean("isDefaultChallenge", true) // Flag para identificar que es un desafío por defecto
+            putString("defaultChallengeType", defaultChallenge.type) // Tipo para poder recrearlo
+        }
+
+        findNavController().navigate(R.id.action_itemListFragment_to_challengePreviewFragment, bundle)
     }
 
     private fun eliminarDesafio(id: String) {

@@ -43,6 +43,9 @@
         <action
             android:id="@+id/action_itemListFragment_to_publicChallengeFragment"
             app:destination="@id/publicChallengeFragment" />
+        <action
+            android:id="@+id/action_itemListFragment_to_challengePreviewFragment"
+            app:destination="@id/challengePreviewFragment" />
     </fragment>
 
     <!-- Detalle del desafío -->

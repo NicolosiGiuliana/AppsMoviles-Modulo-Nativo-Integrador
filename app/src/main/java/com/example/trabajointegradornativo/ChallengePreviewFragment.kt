@@ -27,6 +27,8 @@ class ChallengePreviewFragment : Fragment() {
     private lateinit var btnClosePreview: CardView
     private lateinit var btnUseChallenge: CardView
 
+    private var isDefaultChallenge: Boolean = false
+    private var defaultChallengeType: String = ""
 
     private var currentChallenge: DesafioPublico? = null
 
@@ -71,14 +73,16 @@ class ChallengePreviewFragment : Fragment() {
     }
 
     private fun loadChallengeData() {
-        // Obtener el ID del desafío desde los argumentos
         arguments?.let { bundle ->
             val challengeId = bundle.getString("challengeId")
+            isDefaultChallenge = bundle.getBoolean("isDefaultChallenge", false)
+            defaultChallengeType = bundle.getString("defaultChallengeType", "")
 
-            if (challengeId != null) {
+            if (challengeId != null && !isDefaultChallenge) {
+                // Cargar desde Firestore (desafíos públicos)
                 loadFullChallengeFromFirestore(challengeId)
             } else {
-                // Fallback: usar los datos pasados directamente (compatibilidad con código anterior)
+                // Cargar desde argumentos (desafíos por defecto o datos directos)
                 loadChallengeFromArguments(bundle)
             }
         }
@@ -337,18 +341,205 @@ class ChallengePreviewFragment : Fragment() {
             return
         }
 
-        // Primero verificar si ya existe el desafío
-        checkIfChallengeExists(challenge) { exists ->
-            if (exists) {
+        if (isDefaultChallenge) {
+            // Para desafíos por defecto, usar la función de creación existente
+            createDefaultChallengeForUser()
+        } else {
+            // Para desafíos públicos, verificar duplicados primero
+            checkIfChallengeExists(challenge) { exists ->
+                if (exists) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Ya tienes este desafío en tu colección",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    savePersonalChallenge(challenge)
+                }
+            }
+        }
+    }
+
+    private fun createDefaultChallengeForUser() {
+        Toast.makeText(requireContext(), "Creando desafío...", Toast.LENGTH_SHORT).show()
+
+        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        val userId = currentUser?.uid ?: return
+
+        // Obtener la configuración del desafío por defecto
+        val challengeData = getInitialChallengeForObjective(defaultChallengeType)
+        val challengesRef = db.collection("usuarios").document(userId).collection("desafios")
+
+        // 1. Crear el desafío principal
+        challengesRef.add(challengeData)
+            .addOnSuccessListener { documentRef ->
+                // 2. Crear la estructura de días usando batch
+                val batch = db.batch()
+                val dias = challengeData["dias"] as? Int ?: 30
+                val habitos = challengeData["habitos"] as? List<Map<String, Any>> ?: emptyList()
+
+                // Convertir hábitos a la estructura que necesita cada día
+                val habitosParaDias = habitos.map { habito ->
+                    mapOf(
+                        "nombre" to (habito["nombre"] ?: ""),
+                        "completado" to false
+                    )
+                }
+
+                // Obtener la fecha actual para calcular las fechas de cada día
+                val fechaInicio = java.util.Calendar.getInstance()
+                val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+
+                // Crear cada día del desafío
+                for (i in 1..dias) {
+                    val diaRef = documentRef.collection("dias").document("dia_$i")
+
+                    // Calcular la fecha para este día
+                    val fechaDia = java.util.Calendar.getInstance().apply {
+                        time = fechaInicio.time
+                        add(java.util.Calendar.DAY_OF_YEAR, i - 1)
+                    }
+
+                    val dataDia = hashMapOf(
+                        "dia" to i,
+                        "habitos" to habitosParaDias,
+                        "completado" to false,
+                        "fecha_creacion" to com.google.firebase.Timestamp.now(),
+                        "fechaRealizacion" to dateFormat.format(fechaDia.time)
+                    )
+                    batch.set(diaRef, dataDia)
+                }
+
+                // 3. Ejecutar el batch
+                batch.commit()
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "¡Desafío '${challengeData["nombre"]}' creado exitosamente!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        findNavController().popBackStack()
+                    }
+                    .addOnFailureListener { e ->
+                        e.printStackTrace()
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al crear los días del desafío.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
                 Toast.makeText(
                     requireContext(),
-                    "Ya tienes este desafío en tu colección",
+                    "Error al crear el desafío.",
                     Toast.LENGTH_LONG
                 ).show()
-            } else {
-                // Si no existe, guardarlo
-                savePersonalChallenge(challenge)
             }
+    }
+
+    // Método para obtener la configuración del desafío (copia del ItemListFragment)
+    private fun getInitialChallengeForObjective(objective: String): HashMap<String, Any> {
+        val currentTime = com.google.firebase.Timestamp.now()
+        return when (objective) {
+            "fitness" -> hashMapOf(
+                "nombre" to "Desafío de Fitness Inicial",
+                "descripcion" to "Mejora tu condición física con hábitos diarios",
+                "tipo" to "fitness",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 30,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 5,
+                "estado" to "activo",
+                "habitos" to listOf(
+                    mapOf("nombre" to "Caminar 30 minutos", "completado" to false),
+                    mapOf("nombre" to "Estirar 15 minutos", "completado" to false),
+                    mapOf("nombre" to "Beber 2 litros de agua", "completado" to false),
+                    mapOf("nombre" to "Dormir 7-8 horas", "completado" to false),
+                    mapOf("nombre" to "Comer una porción de vegetales", "completado" to false)
+                )
+            )
+            "lectura" -> hashMapOf(
+                "nombre" to "Desafío de Lectura Inicial",
+                "descripcion" to "Desarrolla el hábito de la lectura diaria",
+                "tipo" to "lectura",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 21,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 4,
+                "estado" to "activo",
+                "habitos" to listOf(
+                    mapOf("nombre" to "Leer 20 páginas", "completado" to false),
+                    mapOf("nombre" to "Tomar notas de lectura", "completado" to false),
+                    mapOf("nombre" to "Reflexionar sobre lo leído", "completado" to false),
+                    mapOf("nombre" to "Leer en un lugar tranquilo", "completado" to false)
+                )
+            )
+            "mindfulness" -> hashMapOf(
+                "nombre" to "Desafío de Mindfulness",
+                "descripcion" to "Cultiva la atención plena y reduce el estrés",
+                "tipo" to "mindfulness",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 30,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 5,
+                "estado" to "activo",
+                "habitos" to listOf(
+                    mapOf("nombre" to "Meditar 10 minutos", "completado" to false),
+                    mapOf("nombre" to "Practicar respiración consciente", "completado" to false),
+                    mapOf("nombre" to "Escribir diario de gratitud", "completado" to false),
+                    mapOf("nombre" to "Hacer una pausa consciente", "completado" to false),
+                    mapOf("nombre" to "Observar el entorno mindfully", "completado" to false)
+                )
+            )
+            "hidratacion" -> hashMapOf(
+                "nombre" to "Desafío de Hidratación",
+                "descripcion" to "Mantente hidratado para una mejor salud",
+                "tipo" to "hidratacion",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 15,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 5,
+                "estado" to "activo",
+                "habitos" to listOf(
+                    mapOf("nombre" to "Beber 2 litros de agua", "completado" to false),
+                    mapOf("nombre" to "Llevar botella de agua", "completado" to false),
+                    mapOf("nombre" to "Beber agua antes de comidas", "completado" to false),
+                    mapOf("nombre" to "Evitar bebidas azucaradas", "completado" to false),
+                    mapOf("nombre" to "Beber agua al despertar", "completado" to false)
+                )
+            )
+            else -> hashMapOf(
+                "nombre" to "Desafío Personalizado",
+                "descripcion" to "Un desafío adaptado a tus necesidades",
+                "tipo" to "personalizado",
+                "completado" to false,
+                "fechaCreacion" to currentTime,
+                "fechaInicio" to currentTime,
+                "dias" to 30,
+                "diaActual" to 1,
+                "completados" to 0,
+                "totalHabitos" to 3,
+                "estado" to "activo",
+                "habitos" to listOf(
+                    mapOf("nombre" to "Hábito personalizado 1", "completado" to false),
+                    mapOf("nombre" to "Hábito personalizado 2", "completado" to false),
+                    mapOf("nombre" to "Hábito personalizado 3", "completado" to false)
+                )
+            )
         }
     }
 
