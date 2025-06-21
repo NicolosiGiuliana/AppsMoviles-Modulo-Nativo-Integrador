@@ -436,6 +436,12 @@ class TodayFragment : Fragment() {
         actualizarResumenProgreso()
     }
 
+// BUSCA Y ELIMINA COMPLETAMENTE este código problemático en TodayFragment.kt:
+// Cualquier método que contenga "dest.actions" o "for (action in dest.actions)"
+// Elimina todo el método debugNavigation() o verificarNavegacion() si existe
+
+// REEMPLAZA SOLO estos dos métodos en TodayFragment.kt:
+
     private fun agregarDesafioALaInterfaz(desafio: Desafio) {
         val cardView = CardView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(
@@ -468,9 +474,80 @@ class TodayFragment : Fragment() {
             cardLayout.addView(habitoLayout)
         }
 
+        // Click listener para navegar al detalle
+        cardView.setOnClickListener {
+            navegarAlDetalle(desafio.id)
+        }
+
         cardView.addView(cardLayout)
         activitiesContainer.addView(cardView)
     }
+
+    // Método simple para navegar al detalle
+// OPCIÓN 3: Navegación más simple - solo usar el ID del fragmento
+// Reemplaza el método navegarAlDetalle con este:
+
+    private fun navegarAlDetalle(desafioId: String) {
+        val uid = auth.currentUser?.uid ?: return
+
+        Log.d(TAG, "Navegando al detalle del desafío: $desafioId")
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafioId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    try {
+                        val desafioCompleto = ItemListFragment.Desafio(
+                            nombre = document.getString("nombre") ?: "",
+                            descripcion = document.getString("descripcion") ?: "",
+                            dias = document.getLong("dias")?.toInt() ?: 0,
+                            creadoPor = uid,
+                            id = document.id,
+                            diaActual = document.getLong("diaActual")?.toInt() ?: 1,
+                            completados = document.getLong("completados")?.toInt() ?: 0,
+                            totalHabitos = document.getLong("totalHabitos")?.toInt() ?: 5,
+                            etiquetas = document.get("etiquetas") as? List<String> ?: emptyList(),
+                            visibilidad = document.getString("visibilidad") ?: "privado"
+                        )
+
+                        val bundle = Bundle().apply {
+                            putParcelable("desafio", desafioCompleto)
+                        }
+
+                        // NAVEGACIÓN SIMPLE - solo usar el ID del fragmento
+                        try {
+                            findNavController().navigate(R.id.itemDetailFragment, bundle)
+                            Log.d(TAG, "Navegación exitosa")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error de navegación: ${e.message}")
+                            Toast.makeText(context, "Error al navegar: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error al crear objeto: ${e.message}")
+                        Toast.makeText(context, "Error al procesar datos", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(context, "Desafío no encontrado", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error al cargar: ${e.message}")
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Llama a este método en onViewCreated para debuggear
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Solo cargar datos - SIN llamadas a métodos de debug
+        cargarDesafiosDelUsuario()
+    }
+
 
     private fun crearLayoutHabito(desafio: Desafio, habito: Habito): LinearLayout {
         val habitoLayout = LinearLayout(requireContext()).apply {

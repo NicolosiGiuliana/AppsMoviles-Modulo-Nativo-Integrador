@@ -110,6 +110,16 @@
         android:label="Hoy"
         tools:layout="@layout/action_to_today_fragment">
 
+        <!-- AGREGAR ESTA ACCIÓN PARA NAVEGAR AL DETALLE -->
+        <action
+            android:id="@+id/show_item_detail"
+            app:destination="@id/itemDetailFragment" />
+
+        <!-- Acción para navegar al detalle del item -->
+        <action
+            android:id="@+id/action_todayFragment_to_itemDetailFragment"
+            app:destination="@id/itemDetailFragment" />
+
         <!-- Navegación inferior desde Today -->
         <action
             android:id="@+id/action_todayFragment_to_itemListFragment"
@@ -120,6 +130,27 @@
         <action
             android:id="@+id/action_todayFragment_to_publicChallengeFragment"
             app:destination="@id/publicChallengeFragment" />
+        <!-- OPCIÓN 2: Agregar la acción en tu navigation graph -->
+        <!-- Busca tu archivo navigation.xml (probablemente en res/navigation/) -->
+        <!-- Y agrega esta acción dentro del fragment todayFragment: -->
+
+        <fragment
+            android:id="@+id/todayFragment"
+            android:name="com.example.trabajointegradornativo.TodayFragment"
+            android:label="TodayFragment">
+
+            <!-- AGREGAR ESTA ACCIÓN -->
+            <action
+                android:id="@+id/action_todayFragment_to_itemDetailFragment"
+                app:destination="@id/itemDetailFragment" />
+
+            <!-- O esta si usas show_item_detail -->
+            <action
+                android:id="@+id/show_item_detail"
+                app:destination="@id/itemDetailFragment" />
+
+        </fragment>
+
     </fragment>
 
     <!-- Profile Fragment -->

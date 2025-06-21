@@ -58,28 +58,83 @@ class ItemDetailFragment : Fragment() {
         setFragmentResultListener("desafio_editado") { _, bundle ->
             val desafioEditado = bundle.getBoolean("cambios_realizados", false)
             if (desafioEditado) {
-                // Recargar los datos cuando hay cambios
                 cargarDiasCompletados()
             }
         }
 
-        arguments?.let {
-            desafio = it.getParcelable("desafio") ?: throw IllegalStateException("Desafio no encontrado en los argumentos")
-            if (it.containsKey(ARG_ITEM_ID)) {
-                val id = it.getString(ARG_ITEM_ID)
-                Log.d("ItemDetailFragment", "ARG_ITEM_ID recibido: $id")
+        arguments?.let { args ->
+            // CASO 1: Si viene con el objeto Desafio completo (desde ItemListFragment)
+            if (args.containsKey("desafio")) {
+                desafio = args.getParcelable("desafio") ?: throw IllegalStateException("Desafio no encontrado en los argumentos")
+                Log.d("ItemDetailFragment", "Desafío recibido desde ItemListFragment: ${desafio.nombre}")
+            }
+            // CASO 2: Si viene solo con el ID (desde TodayFragment)
+            else if (args.containsKey(ARG_ITEM_ID)) {
+                val desafioId = args.getString(ARG_ITEM_ID)
+                Log.d("ItemDetailFragment", "ID recibido desde TodayFragment: $desafioId")
 
-                item = PlaceholderContent.ITEM_MAP[id]
-                if (item != null) {
-                    Log.d("ItemDetailFragment", "Item encontrado: ${item!!.content}")
+                if (desafioId != null) {
+                    // Cargar el desafío desde Firestore usando el ID
+                    cargarDesafioPorId(desafioId)
                 } else {
-                    Log.d("ItemDetailFragment", "No se encontró item con ID: $id en ITEM_MAP")
+                    throw IllegalStateException("ID de desafío no válido")
                 }
             } else {
-                Log.d("ItemDetailFragment", "ARG_ITEM_ID no recibido")
+                throw IllegalStateException("No se recibieron argumentos válidos")
+            }
+
+            // Manejar el item placeholder (si existe)
+            if (args.containsKey(ARG_ITEM_ID)) {
+                val id = args.getString(ARG_ITEM_ID)
+                item = PlaceholderContent.ITEM_MAP[id]
             }
         }
     }
+
+    private fun cargarDesafioPorId(desafioId: String) {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafioId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Crear el objeto Desafio desde los datos de Firestore
+                    desafio = ItemListFragment.Desafio(
+                        nombre = document.getString("nombre") ?: "",
+                        descripcion = document.getString("descripcion") ?: "",
+                        dias = document.getLong("dias")?.toInt() ?: 0,
+                        creadoPor = uid,
+                        id = document.id,
+                        diaActual = document.getLong("diaActual")?.toInt() ?: 1,
+                        completados = document.getLong("completados")?.toInt() ?: 0,
+                        totalHabitos = document.getLong("totalHabitos")?.toInt() ?: 5,
+                        etiquetas = document.get("etiquetas") as? List<String> ?: emptyList(),
+                        visibilidad = document.getString("visibilidad") ?: "privado"
+                    )
+
+                    Log.d("ItemDetailFragment", "Desafío cargado desde Firestore: ${desafio.nombre}")
+
+                    // Una vez cargado, proceder con la inicialización normal
+                    if (::desafio.isInitialized) {
+                        cargarDiasCompletados()
+                    }
+                } else {
+                    Log.e("ItemDetailFragment", "Desafío no encontrado con ID: $desafioId")
+                    Toast.makeText(context, "Desafío no encontrado", Toast.LENGTH_SHORT).show()
+                    // Volver atrás si no se encuentra el desafío
+                    findNavController().popBackStack()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ItemDetailFragment", "Error al cargar desafío: ${e.message}")
+                Toast.makeText(context, "Error al cargar el desafío: ${e.message}", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -89,19 +144,28 @@ class ItemDetailFragment : Fragment() {
         val rootView = binding.root
         rootView.setOnDragListener(dragListener)
 
-        Log.d("ItemDetailFragment", "onCreateView: Llamando a updateContent")
-        cargarDiasCompletados()
+        Log.d("ItemDetailFragment", "onCreateView: Verificando inicialización")
+
+        // Solo cargar días completados si el desafío ya está inicializado
+        if (::desafio.isInitialized) {
+            cargarDiasCompletados()
+        }
+
         setupBottomNavigation(rootView)
 
         // Configuración del botón para editar desafío
-        binding.btnEditChallenge!!.setOnClickListener {
-            val bundle = Bundle().apply {
-                putParcelable("desafio", desafio) // Pasar datos del desafío si es necesario
+        binding.btnEditChallenge?.setOnClickListener {
+            if (::desafio.isInitialized) {
+                val bundle = Bundle().apply {
+                    putParcelable("desafio", desafio)
+                }
+                findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
             }
-            findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
         }
+
         return rootView
     }
+
 
 
     private fun cargarDiasCompletados() {
