@@ -346,6 +346,67 @@
                 </androidx.cardview.widget.CardView>
 
             </LinearLayout>
+
+            <!-- MAPA MOVIDO AQUÍ: Después de Duración y Estado del Día -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/location_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:backgroundTint="#F8F9FA"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_location_on"
+                            android:layout_marginEnd="8dp"
+                            app:tint="#2E3A59" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ubicación del Desafío"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E3A59" />
+
+                    </LinearLayout>
+
+                    <org.osmdroid.views.MapView
+                        android:id="@+id/challenge_map"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/location_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textColor="#5A6C7D"
+                        android:gravity="center"
+                        android:text="Cargando dirección..." />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

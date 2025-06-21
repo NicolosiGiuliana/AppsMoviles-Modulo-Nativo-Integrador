@@ -68,6 +68,9 @@ dependencies {
     implementation(libs.firebase.dataconnect)
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
 
+    implementation ("org.osmdroid:osmdroid-android:6.1.17")
+    implementation ("org.osmdroid:osmdroid-wms:6.1.17")
+    implementation ("org.osmdroid:osmdroid-mapsforge:6.1.17")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

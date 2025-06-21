@@ -1,7 +1,6 @@
 package com.example.trabajointegradornativo
 
 import android.content.ClipData
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.DragEvent
@@ -20,73 +19,89 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import com.example.trabajointegradornativo.databinding.FragmentItemDetailBinding
-import com.example.trabajointegradornativo.placeholder.PlaceholderContent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.time.LocalDate
 
+// IMPORTACIONES PARA EL MAPA
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import android.location.Geocoder
+import androidx.cardview.widget.CardView
+import java.util.*
+
 class ItemDetailFragment : Fragment() {
 
-    private var item: PlaceholderContent.PlaceholderItem? = null
     private var _binding: FragmentItemDetailBinding? = null
     private val binding get() = _binding!!
-    private lateinit var desafio: ItemListFragment.Desafio
+
+    // Clase simple para el desafío (reemplaza ItemListFragment.Desafio)
+    data class Desafio(
+        val id: String = "",
+        val nombre: String = "",
+        val descripcion: String = "",
+        val dias: Int = 0,
+        val diaActual: Int = 1,
+        val completados: Int = 0,
+        val totalHabitos: Int = 0,
+        val etiquetas: List<String> = emptyList(),
+        val creadoPor: String = "",
+        val visibilidad: String = "privado"
+    )
+
+    private lateinit var desafio: Desafio
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private var diasCompletados = mutableSetOf<Int>()
     private var isUpdatingContent = false
 
-    private val dragListener = View.OnDragListener { _, event ->
-        if (event.action == DragEvent.ACTION_DROP) {
-            val clipDataItem: ClipData.Item = event.clipData.getItemAt(0)
-            val dragData = clipDataItem.text
-            item = PlaceholderContent.ITEM_MAP[dragData]
-            updateContent()
-        }
-        true
-    }
+    // VARIABLES PARA EL MAPA
+    private var challengeMap: MapView? = null
+    private var locationCard: CardView? = null
+    private var locationAddress: TextView? = null
+    private var challengeLatitude: Double? = null
+    private var challengeLongitude: Double? = null
+    private var challengeLocationName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        // Configurar listener para detectar cuando vuelves de la pantalla de edición
-        setFragmentResultListener("desafio_editado") { _, bundle ->
-            val desafioEditado = bundle.getBoolean("cambios_realizados", false)
-            if (desafioEditado) {
-                cargarDiasCompletados()
-            }
-        }
+        // CONFIGURAR OSMDROID
+        Configuration.getInstance().load(requireContext(),
+            requireContext().getSharedPreferences("osmdroid", 0))
 
         arguments?.let { args ->
-            // CASO 1: Si viene con el objeto Desafio completo (desde ItemListFragment)
-            if (args.containsKey("desafio")) {
-                desafio = args.getParcelable("desafio") ?: throw IllegalStateException("Desafio no encontrado en los argumentos")
-                Log.d("ItemDetailFragment", "Desafío recibido desde ItemListFragment: ${desafio.nombre}")
-            }
-            // CASO 2: Si viene solo con el ID (desde TodayFragment)
-            else if (args.containsKey(ARG_ITEM_ID)) {
-                val desafioId = args.getString(ARG_ITEM_ID)
-                Log.d("ItemDetailFragment", "ID recibido desde TodayFragment: $desafioId")
+            // CORREGIR: Manejar tanto el objeto Desafio como el ID
+            val desafioFromArgs = args.getParcelable<ItemListFragment.Desafio>("desafio")
+            val desafioId = args.getString("desafio_id") ?: args.getString(ARG_ITEM_ID)
 
-                if (desafioId != null) {
-                    // Cargar el desafío desde Firestore usando el ID
-                    cargarDesafioPorId(desafioId)
-                } else {
-                    throw IllegalStateException("ID de desafío no válido")
-                }
+            if (desafioFromArgs != null) {
+                Log.d("ItemDetailFragment", "Desafío recibido desde argumentos: ${desafioFromArgs.nombre}")
+                desafio = Desafio(
+                    id = desafioFromArgs.id,
+                    nombre = desafioFromArgs.nombre,
+                    descripcion = desafioFromArgs.descripcion,
+                    dias = desafioFromArgs.dias,
+                    diaActual = desafioFromArgs.diaActual,
+                    completados = desafioFromArgs.completados,
+                    totalHabitos = desafioFromArgs.totalHabitos,
+                    etiquetas = desafioFromArgs.etiquetas,
+                    creadoPor = desafioFromArgs.creadoPor,
+                    visibilidad = desafioFromArgs.visibilidad
+                )
+            } else if (desafioId != null) {
+                Log.d("ItemDetailFragment", "ID recibido: $desafioId")
+                cargarDesafioPorId(desafioId)
+                return // Salir aquí porque cargarDesafioPorId manejará el resto
             } else {
-                throw IllegalStateException("No se recibieron argumentos válidos")
-            }
-
-            // Manejar el item placeholder (si existe)
-            if (args.containsKey(ARG_ITEM_ID)) {
-                val id = args.getString(ARG_ITEM_ID)
-                item = PlaceholderContent.ITEM_MAP[id]
+                Log.e("ItemDetailFragment", "No se recibió ni desafío ni ID")
+                throw IllegalStateException("ID de desafío no válido")
             }
         }
     }
@@ -101,40 +116,33 @@ class ItemDetailFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // Crear el objeto Desafio desde los datos de Firestore
-                    desafio = ItemListFragment.Desafio(
+                    desafio = Desafio(
+                        id = document.id,
                         nombre = document.getString("nombre") ?: "",
                         descripcion = document.getString("descripcion") ?: "",
                         dias = document.getLong("dias")?.toInt() ?: 0,
-                        creadoPor = uid,
-                        id = document.id,
                         diaActual = document.getLong("diaActual")?.toInt() ?: 1,
                         completados = document.getLong("completados")?.toInt() ?: 0,
                         totalHabitos = document.getLong("totalHabitos")?.toInt() ?: 5,
                         etiquetas = document.get("etiquetas") as? List<String> ?: emptyList(),
+                        creadoPor = uid,
                         visibilidad = document.getString("visibilidad") ?: "privado"
                     )
 
-                    Log.d("ItemDetailFragment", "Desafío cargado desde Firestore: ${desafio.nombre}")
-
-                    // Una vez cargado, proceder con la inicialización normal
-                    if (::desafio.isInitialized) {
-                        cargarDiasCompletados()
-                    }
+                    Log.d("ItemDetailFragment", "Desafío cargado: ${desafio.nombre}")
+                    cargarDiasCompletados()
                 } else {
-                    Log.e("ItemDetailFragment", "Desafío no encontrado con ID: $desafioId")
+                    Log.e("ItemDetailFragment", "Desafío no encontrado")
                     Toast.makeText(context, "Desafío no encontrado", Toast.LENGTH_SHORT).show()
-                    // Volver atrás si no se encuentra el desafío
                     findNavController().popBackStack()
                 }
             }
             .addOnFailureListener { e ->
                 Log.e("ItemDetailFragment", "Error al cargar desafío: ${e.message}")
-                Toast.makeText(context, "Error al cargar el desafío: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error al cargar el desafío", Toast.LENGTH_SHORT).show()
                 findNavController().popBackStack()
             }
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -142,31 +150,44 @@ class ItemDetailFragment : Fragment() {
     ): View {
         _binding = FragmentItemDetailBinding.inflate(inflater, container, false)
         val rootView = binding.root
-        rootView.setOnDragListener(dragListener)
 
-        Log.d("ItemDetailFragment", "onCreateView: Verificando inicialización")
+        Log.d("ItemDetailFragment", "onCreateView: Inicializando vistas")
 
-        // Solo cargar días completados si el desafío ya está inicializado
-        if (::desafio.isInitialized) {
-            cargarDiasCompletados()
-        }
+        // INICIALIZAR VISTAS DEL MAPA
+        initializeMapViews()
 
         setupBottomNavigation(rootView)
 
         // Configuración del botón para editar desafío
-        binding.btnEditChallenge?.setOnClickListener {
-            if (::desafio.isInitialized) {
-                val bundle = Bundle().apply {
-                    putParcelable("desafio", desafio)
-                }
-                findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
-            }
+        rootView.findViewById<View>(R.id.btn_edit_challenge)?.setOnClickListener {
+            Toast.makeText(context, "Función de edición no implementada", Toast.LENGTH_SHORT).show()
         }
 
         return rootView
     }
 
+    // FUNCIÓN PARA INICIALIZAR LAS VISTAS DEL MAPA
+    private fun initializeMapViews() {
+        try {
+            challengeMap = binding.root.findViewById(R.id.challenge_map)
+            locationCard = binding.root.findViewById(R.id.location_card)
+            locationAddress = binding.root.findViewById(R.id.location_address)
 
+            Log.d("ItemDetailFragment", "Vistas del mapa inicializadas")
+            Log.d("ItemDetailFragment", "challengeMap: ${challengeMap != null}")
+            Log.d("ItemDetailFragment", "locationCard: ${locationCard != null}")
+
+            // Configurar el mapa si existe
+            challengeMap?.let { map ->
+                map.setTileSource(TileSourceFactory.MAPNIK)
+                map.setMultiTouchControls(true)
+                map.controller.setZoom(15.0)
+                Log.d("ItemDetailFragment", "Mapa configurado correctamente")
+            }
+        } catch (e: Exception) {
+            Log.e("ItemDetailFragment", "Error inicializando mapa: ${e.message}")
+        }
+    }
 
     private fun cargarDiasCompletados() {
         val uid = auth.currentUser?.uid ?: return
@@ -175,34 +196,134 @@ class ItemDetailFragment : Fragment() {
             .document(uid)
             .collection("desafios")
             .document(desafio.id)
-            .collection("dias")
-            .whereEqualTo("completado", true)
             .get()
-            .addOnSuccessListener { result ->
-                val diasCompletadosAnterior = diasCompletados.size
-                diasCompletados.clear()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // CORREGIR: Cargar datos de ubicación con nombres correctos
+                    val latitude = document.getDouble("ubicacion_latitude")
+                    val longitude = document.getDouble("ubicacion_longitude")
+                    val locationName = document.getString("ubicacion_nombre")
 
-                for (document in result) {
-                    val dia = document.getLong("dia")?.toInt() ?: 0
-                    if (dia > 0) {
-                        diasCompletados.add(dia)
+                    Log.d("DEBUG_MAP", "=== DATOS DE UBICACIÓN ===")
+                    Log.d("DEBUG_MAP", "Latitude: $latitude")
+                    Log.d("DEBUG_MAP", "Longitude: $longitude")
+                    Log.d("DEBUG_MAP", "Location Name: $locationName")
+                    Log.d("DEBUG_MAP", "Document data: ${document.data}")
+
+                    if (latitude != null && longitude != null) {
+                        challengeLatitude = latitude
+                        challengeLongitude = longitude
+                        challengeLocationName = locationName
+                        Log.d("DEBUG_MAP", "Configurando mapa con datos válidos")
+                        setupMap()
+                    } else {
+                        Log.d("DEBUG_MAP", "No hay datos de ubicación válidos")
+                        locationCard?.visibility = View.GONE
                     }
-                }
 
-                val diasCompletadosNuevo = diasCompletados.size
-                Log.d("ItemDetailFragment", "Días completados: $diasCompletadosAnterior -> $diasCompletadosNuevo")
+                    // Actualizar información básica
+                    updateBasicInfo()
 
-                // Solo actualizar si no estamos ya actualizando y si hay cambios
-                if (!isUpdatingContent) {
-                    updateContent()
+                    // Cargar días completados
+                    firestore.collection("usuarios")
+                        .document(uid)
+                        .collection("desafios")
+                        .document(desafio.id)
+                        .collection("dias")
+                        .whereEqualTo("completado", true)
+                        .get()
+                        .addOnSuccessListener { result ->
+                            val diasCompletadosAnterior = diasCompletados.size
+                            diasCompletados.clear()
+
+                            for (doc in result) {
+                                val dia = doc.getLong("dia")?.toInt() ?: 0
+                                if (dia > 0) {
+                                    diasCompletados.add(dia)
+                                }
+                            }
+
+                            val diasCompletadosNuevo = diasCompletados.size
+                            Log.d("ItemDetailFragment", "Días completados: $diasCompletadosAnterior -> $diasCompletadosNuevo")
+
+                            // Solo actualizar si no estamos ya actualizando y si hay cambios
+                            if (!isUpdatingContent) {
+                                updateContent()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("ItemDetailFragment", "Error al cargar días completados: ${e.message}")
+                            if (!isUpdatingContent) {
+                                updateContent()
+                            }
+                        }
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("ItemDetailFragment", "Error al cargar días completados: ${e.message}")
-                if (!isUpdatingContent) {
-                    updateContent()
-                }
+                Log.e("ItemDetailFragment", "Error al cargar desafío: ${e.message}")
             }
+    }
+
+    // FUNCIÓN PARA CONFIGURAR EL MAPA
+    private fun setupMap() {
+        val latitude = challengeLatitude ?: return
+        val longitude = challengeLongitude ?: return
+        val map = challengeMap ?: return
+
+        try {
+            Log.d("ItemDetailFragment", "Configurando mapa con coordenadas: $latitude, $longitude")
+
+            // Mostrar la tarjeta del mapa
+            locationCard?.visibility = View.VISIBLE
+            Log.d("ItemDetailFragment", "Tarjeta del mapa mostrada")
+
+            // Crear punto geográfico
+            val challengePoint = GeoPoint(latitude, longitude)
+
+            // Centrar el mapa en la ubicación
+            map.controller.setCenter(challengePoint)
+
+            // CAMBIAR: Aumentar el zoom para ver más cerca (era 15.0)
+            map.controller.setZoom(18.0) // Zoom más cercano
+
+            // Agregar marcador
+            val marker = Marker(map)
+            marker.position = challengePoint
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            marker.title = "Ubicación del Desafío"
+
+            map.overlays.clear()
+            map.overlays.add(marker)
+
+            Log.d("ItemDetailFragment", "Marcador agregado al mapa")
+
+            // Actualizar la dirección
+            updateLocationAddress(latitude, longitude)
+
+            // Forzar actualización del mapa
+            map.invalidate()
+
+        } catch (e: Exception) {
+            Log.e("ItemDetailFragment", "Error configurando mapa: ${e.message}")
+            locationCard?.visibility = View.GONE
+        }
+    }
+
+    // FUNCIÓN PARA ACTUALIZAR LA DIRECCIÓN
+    private fun updateLocationAddress(latitude: Double, longitude: Double) {
+        if (challengeLocationName != null) {
+            locationAddress?.text = challengeLocationName
+        } else {
+            locationAddress?.text = "Lat: ${String.format("%.4f", latitude)}, " +
+                    "Lng: ${String.format("%.4f", longitude)}"
+        }
+    }
+
+    private fun updateBasicInfo() {
+        // Actualizar información básica del desafío
+        binding.root.findViewById<TextView>(R.id.challenge_title)?.text = desafio.nombre
+        binding.root.findViewById<TextView>(R.id.challenge_description)?.text = desafio.descripcion
+        binding.root.findViewById<TextView>(R.id.challenge_duration)?.text = "${desafio.dias} días"
     }
 
     private fun updateContent() {
@@ -298,6 +419,7 @@ class ItemDetailFragment : Fragment() {
 
         Log.d("ItemDetailFragment", "Porcentaje actualizado: $porcentaje% ($completados/$dias días completados)")
     }
+
     private fun verificarCambiosEnDias() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -331,7 +453,6 @@ class ItemDetailFragment : Fragment() {
                 }
             }
     }
-
 
     private fun obtenerDiaActual(uid: String, desafioId: String, callback: (String?) -> Unit) {
         val fechaHoy = LocalDate.now().toString() // Fecha actual en formato "yyyy-MM-dd"
@@ -404,15 +525,6 @@ class ItemDetailFragment : Fragment() {
     }
 
     private fun actualizarEstadoHabitoDelDia(uid: String, desafioId: String, diaId: String, habitIndex: Int, completado: Boolean, habitosActuales: List<Map<String, Any>>) {
-        // Verificar si TODOS los hábitos actuales están completados antes de permitir desmarcar
-//        if (!completado) { // Si se intenta desmarcar
-//            val todosCompletados = habitosActuales.all { (it["completado"] as? Boolean) == true }
-//            if (todosCompletados) {
-//                Toast.makeText(context, "No puedes desmarcar hábitos cuando todos están completados", Toast.LENGTH_SHORT).show()
-//                return
-//            }
-//        }
-
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -577,8 +689,6 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
-
-
     private fun verificarSiDiaEstaCompletado(uid: String, desafioId: String, diaId: String, callback: (Boolean) -> Unit) {
         firestore.collection("usuarios")
             .document(uid)
@@ -703,7 +813,6 @@ class ItemDetailFragment : Fragment() {
         exploreLayout?.setOnClickListener {
             try {
                 findNavController().navigate(R.id.publicChallengeFragment)
-//                updateBottomNavigationColors("today")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -717,140 +826,28 @@ class ItemDetailFragment : Fragment() {
                 Toast.makeText(context, getString(R.string.error_navigating_profile), Toast.LENGTH_SHORT).show()
             }
         }
-
-//        updateBottomNavigationColors(view, "today")
-    }
-
-    private fun navigateToHome() {
-        try {
-            findNavController().navigate(R.id.action_itemDetailFragment_to_itemListFragment)
-        } catch (e: Exception) {
-            Toast.makeText(context, getString(R.string.error_navigating_home, e.message), Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun navigateToToday() {
-        try {
-            val bundle = Bundle().apply {
-                putInt(DayDetailFragment.ARG_DAY_NUMBER, getCurrentDayNumber())
-            }
-            findNavController().navigate(R.id.action_itemListFragment_to_todayFragment, bundle)
-        } catch (e: Exception) {
-            Toast.makeText(context, getString(R.string.error_navigating_today, e.message), Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun getCurrentDayNumber(): Int {
-        // Obtener el día actual del desafío desde Firestore
-        return desafio.diaActual
-    }
-
-    private fun updateBottomNavigationColors(activeTab: String) {
-        val bottomNav = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
-
-        // Home
-        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
-        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
-        val homeText = homeLayout?.getChildAt(1) as? TextView
-
-        // Hoy
-        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
-        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
-        val todayText = todayLayout?.getChildAt(1) as? TextView
-
-        // Configuración
-        val settingsLayout = bottomNav?.getChildAt(2) as? LinearLayout
-        val settingsIcon = settingsLayout?.getChildAt(0) as? ImageView
-        val settingsText = settingsLayout?.getChildAt(1) as? TextView
-
-        // Colores
-        val activeColor = ContextCompat.getColor(requireContext(), R.color.primary_green)
-        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
-        val disabledColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
-
-        when (activeTab) {
-            "home" -> {
-                homeIcon?.setColorFilter(activeColor)
-                homeText?.setTextColor(activeColor)
-                todayIcon?.setColorFilter(inactiveColor)
-                todayText?.setTextColor(inactiveColor)
-            }
-            "today" -> {
-                homeIcon?.setColorFilter(inactiveColor)
-                homeText?.setTextColor(inactiveColor)
-                todayIcon?.setColorFilter(activeColor)
-                todayText?.setTextColor(activeColor)
-            }
-            "detalle" -> {
-                homeIcon?.setColorFilter(inactiveColor)
-                homeText?.setTextColor(inactiveColor)
-                todayIcon?.setColorFilter(inactiveColor)
-                todayText?.setTextColor(inactiveColor)
-            }
-        }
-
-        // Configuración siempre deshabilitada
-        settingsIcon?.setColorFilter(disabledColor)
-        settingsText?.setTextColor(disabledColor)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.challenge_context_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_edit -> {
-                val bundle = Bundle().apply {
-                    putParcelable("desafio", desafio)
-                }
-                findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
-                true
-            }
-            R.id.action_delete -> {
-                eliminarDesafio(desafio.id)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun eliminarDesafio(id: String) {
-        val context = requireContext()
-
-        androidx.appcompat.app.AlertDialog.Builder(context)
-            .setTitle(getString(R.string.delete_challenge))
-            .setMessage(getString(R.string.delete_challenge_confirmation))
-            .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                val uid = auth.currentUser?.uid ?: return@setPositiveButton
-                firestore.collection("usuarios")
-                    .document(uid)
-                    .collection("desafios")
-                    .document(id)
-                    .delete()
-                    .addOnSuccessListener {
-                        Toast.makeText(context, getString(R.string.challenge_deleted), Toast.LENGTH_SHORT).show()
-                        findNavController().navigate(R.id.action_itemDetailFragment_to_itemListFragment)
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, getString(R.string.error_deleting_challenge), Toast.LENGTH_LONG).show()
-                    }
-            }
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show()
     }
 
     companion object {
         const val ARG_ITEM_ID = "item_id"
     }
+
     override fun onResume() {
         super.onResume()
+        challengeMap?.onResume()
+        Log.d("ItemDetailFragment", "onResume - Mapa reanudado")
+
         // Solo recargar si no estamos ya actualizando
         if (!isUpdatingContent) {
             Log.d("ItemDetailFragment", "onResume: Recargando datos")
             cargarDiasCompletados()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        challengeMap?.onPause()
+        Log.d("ItemDetailFragment", "onPause - Mapa pausado")
     }
 
     override fun onDestroyView() {

@@ -471,18 +471,16 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         val uid = auth.currentUser?.uid!!
         val currentTime = com.google.firebase.Timestamp.now()
 
-        // Crear estructura de ubicación si está disponible
-        val ubicacionData =
-            if (ubicacionSeleccionada != null && latitudSeleccionada != null && longitudSeleccionada != null) {
-                mapOf(
-                    "direccion" to ubicacionSeleccionada!!,
-                    "latitud" to latitudSeleccionada!!,
-                    "longitud" to longitudSeleccionada!!,
-                    "timestamp" to currentTime
-                )
-            } else {
-                null
-            }
+        // CORREGIR: Crear estructura de ubicación con nombres correctos
+        val ubicacionData = if (ubicacionSeleccionada != null && latitudSeleccionada != null && longitudSeleccionada != null) {
+            mapOf(
+                "ubicacion_latitude" to latitudSeleccionada!!,
+                "ubicacion_longitude" to longitudSeleccionada!!,
+                "ubicacion_nombre" to ubicacionSeleccionada!!
+            )
+        } else {
+            emptyMap<String, Any>()
+        }
 
         // Crear estructura del desafío incluyendo etiquetas y visibilidad
         val desafioBase = hashMapOf(
@@ -496,7 +494,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             "diaActual" to 1,
             "completados" to 0,
             "totalHabitos" to habitos.size,
-            "ubicacion" to ubicacionData,
             "creadoPor" to uid,
             "estado" to "activo",
             // NUEVOS CAMPOS - Etiquetas y visibilidad
@@ -515,6 +512,9 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 "ultimaActualizacion" to currentTime
             )
         )
+
+        // Agregar datos de ubicación al documento principal
+        desafioBase.putAll(ubicacionData)
 
         crearButton.isEnabled = false
         crearButton.text = "Creando..."
@@ -575,7 +575,11 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 batch.commit().addOnSuccessListener {
                     Toast.makeText(context, "¡Desafío creado exitosamente!", Toast.LENGTH_SHORT)
                         .show()
-                    startActivity(Intent(requireContext(), ItemDetailHostActivity::class.java))
+
+                    // CORREGIR: Pasar el ID del desafío al Intent
+                    val intent = Intent(requireContext(), ItemDetailHostActivity::class.java)
+                    intent.putExtra("desafio_id", documentRef.id)
+                    startActivity(intent)
                     activity?.finish()
                 }.addOnFailureListener { e ->
                     Toast.makeText(

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -31,6 +32,22 @@ class ItemDetailHostActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        // CORREGIR: Usar el navigation graph correcto
+        val desafioId = intent.getStringExtra("desafio_id")
+        Log.d("ItemDetailHostActivity", "ID recibido del Intent: $desafioId")
+
+        if (desafioId != null) {
+            val bundle = Bundle().apply {
+                putString("desafio_id", desafioId)
+                putString("item_id", desafioId) // También agregar como item_id para compatibilidad
+            }
+            // CAMBIAR: Usar primary_details_nav_graph en lugar de item_detail
+            navController.setGraph(R.navigation.primary_details_nav_graph, bundle)
+        } else {
+            // Si no hay ID, usar el graph sin argumentos
+            navController.setGraph(R.navigation.primary_details_nav_graph)
+        }
+
         // Verificar que el usuario esté autenticado
         checkAuthentication()
     }
@@ -46,20 +63,6 @@ class ItemDetailHostActivity : AppCompatActivity() {
             finish()
         }
     }
-
-    // Remover onCreateOptionsMenu para que no aparezca ningún botón en la toolbar
-    // override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    //     // No crear ningún menú
-    //     return false
-    // }
-
-    // Remover onOptionsItemSelected ya que no hay menú
-    // override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    //     return super.onOptionsItemSelected(item)
-    // }
-
-    // Remover la función logoutUser ya que el logout se manejará solo desde ProfileFragment
-    // private fun logoutUser() { ... }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_item_detail)
