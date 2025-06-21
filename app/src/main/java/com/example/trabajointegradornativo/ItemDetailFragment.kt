@@ -67,8 +67,10 @@ class ItemDetailFragment : Fragment() {
         setHasOptionsMenu(true)
 
         // CONFIGURAR OSMDROID
-        Configuration.getInstance().load(requireContext(),
-            requireContext().getSharedPreferences("osmdroid", 0))
+        Configuration.getInstance().load(
+            requireContext(),
+            requireContext().getSharedPreferences("osmdroid", 0)
+        )
 
         arguments?.let { args ->
             // CORREGIR: Manejar tanto el objeto Desafio como el ID
@@ -76,7 +78,10 @@ class ItemDetailFragment : Fragment() {
             val desafioId = args.getString("desafio_id") ?: args.getString(ARG_ITEM_ID)
 
             if (desafioFromArgs != null) {
-                Log.d("ItemDetailFragment", "Desafío recibido desde argumentos: ${desafioFromArgs.nombre}")
+                Log.d(
+                    "ItemDetailFragment",
+                    "Desafío recibido desde argumentos: ${desafioFromArgs.nombre}"
+                )
                 desafio = Desafio(
                     id = desafioFromArgs.id,
                     nombre = desafioFromArgs.nombre,
@@ -115,10 +120,12 @@ class ItemDetailFragment : Fragment() {
                     val fechaCreacionTimestamp = document.getTimestamp("fechaCreacion")
 
                     // Usar fechaInicio si existe, sino usar fechaCreacion
-                    val fechaInicio = fechaInicioTimestamp?.toDate() ?: fechaCreacionTimestamp?.toDate()
+                    val fechaInicio =
+                        fechaInicioTimestamp?.toDate() ?: fechaCreacionTimestamp?.toDate()
                     val fechaInicioString = fechaInicio?.let {
-                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                        LocalDate.ofInstant(it.toInstant(), java.time.ZoneId.systemDefault()).format(formatter)
+                        val formatter =
+                            java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        formatter.format(it)
                     } ?: LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
                     desafio = Desafio(
@@ -153,7 +160,8 @@ class ItemDetailFragment : Fragment() {
     // Función para calcular el día actual basado en la fecha de inicio
     private fun calcularDiaActual(fechaInicio: String): Int {
         return try {
-            val fechaInicioDate = LocalDate.parse(fechaInicio, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            val fechaInicioDate =
+                LocalDate.parse(fechaInicio, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val fechaHoy = LocalDate.now()
             val diasTranscurridos = ChronoUnit.DAYS.between(fechaInicioDate, fechaHoy).toInt()
 
@@ -175,40 +183,39 @@ class ItemDetailFragment : Fragment() {
 
         Log.d("ItemDetailFragment", "onCreateView: Inicializando vistas")
 
-        // INICIALIZAR VISTAS DEL MAPA
+        // Inicializar vistas del mapa
         initializeMapViews()
 
+        // Inicializar navegación inferior
         setupBottomNavigation(rootView)
 
         // Configuración del botón para editar desafío
-        rootView.findViewById<View>(R.id.btn_edit_challenge)?.setOnClickListener {
-            // En ItemDetailFragment, modifica el onClick del botón editar:
+        binding.btnEditChallenge?.setOnClickListener {
+            val desafioParaEditar = ItemListFragment.Desafio(
+                id = desafio.id,
+                nombre = desafio.nombre,
+                descripcion = desafio.descripcion,
+                dias = desafio.dias,
+                diaActual = desafio.diaActual,
+                completados = desafio.completados,
+                totalHabitos = desafio.totalHabitos,
+                etiquetas = desafio.etiquetas,
+                creadoPor = desafio.creadoPor,
+                visibilidad = desafio.visibilidad
+            )
 
-            binding.btnEditChallenge?.setOnClickListener {
-                // Convertir de ItemDetailFragment.Desafio a ItemListFragment.Desafio
-                val desafioParaEditar = ItemListFragment.Desafio(
-                    id = desafio.id,
-                    nombre = desafio.nombre,
-                    descripcion = desafio.descripcion,
-                    dias = desafio.dias,
-                    diaActual = desafio.diaActual,
-                    completados = desafio.completados,
-                    totalHabitos = desafio.totalHabitos,
-                    etiquetas = desafio.etiquetas,
-                    creadoPor = desafio.creadoPor,
-                    visibilidad = desafio.visibilidad
-                )
-
-                val bundle = Bundle().apply {
-                    putParcelable("desafio", desafioParaEditar)
-                }
-                findNavController().navigate(R.id.action_itemDetailFragment_to_editDesafioFragment, bundle)
+            val bundle = Bundle().apply {
+                putParcelable("desafio", desafioParaEditar)
             }
-
+            findNavController().navigate(
+                R.id.action_itemDetailFragment_to_editDesafioFragment,
+                bundle
+            )
         }
 
         return rootView
     }
+
 
     // FUNCIÓN PARA INICIALIZAR LAS VISTAS DEL MAPA
     private fun initializeMapViews() {
@@ -288,7 +295,10 @@ class ItemDetailFragment : Fragment() {
                             }
 
                             val diasCompletadosNuevo = diasCompletados.size
-                            Log.d("ItemDetailFragment", "Días completados: $diasCompletadosAnterior -> $diasCompletadosNuevo")
+                            Log.d(
+                                "ItemDetailFragment",
+                                "Días completados: $diasCompletadosAnterior -> $diasCompletadosNuevo"
+                            )
 
                             // Solo actualizar si no estamos ya actualizando y si hay cambios
                             if (!isUpdatingContent) {
@@ -296,7 +306,10 @@ class ItemDetailFragment : Fragment() {
                             }
                         }
                         .addOnFailureListener { e ->
-                            Log.e("ItemDetailFragment", "Error al cargar días completados: ${e.message}")
+                            Log.e(
+                                "ItemDetailFragment",
+                                "Error al cargar días completados: ${e.message}"
+                            )
                             if (!isUpdatingContent) {
                                 updateContent()
                             }
@@ -397,16 +410,19 @@ class ItemDetailFragment : Fragment() {
                     // Calcular el día actual basado en la fecha de inicio
                     val fechaInicioTimestamp = document.getTimestamp("fechaInicio")
                     val fechaCreacionTimestamp = document.getTimestamp("fechaCreacion")
-                    val fechaInicio = fechaInicioTimestamp?.toDate() ?: fechaCreacionTimestamp?.toDate()
+                    val fechaInicio =
+                        fechaInicioTimestamp?.toDate() ?: fechaCreacionTimestamp?.toDate()
                     val fechaInicioString = fechaInicio?.let {
-                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                        LocalDate.ofInstant(it.toInstant(), java.time.ZoneId.systemDefault()).format(formatter)
+                        val formatter =
+                            java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        formatter.format(it)
                     } ?: LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
                     val diaActualCalculado = calcularDiaActual(fechaInicioString)
 
                     val etiquetas = document.get("etiquetas") as? List<String> ?: emptyList()
-                    val habitosBase = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                    val habitosBase =
+                        document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
                     val totalHabitos = habitosBase.size
 
                     // Obtener los hábitos del día actual con su estado
@@ -423,7 +439,14 @@ class ItemDetailFragment : Fragment() {
                             habitos = habitosDelDia
                         )
 
-                        actualizarInformacionGeneral(nombre, descripcion, dias, diaActualCalculado, completados, estado)
+                        actualizarInformacionGeneral(
+                            nombre,
+                            descripcion,
+                            dias,
+                            diaActualCalculado,
+                            completados,
+                            estado
+                        )
                         mostrarEtiquetas(etiquetas)
 
                         // Liberar el flag
@@ -455,7 +478,8 @@ class ItemDetailFragment : Fragment() {
         binding.root.findViewById<TextView>(R.id.challenge_description)?.text = descripcion
 
         // Actualizar progreso - CORREGIDO: Mostrar el día actual calculado
-        binding.root.findViewById<TextView>(R.id.progress_subtitle)?.text = "Día $diaActual de $dias"
+        binding.root.findViewById<TextView>(R.id.progress_subtitle)?.text =
+            "Día $diaActual de $dias"
 
         // Cambiar el texto del título de progreso
         binding.root.findViewById<TextView>(R.id.progress_title)?.text = "Tu progreso"
@@ -474,7 +498,10 @@ class ItemDetailFragment : Fragment() {
         val porcentaje = if (dias > 0) (completados * 100) / dias else 0
         binding.root.findViewById<TextView>(R.id.progress_text)?.text = "$porcentaje%"
 
-        Log.d("ItemDetailFragment", "Información actualizada - Día actual: $diaActual, Días completados: $completados, Porcentaje: $porcentaje%")
+        Log.d(
+            "ItemDetailFragment",
+            "Información actualizada - Día actual: $diaActual, Días completados: $completados, Porcentaje: $porcentaje%"
+        )
     }
 
     private fun verificarCambiosEnDias() {
@@ -503,7 +530,10 @@ class ItemDetailFragment : Fragment() {
 
                     // Solo actualizar si hay cambios
                     if (nuevosCompletados != diasCompletados) {
-                        Log.d("ItemDetailFragment", "Cambios detectados via listener: ${diasCompletados.size} -> ${nuevosCompletados.size}")
+                        Log.d(
+                            "ItemDetailFragment",
+                            "Cambios detectados via listener: ${diasCompletados.size} -> ${nuevosCompletados.size}"
+                        )
                         diasCompletados = nuevosCompletados
                         updateContent()
                     }
@@ -534,7 +564,12 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
-    private fun verificarEstadoDia(uid: String, desafioId: String, diaId: String, habitos: List<Map<String, Any>>) {
+    private fun verificarEstadoDia(
+        uid: String,
+        desafioId: String,
+        diaId: String,
+        habitos: List<Map<String, Any>>
+    ) {
         val todosCompletados = habitos.all { (it["completado"] as? Boolean) == true }
 
         // Primero verificar el estado anterior del día
@@ -558,7 +593,10 @@ class ItemDetailFragment : Fragment() {
                         .document(diaId)
                         .update("completado", todosCompletados)
                         .addOnSuccessListener {
-                            Log.d("Firestore", "Estado del día actualizado: completado = $todosCompletados")
+                            Log.d(
+                                "Firestore",
+                                "Estado del día actualizado: completado = $todosCompletados"
+                            )
 
                             // Recargar días completados para actualizar el contador
                             cargarDiasCompletados()
@@ -581,7 +619,14 @@ class ItemDetailFragment : Fragment() {
         estadoText?.text = if (diaCompletado) "Completado" else "Pendiente"
     }
 
-    private fun actualizarEstadoHabitoDelDia(uid: String, desafioId: String, diaId: String, habitIndex: Int, completado: Boolean, habitosActuales: List<Map<String, Any>>) {
+    private fun actualizarEstadoHabitoDelDia(
+        uid: String,
+        desafioId: String,
+        diaId: String,
+        habitIndex: Int,
+        completado: Boolean,
+        habitosActuales: List<Map<String, Any>>
+    ) {
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -591,7 +636,8 @@ class ItemDetailFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val habitos = document.get("habitos") as? ArrayList<Map<String, Any>> ?: return@addOnSuccessListener
+                    val habitos = document.get("habitos") as? ArrayList<Map<String, Any>>
+                        ?: return@addOnSuccessListener
 
                     // Asegurarse de que el índice sea válido
                     if (habitIndex < 0 || habitIndex >= habitos.size) return@addOnSuccessListener
@@ -610,7 +656,10 @@ class ItemDetailFragment : Fragment() {
                         .document(diaId)
                         .update("habitos", habitos)
                         .addOnSuccessListener {
-                            Log.d("Firestore", "Hábito actualizado correctamente: $habitIndex -> $completado")
+                            Log.d(
+                                "Firestore",
+                                "Hábito actualizado correctamente: $habitIndex -> $completado"
+                            )
                             verificarEstadoDia(uid, desafioId, diaId, habitos)
 
                             // NO recargar todo el contenido, solo actualizar la UI local
@@ -638,7 +687,8 @@ class ItemDetailFragment : Fragment() {
     }
 
     private fun mostrarEtiquetas(etiquetas: List<String>) {
-        val tagsContainer = binding.root.findViewById<com.google.android.flexbox.FlexboxLayout>(R.id.tags_container)
+        val tagsContainer =
+            binding.root.findViewById<com.google.android.flexbox.FlexboxLayout>(R.id.tags_container)
         tagsContainer?.removeAllViews()
 
         val inflater = LayoutInflater.from(requireContext())
@@ -688,14 +738,21 @@ class ItemDetailFragment : Fragment() {
             if (diaId != null) {
                 // Verificar si el día está marcado como completado en Firestore
                 verificarSiDiaEstaCompletado(uid, desafioId, diaId) { diaCompletado ->
-                    Log.d("ItemDetailFragment", "Creando ${habitosLocales.size} elementos de hábitos")
-                    Log.d("ItemDetailFragment", "Día completado: $diaCompletado, Todos hábitos completados: $todosHabitosCompletados")
+                    Log.d(
+                        "ItemDetailFragment",
+                        "Creando ${habitosLocales.size} elementos de hábitos"
+                    )
+                    Log.d(
+                        "ItemDetailFragment",
+                        "Día completado: $diaCompletado, Todos hábitos completados: $todosHabitosCompletados"
+                    )
 
                     for ((index, habit) in habitosLocales.withIndex()) {
                         val habitName = habit["nombre"] as? String ?: "Hábito sin nombre"
                         val habitCompleted = habit["completado"] as? Boolean ?: false
 
-                        val habitView = inflater.inflate(R.layout.habito_item, habitsContainer, false)
+                        val habitView =
+                            inflater.inflate(R.layout.habito_item, habitsContainer, false)
                         val habitNameText = habitView.findViewById<TextView>(R.id.habito_nombre)
                         val habitIcon = habitView.findViewById<ImageView>(R.id.habito_icono)
 
@@ -705,7 +762,8 @@ class ItemDetailFragment : Fragment() {
                         )
 
                         habitIcon.setOnClickListener {
-                            val estadoActual = habitosLocales[index]["completado"] as? Boolean ?: false
+                            val estadoActual =
+                                habitosLocales[index]["completado"] as? Boolean ?: false
                             val nuevoEstado = !estadoActual
 
                             // VALIDACIÓN: Si el día está completado y todos los hábitos están marcados,
@@ -728,7 +786,14 @@ class ItemDetailFragment : Fragment() {
                             )
 
                             // Actualizar en Firestore
-                            actualizarEstadoHabitoDelDia(uid, desafioId, diaId, index, nuevoEstado, habitosLocales)
+                            actualizarEstadoHabitoDelDia(
+                                uid,
+                                desafioId,
+                                diaId,
+                                index,
+                                nuevoEstado,
+                                habitosLocales
+                            )
                         }
 
                         habitsContainer.addView(habitView)
@@ -737,16 +802,28 @@ class ItemDetailFragment : Fragment() {
                     // Actualizar el estado inicial en la UI basado en si todos están completados
                     actualizarEstadoUI(todosHabitosCompletados)
 
-                    Log.d("ItemDetailFragment", "UI actualizada con ${habitsContainer.childCount} elementos")
+                    Log.d(
+                        "ItemDetailFragment",
+                        "UI actualizada con ${habitsContainer.childCount} elementos"
+                    )
                 }
             } else {
                 Log.e("Firestore", "No se encontró el día actual.")
-                Toast.makeText(context, "No se encontró información del día actual", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "No se encontró información del día actual",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
-    private fun verificarSiDiaEstaCompletado(uid: String, desafioId: String, diaId: String, callback: (Boolean) -> Unit) {
+    private fun verificarSiDiaEstaCompletado(
+        uid: String,
+        desafioId: String,
+        diaId: String,
+        callback: (Boolean) -> Unit
+    ) {
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -764,7 +841,12 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
-    private fun crearDiaActual(uid: String, desafioId: String, fecha: String, callback: (List<Map<String, Any>>) -> Unit) {
+    private fun crearDiaActual(
+        uid: String,
+        desafioId: String,
+        fecha: String,
+        callback: (List<Map<String, Any>>) -> Unit
+    ) {
         // Obtener información del desafío para crear los hábitos base
         firestore.collection("usuarios")
             .document(uid)
@@ -777,14 +859,15 @@ class ItemDetailFragment : Fragment() {
                 val fechaCreacionTimestamp = desafioDoc.getTimestamp("fechaCreacion")
                 val fechaInicio = fechaInicioTimestamp?.toDate() ?: fechaCreacionTimestamp?.toDate()
                 val fechaInicioString = fechaInicio?.let {
-                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                    LocalDate.ofInstant(it.toInstant(), java.time.ZoneId.systemDefault()).format(formatter)
+                    val formatter = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    formatter.format(it)
                 } ?: LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
                 val diaActualCalculado = calcularDiaActual(fechaInicioString)
 
                 // Obtener hábitos base del desafío
-                val habitosBase = desafioDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                val habitosBase =
+                    desafioDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
 
                 // Crear hábitos para el día actual basados en los hábitos del desafío
                 val habitosDelDia = habitosBase.map { habitoBase ->
@@ -824,7 +907,11 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
-    private fun obtenerHabitosDiaActual(uid: String, desafioId: String, callback: (List<Map<String, Any>>) -> Unit) {
+    private fun obtenerHabitosDiaActual(
+        uid: String,
+        desafioId: String,
+        callback: (List<Map<String, Any>>) -> Unit
+    ) {
         val fechaHoy = LocalDate.now().toString() // Fecha actual en formato "yyyy-MM-dd"
 
         firestore.collection("usuarios")
@@ -862,7 +949,11 @@ class ItemDetailFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.itemListFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, getString(R.string.error_navigating_home), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_navigating_home),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -871,7 +962,11 @@ class ItemDetailFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.todayFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, getString(R.string.error_navigating_home), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_navigating_home),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -889,7 +984,11 @@ class ItemDetailFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.profileFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, getString(R.string.error_navigating_profile), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_navigating_profile),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
