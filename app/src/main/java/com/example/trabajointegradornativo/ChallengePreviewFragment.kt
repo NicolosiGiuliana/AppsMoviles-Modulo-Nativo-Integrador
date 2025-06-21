@@ -592,7 +592,7 @@ class ChallengePreviewFragment : Fragment() {
             "habitos" to habitosList,
             "fechaCreacion" to com.google.firebase.Timestamp.now(),
             "fechaInicio" to null, // null inicialmente hasta que el usuario lo inicie
-            "estado" to "inactivo", // El usuario debe activarlo manualmente
+            "estado" to "activo", // El usuario debe activarlo manualmente
             "completado" to false,
             "completados" to 0, // Ningún hábito completado inicialmente
             "tipo" to tipo,
