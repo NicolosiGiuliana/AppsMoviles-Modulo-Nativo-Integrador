@@ -121,7 +121,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingVertical="14dp"
-                    android:text="Ver mas"
+                    android:text="Ver detalle"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold" />
