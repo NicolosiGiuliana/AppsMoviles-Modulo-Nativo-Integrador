@@ -517,14 +517,10 @@ class TodayFragment : Fragment() {
 
     private fun navegarADetalleDesafio(desafioId: String) {
         try {
-            // Crear el Bundle con el ID del desafío
             val bundle = Bundle().apply {
-                putString("desafioId", desafioId)
+                putString("desafio_id", desafioId)  // Cambiar "desafioId" por "desafio_id"
             }
-
-            // Navegar al ItemDetailFragment
             findNavController().navigate(R.id.itemDetailFragment, bundle)
-
         } catch (e: Exception) {
             Log.e(TAG, "Error al navegar al detalle del desafío: ${e.message}")
             Toast.makeText(context, getString(R.string.error_navigating_to_detail), Toast.LENGTH_SHORT).show()

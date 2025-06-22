@@ -58,11 +58,11 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("androidx.core:core-ktx:1.12.0")
-    // Asegúrate de tener también estas (probablemente ya las tienes)
+
     implementation ("com.google.firebase:firebase-auth:22.3.0")
     implementation ("com.google.firebase:firebase-firestore:24.10.0")
     implementation("com.google.android.flexbox:flexbox:3.0.0")
-    // LÍNEA CORREGIDA - agregadas las comillas
+
     implementation("androidx.cardview:cardview:1.0.0")
     implementation(libs.places)
     implementation(libs.firebase.dataconnect)
@@ -71,6 +71,7 @@ dependencies {
     implementation ("org.osmdroid:osmdroid-android:6.1.17")
     implementation ("org.osmdroid:osmdroid-wms:6.1.17")
     implementation ("org.osmdroid:osmdroid-mapsforge:6.1.17")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

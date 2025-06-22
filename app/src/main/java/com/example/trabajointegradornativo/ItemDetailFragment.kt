@@ -15,13 +15,13 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.trabajointegradornativo.databinding.FragmentItemDetailBinding
+import com.google.android.gms.maps.model.Marker
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -143,7 +143,9 @@ class ItemDetailFragment : Fragment() {
                     )
 
                     Log.d("ItemDetailFragment", "Desafío cargado: ${desafio.nombre}")
-                    cargarDiasCompletados()
+                    if (isAdded && view != null) {
+                        cargarDiasCompletados()
+                    }
                 } else {
                     Log.e("ItemDetailFragment", "Desafío no encontrado")
                     Toast.makeText(context, "Desafío no encontrado", Toast.LENGTH_SHORT).show()
@@ -348,9 +350,9 @@ class ItemDetailFragment : Fragment() {
             map.controller.setZoom(18.0) // Zoom más cercano
 
             // Agregar marcador
-            val marker = Marker(map)
+            val marker = org.osmdroid.views.overlay.Marker(map)
             marker.position = challengePoint
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            marker.setAnchor(0.5f, 1.0f)
             marker.title = "Ubicación del Desafío"
 
             map.overlays.clear()
@@ -1006,8 +1008,8 @@ class ItemDetailFragment : Fragment() {
         challengeMap?.onResume()
         Log.d("ItemDetailFragment", "onResume - Mapa reanudado")
 
-        // Solo recargar si no estamos ya actualizando
-        if (!isUpdatingContent) {
+        // CORREGIR: Verificar que desafio esté inicializado antes de recargar
+        if (::desafio.isInitialized && !isUpdatingContent) {
             Log.d("ItemDetailFragment", "onResume: Recargando datos")
             cargarDiasCompletados()
         }
