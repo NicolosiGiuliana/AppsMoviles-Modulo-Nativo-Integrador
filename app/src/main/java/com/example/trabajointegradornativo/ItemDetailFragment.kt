@@ -213,6 +213,10 @@ class ItemDetailFragment : Fragment() {
             )
         }
 
+        binding.btnDeleteChallenge?.setOnClickListener {
+            eliminarDesafio(desafio.id)
+        }
+
         return rootView
     }
 
@@ -1007,6 +1011,32 @@ class ItemDetailFragment : Fragment() {
             Log.d("ItemDetailFragment", "onResume: Recargando datos")
             cargarDiasCompletados()
         }
+    }
+
+    private fun eliminarDesafio(id: String) {
+        val context = requireContext()
+
+        androidx.appcompat.app.AlertDialog.Builder(context)
+            .setTitle("Eliminar Desafío")
+            .setMessage("¿Estás seguro de que deseas eliminar este desafío? Esta acción no se puede deshacer.")
+            .setPositiveButton("Sí") { _, _ ->
+                val uid = auth.currentUser?.uid ?: return@setPositiveButton
+                firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(id)
+                    .delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Desafío eliminado", Toast.LENGTH_SHORT).show()
+                        // Redirigir a ItemListFragment
+                        findNavController().navigate(R.id.itemListFragment)
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Error al eliminar desafío", Toast.LENGTH_LONG).show()
+                    }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     override fun onPause() {

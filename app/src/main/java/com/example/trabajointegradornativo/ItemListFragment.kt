@@ -279,7 +279,7 @@ class ItemListFragment : Fragment() {
             val challengeName: TextView = view.findViewById(R.id.challenge_name)
             val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
             val progressText: TextView = view.findViewById(R.id.progress_text)
-            val menuButton: ImageView = view.findViewById(R.id.menu_button)
+//            val menuButton: ImageView = view.findViewById(R.id.menu_button)
             val visibilityTag: TextView = view.findViewById(R.id.visibility_tag)  // AGREGAR
             val tagsRecycler: RecyclerView = view.findViewById(R.id.tags_recycler) // AGREGAR
         }
@@ -312,28 +312,28 @@ class ItemListFragment : Fragment() {
                 findNavController().navigate(R.id.show_item_detail, bundle)
             }
 
-            // MENÚ DE TRES PUNTITOS
-            holder.menuButton.setOnClickListener {
-                val popup = PopupMenu(holder.itemView.context, holder.menuButton)
-                popup.menuInflater.inflate(R.menu.menu_challenge_options, popup.menu)
-                popup.setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        R.id.action_edit -> {
-                            val bundle = Bundle().apply {
-                                putParcelable("desafio", challenge)
-                            }
-//                            findNavController().navigate(R.id.action_itemListFragment_to_editDesafioFragment, bundle)
-                            true
-                        }
-                        R.id.action_delete -> {
-                            eliminarDesafio(challenge.id)
-                            true
-                        }
-                        else -> false
-                    }
-                }
-                popup.show()
-            }
+//            // MENÚ DE TRES PUNTITOS
+//            holder.menuButton.setOnClickListener {
+//                val popup = PopupMenu(holder.itemView.context, holder.menuButton)
+//                popup.menuInflater.inflate(R.menu.menu_challenge_options, popup.menu)
+//                popup.setOnMenuItemClickListener { item ->
+//                    when (item.itemId) {
+//                        R.id.action_edit -> {
+//                            val bundle = Bundle().apply {
+//                                putParcelable("desafio", challenge)
+//                            }
+////                            findNavController().navigate(R.id.action_itemListFragment_to_editDesafioFragment, bundle)
+//                            true
+//                        }
+//                        R.id.action_delete -> {
+//                            eliminarDesafio(challenge.id)
+//                            true
+//                        }
+//                        else -> false
+//                    }
+//                }
+//                popup.show()
+//            }
         }
 
         override fun getItemCount() = challenges.size
@@ -574,30 +574,7 @@ class ItemListFragment : Fragment() {
         findNavController().navigate(R.id.action_itemListFragment_to_challengePreviewFragment, bundle)
     }
 
-    private fun eliminarDesafio(id: String) {
-        val context = requireContext()
 
-        androidx.appcompat.app.AlertDialog.Builder(context)
-            .setTitle(getString(R.string.remove))
-            .setMessage(getString(R.string.logout_confirmation).replace("cerrar sesión", "eliminar este desafío"))
-            .setPositiveButton(getString(R.string.login).replace("Iniciar Sesión", "Sí")) { _, _ ->
-                val uid = auth.currentUser?.uid ?: return@setPositiveButton
-                firestore.collection("usuarios")
-                    .document(uid)
-                    .collection("desafios")
-                    .document(id)
-                    .delete()
-                    .addOnSuccessListener {
-                        Toast.makeText(context, getString(R.string.remove), Toast.LENGTH_SHORT).show()
-                        cargarDesafios() // Recargar la lista después de eliminar
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(context, getString(R.string.error_saving_data, "eliminar desafío"), Toast.LENGTH_LONG).show()
-                    }
-            }
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show()
-    }
 
     // Context Menu handling
     override fun onCreateContextMenu(

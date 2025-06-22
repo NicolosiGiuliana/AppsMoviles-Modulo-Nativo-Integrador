@@ -411,6 +411,21 @@
 
     </androidx.core.widget.NestedScrollView>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_delete_challenge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="100dp"
+        android:src="@drawable/ic_delete"
+        android:contentDescription="@string/edit"
+        app:backgroundTint="@color/error_red"
+        app:tint="#FFFFFF"
+        app:fabSize="normal"
+        app:elevation="8dp"
+        app:pressedTranslationZ="12dp" />
+
     <!-- Botón Circular de Edición - Flotante REPOSICIONADO -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_edit_challenge"
@@ -418,7 +433,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="170dp"
         android:src="@drawable/ic_edit"
         android:contentDescription="@string/edit"
         app:backgroundTint="#4CAF50"
