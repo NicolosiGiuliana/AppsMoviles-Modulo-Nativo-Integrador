@@ -72,6 +72,12 @@ dependencies {
     implementation ("org.osmdroid:osmdroid-wms:6.1.17")
     implementation ("org.osmdroid:osmdroid-mapsforge:6.1.17")
 
+    implementation ("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Para manejar JSON
+    implementation ("com.google.code.gson:gson:2.10.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -102,6 +102,9 @@ class ItemListFragment : Fragment() {
             .document(uid)
             .get()
             .addOnSuccessListener { document ->
+                // Verificar que el fragmento aún esté activo antes de procesar
+                if (!isAdded || _binding == null) return@addOnSuccessListener
+
                 if (document.exists()) {
                     val userName = document.getString("nombre") ?:
                     document.getString("name") ?:
@@ -122,6 +125,9 @@ class ItemListFragment : Fragment() {
                 }
             }
             .addOnFailureListener {
+                // Verificar que el fragmento aún esté activo
+                if (!isAdded || _binding == null) return@addOnFailureListener
+
                 // Fallback to Firebase Auth or default
                 val userName = auth.currentUser?.displayName ?: getString(R.string.default_name)
                 updateWelcomeText(userName)
@@ -129,16 +135,19 @@ class ItemListFragment : Fragment() {
     }
 
     private fun updateWelcomeText(userName: String) {
-        // Crear el texto de saludo personalizado usando el formato de string
-        val helloText = getString(R.string.hello_user)
-        // Reemplazar "Usuario" o "User" o "Usuário" con el nombre real
-        val personalizedText = when {
-            helloText.contains("Usuario") -> helloText.replace("Usuario", userName)
-            helloText.contains("User") -> helloText.replace("User", userName)
-            helloText.contains("Usuário") -> helloText.replace("Usuário", userName)
-            else -> "Hola, $userName" // Fallback
+        // Usar safeUpdateUI para evitar crashes cuando el binding es null
+        safeUpdateUI {
+            // Crear el texto de saludo personalizado usando el formato de string
+            val helloText = getString(R.string.hello_user)
+            // Reemplazar "Usuario" o "User" o "Usuário" con el nombre real
+            val personalizedText = when {
+                helloText.contains("Usuario") -> helloText.replace("Usuario", userName)
+                helloText.contains("User") -> helloText.replace("User", userName)
+                helloText.contains("Usuário") -> helloText.replace("Usuário", userName)
+                else -> "Hola, $userName" // Fallback
+            }
+            binding.welcomeText?.text = personalizedText
         }
-        binding.welcomeText?.text = personalizedText
     }
 
     private fun setupRecyclerViews() {

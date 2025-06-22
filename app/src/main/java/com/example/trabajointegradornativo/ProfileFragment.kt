@@ -14,6 +14,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
@@ -26,8 +28,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageException
-import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,6 +43,9 @@ class ProfileFragment : Fragment() {
         private const val MAX_IMAGE_SIZE = 1024
         private const val JPEG_QUALITY = 80
     }
+
+    private lateinit var imgBBUploader: ImgBBUploader
+    private var uploadProgressDialog: AlertDialog? = null
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
@@ -108,7 +111,6 @@ class ProfileFragment : Fragment() {
         homeLayout?.setOnClickListener {
             try {
                 findNavController().navigate(R.id.action_profileFragment_to_itemListFragment)
-//                updateBottomNavigationColors("home")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -119,18 +121,16 @@ class ProfileFragment : Fragment() {
         todayLayout?.setOnClickListener {
             try {
                 findNavController().navigate(R.id.action_profileFragment_to_todayFragment)
-//                updateBottomNavigationColors("today")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
 
-        // Explorar (índice 2) - ya estamos aquí
+        // Explorar (índice 2)
         val exploreLayout = bottomNavigation?.getChildAt(2) as? LinearLayout
         exploreLayout?.setOnClickListener {
             try {
                 findNavController().navigate(R.id.action_profileFragment_to_publicChallengeFragment)
-//                updateBottomNavigationColors("today")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -139,55 +139,8 @@ class ProfileFragment : Fragment() {
         // Profile (índice 3)
         val profileLayout = bottomNavigation?.getChildAt(3) as? LinearLayout
         profileLayout?.setOnClickListener {
+            // Ya estamos en Profile
         }
-        // Establecer colores iniciales (Explorar activo)
-//        updateBottomNavigationColors("explore")
-    }
-
-    private fun updateBottomNavigationColors(view: View, activeTab: String) {
-//        val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
-//
-//        val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
-//        val homeIcon = homeLayout?.getChildAt(0) as? ImageView
-//        val homeText = homeLayout?.getChildAt(1) as? TextView
-//
-//        val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
-//        val todayIcon = todayLayout?.getChildAt(0) as? ImageView
-//        val todayText = todayLayout?.getChildAt(1) as? TextView
-//
-//        val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
-//        val profileIcon = profileLayout?.getChildAt(0) as? ImageView
-//        val profileText = profileLayout?.getChildAt(1) as? TextView
-//
-//        val activeColor = ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark)
-//        val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
-//
-//        when (activeTab) {
-//            "home" -> {
-//                homeIcon?.setColorFilter(activeColor)
-//                homeText?.setTextColor(activeColor)
-//                todayIcon?.setColorFilter(inactiveColor)
-//                todayText?.setTextColor(inactiveColor)
-//                profileIcon?.setColorFilter(inactiveColor)
-//                profileText?.setTextColor(inactiveColor)
-//            }
-//            "today" -> {
-//                homeIcon?.setColorFilter(inactiveColor)
-//                homeText?.setTextColor(inactiveColor)
-//                todayIcon?.setColorFilter(activeColor)
-//                todayText?.setTextColor(activeColor)
-//                profileIcon?.setColorFilter(inactiveColor)
-//                profileText?.setTextColor(inactiveColor)
-//            }
-//            "profile" -> {
-//                homeIcon?.setColorFilter(inactiveColor)
-//                homeText?.setTextColor(inactiveColor)
-//                todayIcon?.setColorFilter(inactiveColor)
-//                todayText?.setTextColor(inactiveColor)
-//                profileIcon?.setColorFilter(activeColor)
-//                profileText?.setTextColor(activeColor)
-//            }
-//        }
     }
 
     private fun initFirebase() {
@@ -195,7 +148,7 @@ class ProfileFragment : Fragment() {
         firestore = FirebaseFirestore.getInstance()
         storage = FirebaseStorage.getInstance()
         sharedPreferences = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-
+        imgBBUploader = ImgBBUploader()
         Log.d(TAG, "Firebase inicializado - Usuario: ${auth.currentUser?.uid}")
     }
 
@@ -409,14 +362,24 @@ class ProfileFragment : Fragment() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             Log.d(TAG, "Cargando imagen de perfil para usuario: ${currentUser.uid}")
-            val imageRef = storage.reference.child("profile_images/${currentUser.uid}.jpg")
 
-            imageRef.downloadUrl.addOnSuccessListener { uri ->
-                Log.d(TAG, "URL de imagen obtenida: $uri")
-                loadImageFromUri(uri)
-            }.addOnFailureListener { exception ->
-                Log.w(TAG, "No se encontró imagen de perfil: ${exception.message}")
+            // Primero verificar si el usuario eligió usar imagen por defecto
+            val useDefaultImage = sharedPreferences.getBoolean("use_default_image", false)
+
+            if (useDefaultImage) {
                 setDefaultProfileImage()
+                return
+            }
+
+            // Cargar URL de imagen desde SharedPreferences o Firestore
+            val savedImageUrl = sharedPreferences.getString("profile_image_url", null)
+
+            if (savedImageUrl != null) {
+                Log.d(TAG, "URL de imagen encontrada: $savedImageUrl")
+                loadImageFromUrl(savedImageUrl)
+            } else {
+                // Intentar cargar desde Firestore
+                loadImageUrlFromFirestore(currentUser.uid)
             }
         } else {
             Log.w(TAG, getString(R.string.user_not_authenticated))
@@ -424,39 +387,88 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun setDefaultProfileImage() {
-//        try {
-//            val defaultDrawable = ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_camera)
-//            val currentUser = auth.currentUser
-//            val userName = currentUser?.displayName ?: getString(R.string.default_name)
-//            val initials = getInitials(userName)
-//
-//            profileImage.setImageDrawable(defaultDrawable)
-//            profileImage.visibility = View.VISIBLE
-//            profileInitials.text = initials
-//            profileInitials.visibility = View.VISIBLE
-//            profileInitials.setBackgroundResource(android.R.drawable.button_onoff_indicator_on)
-//
-//            Log.d(TAG, "Imagen por defecto establecida para usuario: $userName")
-//
-//        } catch (e: Exception) {
-//            Log.e(TAG, "Error al establecer imagen por defecto", e)
-//            profileImage.visibility = View.GONE
-//            profileInitials.visibility = View.VISIBLE
-//        }
+    // MODIFICAR: Función para cargar desde Firestore
+    private fun loadImageUrlFromFirestore(userId: String) {
+        firestore.collection("usuarios").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Verificar si el usuario eligió usar imagen por defecto
+                    val useDefaultImage = document.getBoolean("useDefaultImage") ?: false
+
+                    if (useDefaultImage) {
+                        // Guardar preferencia localmente
+                        sharedPreferences.edit().putBoolean("use_default_image", true).apply()
+                        setDefaultProfileImage()
+                        return@addOnSuccessListener
+                    }
+
+                    val imageUrl = document.getString("profileImageUrl")
+                    if (imageUrl != null) {
+                        Log.d(TAG, "URL de imagen encontrada en Firestore: $imageUrl")
+                        loadImageFromUrl(imageUrl)
+                        // Guardar en SharedPreferences para acceso rápido
+                        sharedPreferences.edit()
+                            .putString("profile_image_url", imageUrl)
+                            .putBoolean("use_default_image", false)
+                            .apply()
+                    } else {
+                        setDefaultProfileImage()
+                    }
+                } else {
+                    setDefaultProfileImage()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error al cargar datos del usuario", exception)
+                setDefaultProfileImage()
+            }
     }
 
-    private fun loadImageFromUri(uri: Uri) {
+    private fun loadImageFromUrl(imageUrl: String) {
+        Thread {
+            try {
+                val url = java.net.URL(imageUrl)
+                val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
+
+                // Cambiar al hilo principal para actualizar la UI
+                Handler(Looper.getMainLooper()).post {
+                    profileImage.setImageBitmap(bitmap)
+                    profileImage.visibility = View.VISIBLE
+                    profileInitials.visibility = View.GONE
+                    Log.d(TAG, "Imagen de perfil cargada desde URL")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error al cargar imagen desde URL", e)
+                Handler(Looper.getMainLooper()).post {
+                    setDefaultProfileImage()
+                }
+            }
+        }.start()
+    }
+
+    private fun setDefaultProfileImage() {
         try {
-            val inputStream = requireContext().contentResolver.openInputStream(uri)
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            profileImage.setImageBitmap(bitmap)
-            profileImage.visibility = View.VISIBLE
-            profileInitials.visibility = View.GONE
-            Log.d(TAG, "Imagen de perfil cargada desde Firebase Storage")
+            val currentUser = auth.currentUser
+            val userName = currentUser?.displayName ?: getString(R.string.default_name)
+            val initials = getInitials(userName)
+
+            // Ocultar la imagen y mostrar las iniciales
+            profileImage.visibility = View.GONE
+            profileInitials.text = initials
+            profileInitials.visibility = View.VISIBLE
+
+            // Opcional: establecer un fondo circular para las iniciales si no está en el XML
+            profileInitials.setBackgroundResource(R.drawable.profile_circle_bg)
+
+            Log.d(TAG, "Imagen por defecto establecida para usuario: $userName con iniciales: $initials")
+
         } catch (e: Exception) {
-            Log.e(TAG, getString(R.string.error_loading_image), e)
-            setDefaultProfileImage()
+            Log.e(TAG, "Error al establecer imagen por defecto", e)
+            // Como fallback, asegurar que al menos las iniciales sean visibles
+            profileImage.visibility = View.GONE
+            profileInitials.text = "U" // Usuario por defecto
+            profileInitials.visibility = View.VISIBLE
         }
     }
 
@@ -475,6 +487,8 @@ class ProfileFragment : Fragment() {
                     0 -> checkCameraPermissionAndTakePhoto()
                     1 -> checkGalleryPermissionAndOpenGallery()
                     2 -> {
+                        // CAMBIO: Limpiar las URLs guardadas cuando se selecciona imagen por defecto
+                        clearSavedImageUrls()
                         setDefaultProfileImage()
                         Toast.makeText(requireContext(), getString(R.string.default_image_set), Toast.LENGTH_SHORT).show()
                     }
@@ -484,6 +498,34 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
+    // NUEVA FUNCIÓN: Limpiar URLs guardadas
+    private fun clearSavedImageUrls() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            // Limpiar SharedPreferences
+            sharedPreferences.edit()
+                .remove("profile_image_url")
+                .remove("profile_image_delete_url")
+                .apply()
+
+            // Limpiar Firestore
+            firestore.collection("usuarios").document(currentUser.uid)
+                .update(
+                    mapOf(
+                        "profileImageUrl" to null,
+                        "profileImageDeleteUrl" to null,
+                        "useDefaultImage" to true, // Flag para indicar que usa imagen por defecto
+                        "lastUpdated" to com.google.firebase.Timestamp.now()
+                    )
+                )
+                .addOnSuccessListener {
+                    Log.d(TAG, "URLs de imagen limpiadas de Firestore")
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Error al limpiar URLs en Firestore", e)
+                }
+        }
+    }
     private fun checkCameraPermissionAndTakePhoto() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED
@@ -623,98 +665,120 @@ class ProfileFragment : Fragment() {
     private fun uploadProfileImage(bitmap: Bitmap) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            Log.e(TAG, getString(R.string.error_user_not_authenticated))
-            Toast.makeText(requireContext(), getString(R.string.user_not_authenticated), Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "Usuario no autenticado")
+            Toast.makeText(requireContext(), "Usuario no autenticado", Toast.LENGTH_SHORT).show()
             return
         }
 
-        Log.d(TAG, "Iniciando subida de imagen para usuario: ${currentUser.uid}")
+        Log.d(TAG, "Iniciando subida de imagen a ImgBB para usuario: ${currentUser.uid}")
 
-        Toast.makeText(requireContext(), getString(R.string.uploading_image), Toast.LENGTH_SHORT).show()
+        // Mostrar diálogo de progreso
+        showUploadProgressDialog()
 
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, baos)
-        val data = baos.toByteArray()
+        imgBBUploader.uploadImage(bitmap, object : ImgBBUploader.UploadCallback {
+            override fun onSuccess(imageUrl: String, deleteUrl: String) {
+                // Cambiar al hilo principal
+                Handler(Looper.getMainLooper()).post {
+                    hideUploadProgressDialog()
 
-        Log.d(TAG, "Tamaño de imagen comprimida: ${data.size} bytes")
+                    // Actualizar la imagen en la UI
+                    profileImage.setImageBitmap(bitmap)
+                    profileImage.visibility = View.VISIBLE
+                    profileInitials.visibility = View.GONE
 
-        val imageRef = storage.reference.child("profile_images/${currentUser.uid}.jpg")
+                    // Guardar URL en SharedPreferences Y marcar que NO usa imagen por defecto
+                    sharedPreferences.edit()
+                        .putString("profile_image_url", imageUrl)
+                        .putString("profile_image_delete_url", deleteUrl)
+                        .putBoolean("use_default_image", false) // IMPORTANTE: Marcar que no usa imagen por defecto
+                        .apply()
 
-        val metadata = com.google.firebase.storage.StorageMetadata.Builder()
-            .setContentType("image/jpeg")
-            .build()
+                    // Guardar en Firestore
+                    saveImageUrlToFirestore(currentUser.uid, imageUrl, deleteUrl)
 
-        imageRef.putBytes(data, metadata)
-            .addOnProgressListener { taskSnapshot ->
-                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
-                Log.d(TAG, "Progreso de subida: $progress%")
-            }
-            .addOnSuccessListener { taskSnapshot ->
-                Log.d(TAG, "Imagen subida exitosamente")
-                profileImage.setImageBitmap(bitmap)
-                profileImage.visibility = View.VISIBLE
-                profileInitials.visibility = View.GONE
-                Toast.makeText(requireContext(), getString(R.string.profile_photo_updated), Toast.LENGTH_SHORT).show()
-
-                saveImageReferenceToFirestore(currentUser.uid)
-            }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Error al subir imagen", exception)
-
-                val errorMessage = when (exception) {
-                    is StorageException -> {
-                        when (exception.errorCode) {
-                            StorageException.ERROR_OBJECT_NOT_FOUND -> getString(R.string.error_file_not_found)
-                            StorageException.ERROR_BUCKET_NOT_FOUND -> getString(R.string.error_bucket_not_found)
-                            StorageException.ERROR_PROJECT_NOT_FOUND -> getString(R.string.error_project_not_found)
-                            StorageException.ERROR_QUOTA_EXCEEDED -> getString(R.string.error_quota_exceeded)
-                            StorageException.ERROR_NOT_AUTHENTICATED -> getString(R.string.error_not_authenticated)
-                            StorageException.ERROR_NOT_AUTHORIZED -> getString(R.string.error_not_authorized)
-                            StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> getString(R.string.error_retry_limit_exceeded)
-                            StorageException.ERROR_INVALID_CHECKSUM -> getString(R.string.error_invalid_checksum)
-                            StorageException.ERROR_CANCELED -> getString(R.string.error_operation_canceled)
-                            else -> getString(R.string.error_storage_unknown, exception.message)
-                        }
-                    }
-                    else -> getString(R.string.error_unknown, exception.message)
+                    Toast.makeText(requireContext(), "Foto de perfil actualizada", Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, "Imagen subida exitosamente a ImgBB: $imageUrl")
                 }
-
-                Toast.makeText(requireContext(), getString(R.string.error_uploading_image) + ": $errorMessage", Toast.LENGTH_LONG).show()
-
-                showUploadErrorDialog(bitmap)
             }
+
+            override fun onError(error: String) {
+                Handler(Looper.getMainLooper()).post {
+                    hideUploadProgressDialog()
+                    Log.e(TAG, "Error al subir imagen a ImgBB: $error")
+                    Toast.makeText(requireContext(), "Error al subir imagen: $error", Toast.LENGTH_LONG).show()
+
+                    // Mostrar diálogo de opciones de error
+                    showUploadErrorDialog(bitmap)
+                }
+            }
+
+            override fun onProgress(progress: Int) {
+                Handler(Looper.getMainLooper()).post {
+                    updateUploadProgress(progress)
+                }
+            }
+        })
     }
 
-    private fun saveImageReferenceToFirestore(userId: String) {
+    // MODIFICAR: Función para guardar en Firestore
+    private fun saveImageUrlToFirestore(userId: String, imageUrl: String, deleteUrl: String) {
         val userRef = firestore.collection("usuarios").document(userId)
         val imageData = mapOf(
-            "profileImageUrl" to "profile_images/$userId.jpg",
+            "profileImageUrl" to imageUrl,
+            "profileImageDeleteUrl" to deleteUrl,
+            "useDefaultImage" to false, // IMPORTANTE: Marcar que no usa imagen por defecto
             "lastUpdated" to com.google.firebase.Timestamp.now()
         )
 
         userRef.update(imageData)
             .addOnSuccessListener {
-                Log.d(TAG, "Referencia de imagen guardada en Firestore")
+                Log.d(TAG, "URL de imagen guardada en Firestore")
             }
             .addOnFailureListener { e ->
-                Log.w(TAG, "Error al guardar referencia en Firestore", e)
+                Log.w(TAG, "Error al guardar URL en Firestore", e)
             }
+    }
+
+    private fun showUploadProgressDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(android.R.layout.simple_list_item_1, null)
+        val textView = dialogView.findViewById<TextView>(android.R.id.text1)
+        textView.text = "Subiendo imagen... 0%"
+
+        uploadProgressDialog = AlertDialog.Builder(requireContext())
+            .setTitle("Subiendo imagen")
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        uploadProgressDialog?.show()
+    }
+
+    private fun updateUploadProgress(progress: Int) {
+        uploadProgressDialog?.let { dialog ->
+            val textView = dialog.findViewById<TextView>(android.R.id.text1)
+            textView?.text = "Subiendo imagen... $progress%"
+        }
+    }
+
+    private fun hideUploadProgressDialog() {
+        uploadProgressDialog?.dismiss()
+        uploadProgressDialog = null
     }
 
     private fun showUploadErrorDialog(bitmap: Bitmap) {
         AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.error_uploading_image))
-            .setMessage(getString(R.string.upload_error_options_message))
-            .setPositiveButton(getString(R.string.retry)) { _, _ ->
+            .setTitle("Error al subir imagen")
+            .setMessage("No se pudo subir la imagen a ImgBB. ¿Qué deseas hacer?")
+            .setPositiveButton("Reintentar") { _, _ ->
                 uploadProfileImage(bitmap)
             }
-            .setNegativeButton(getString(R.string.use_locally)) { _, _ ->
+            .setNegativeButton("Usar localmente") { _, _ ->
                 profileImage.setImageBitmap(bitmap)
                 profileImage.visibility = View.VISIBLE
                 profileInitials.visibility = View.GONE
-                Toast.makeText(requireContext(), getString(R.string.image_set_locally), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Imagen establecida localmente", Toast.LENGTH_SHORT).show()
             }
-            .setNeutralButton(getString(R.string.cancel), null)
+            .setNeutralButton("Cancelar", null)
             .show()
     }
 
