@@ -26,8 +26,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageException
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
@@ -53,9 +51,9 @@ class TodayFragment : Fragment() {
 
     companion object {
         private const val TAG = "TodayFragment"
-        private const val MAX_IMAGE_SIZE = 1024 // Tamaño máximo en píxeles
-        private const val JPEG_QUALITY = 80 // Calidad de compresión JPEG
-        private const val PREF_LAST_DATE = "last_date_checked" // Nueva constante
+        private const val MAX_IMAGE_SIZE = 1024
+        private const val JPEG_QUALITY = 80
+        private const val PREF_LAST_DATE = "last_date_checked"
     }
 
     private lateinit var dateTextView: TextView
@@ -64,16 +62,14 @@ class TodayFragment : Fragment() {
 
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    private val imgBBUploader = ImgBBUploader()
 
     private var desafiosActivos = mutableListOf<Desafio>()
     private var habitoSeleccionadoParaFoto: Pair<String, String>? = null
     private var ultimaFechaVerificada: String? = null
 
-    // Listeners para detectar cambios en tiempo real
     private val firestoreListeners = mutableListOf<ListenerRegistration>()
 
-    // Launcher para tomar fotos con cámara
     private val takePictureLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -86,7 +82,6 @@ class TodayFragment : Fragment() {
         }
     }
 
-    // Launcher para seleccionar foto de galería
     private val pickImageLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -97,7 +92,6 @@ class TodayFragment : Fragment() {
         }
     }
 
-    // Launcher para permisos de cámara
     private val requestCameraPermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -108,7 +102,6 @@ class TodayFragment : Fragment() {
         }
     }
 
-    // Launcher para permisos de almacenamiento
     private val requestStoragePermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -138,7 +131,6 @@ class TodayFragment : Fragment() {
         super.onResume()
         Log.d(TAG, "onResume: Verificando cambio de fecha")
 
-        // Verificar si cambió la fecha antes de recargar
         val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         if (ultimaFechaVerificada != fechaActual) {
             Log.d(TAG, "onResume: Fecha cambió, recargando datos")
@@ -180,7 +172,6 @@ class TodayFragment : Fragment() {
             if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
         }
 
-        // Guardar la fecha actual para comparar cambios
         val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
         val sharedPrefs = requireActivity().getSharedPreferences("today_fragment", android.content.Context.MODE_PRIVATE)
 
@@ -188,7 +179,6 @@ class TodayFragment : Fragment() {
             ultimaFechaVerificada = sharedPrefs.getString(PREF_LAST_DATE, null)
         }
 
-        // Si cambió la fecha, recargar datos
         if (ultimaFechaVerificada != fechaActual) {
             ultimaFechaVerificada = fechaActual
             sharedPrefs.edit().putString(PREF_LAST_DATE, fechaActual).apply()
@@ -210,7 +200,6 @@ class TodayFragment : Fragment() {
         val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         Log.d(TAG, "Cargando desafíos para fecha: $fechaHoy")
 
-        // Primero obtener todos los desafíos activos
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -230,7 +219,6 @@ class TodayFragment : Fragment() {
                     val nombreDesafio = desafioDoc.getString("nombre") ?: getString(R.string.challenge_without_name)
                     val totalDias = desafioDoc.getLong("dias")?.toInt() ?: 30
 
-                    // Buscar si este desafío tiene un día para hoy
                     firestore.collection("usuarios")
                         .document(uid)
                         .collection("desafios")
@@ -253,7 +241,6 @@ class TodayFragment : Fragment() {
                                 Log.d(TAG, "Desafío $nombreDesafio no tiene día para hoy")
                             }
 
-                            // Si ya procesamos todos los desafíos y no encontramos ninguno para hoy
                             if (desafiosEncontrados == totalDesafios && desafiosActivos.isEmpty()) {
                                 mostrarMensajeSinDesafios()
                             }
@@ -279,7 +266,6 @@ class TodayFragment : Fragment() {
 
         Log.d(TAG, "Configurando listener para desafío: $nombreDesafio, día: $diaActual")
 
-        // Listener para el documento del día específico
         val diaListener = firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -298,14 +284,11 @@ class TodayFragment : Fragment() {
 
                     Log.d(TAG, "Día $diaActual - Fecha realización: $fechaRealizacion, Completado: $diaCompletado, Fecha hoy: $fechaHoy")
 
-                    // Solo mostrar si es para hoy y no está completado
                     if (fechaRealizacion == fechaHoy && !diaCompletado) {
                         cargarHabitosDelDia(desafioId, nombreDesafio, diaActual, totalDias, document)
                     } else if (fechaRealizacion == fechaHoy && diaCompletado) {
-                        // Si está completado, remover de la interfaz
                         removerDesafioDeInterfaz(desafioId)
                     } else if (fechaRealizacion != fechaHoy) {
-                        // Si no es para hoy, remover de la interfaz
                         removerDesafioDeInterfaz(desafioId)
                     }
                 } else {
@@ -316,6 +299,7 @@ class TodayFragment : Fragment() {
 
         firestoreListeners.add(diaListener)
     }
+
     private fun cargarHabitosDelDia(desafioId: String, nombreDesafio: String, diaActual: Int, totalDias: Int, document: DocumentSnapshot) {
         val habitosData = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
         val habitos = habitosData.map { habitoMap: Map<String, Any> ->
@@ -346,8 +330,6 @@ class TodayFragment : Fragment() {
             desafiosActivos.removeAt(posicionDesafio)
             Log.d(TAG, "Desafío removido de la interfaz: $desafioId")
         }
-
-        // Actualizar la interfaz después de remover
         actualizarInterfaz()
     }
 
@@ -360,7 +342,6 @@ class TodayFragment : Fragment() {
                     Log.d(TAG, "Cambio de fecha detectado: $ultimaFechaVerificada -> $fechaActual")
                     configurarFechaActual()
                 }
-                // Verificar cada 30 segundos
                 handler.postDelayed(this, 30000)
             }
         }
@@ -385,8 +366,6 @@ class TodayFragment : Fragment() {
 
         mensajeLayout.addView(textoMensaje)
         activitiesContainer.addView(mensajeLayout)
-
-        // Asegurar que el texto de progreso se mantenga correcto
         progressTextView.text = "¡Todos los desafíos completados!"
     }
 
@@ -395,7 +374,7 @@ class TodayFragment : Fragment() {
 
         if (desafiosActivos.isEmpty()) {
             mostrarMensajeSinDesafios()
-            return // Importante: salir aquí para evitar que se llame actualizarResumenProgreso()
+            return
         }
 
         for (desafio in desafiosActivos) {
@@ -416,13 +395,9 @@ class TodayFragment : Fragment() {
             radius = 24f
             cardElevation = 4f
             setCardBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
-
-            // Agregar efecto de presionado
             isClickable = true
             isFocusable = true
             foreground = ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
-
-            // Agregar OnClickListener para navegar al detalle
             setOnClickListener {
                 navegarADetalleDesafio(desafio.id)
             }
@@ -518,7 +493,7 @@ class TodayFragment : Fragment() {
     private fun navegarADetalleDesafio(desafioId: String) {
         try {
             val bundle = Bundle().apply {
-                putString("desafio_id", desafioId)  // Cambiar "desafioId" por "desafio_id"
+                putString("desafio_id", desafioId)
             }
             findNavController().navigate(R.id.itemDetailFragment, bundle)
         } catch (e: Exception) {
@@ -590,7 +565,6 @@ class TodayFragment : Fragment() {
     private fun marcarDiaComoCompletado(desafio: Desafio) {
         val uid = auth.currentUser?.uid ?: return
 
-        // Actualizar tanto el campo 'completado' como crear el documento en 'dias_completados'
         val updates = hashMapOf<String, Any>(
             "completado" to true,
             "fecha_completado" to com.google.firebase.Timestamp.now()
@@ -650,17 +624,23 @@ class TodayFragment : Fragment() {
             }
 
             val textoFoto = TextView(requireContext()).apply {
-                text = getString(R.string.attached_photo)
+                text = "📷 guardada\nToca para ver"
                 textSize = 12f
                 setTextColor(ContextCompat.getColor(context, android.R.color.white))
                 gravity = android.view.Gravity.CENTER
             }
 
             fotoPlaceholder.addView(textoFoto)
+
+            // Hacer clickeable para abrir la imagen
+            fotoPlaceholder.setOnClickListener {
+                abrirImagenEnNavegador(habito.fotoUrl!!)
+            }
+
             extraLayout.addView(fotoPlaceholder)
         }
 
-        if (habito.comentario != null) {
+        if (habito.comentario != null && habito.comentario!!.isNotEmpty()) {
             val comentarioLayout = LinearLayout(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -671,7 +651,7 @@ class TodayFragment : Fragment() {
             }
 
             val textoComentario = TextView(requireContext()).apply {
-                text = habito.comentario
+                text = "💬 ${habito.comentario}"
                 textSize = 12f
                 setTextColor(ContextCompat.getColor(context, android.R.color.black))
             }
@@ -681,6 +661,16 @@ class TodayFragment : Fragment() {
         }
 
         return extraLayout
+    }
+
+    private fun abrirImagenEnNavegador(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al abrir imagen: ${e.message}")
+            Toast.makeText(context, "Error al abrir imagen", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun toggleHabito(desafio: Desafio, habito: Habito, checkbox: ImageView) {
@@ -724,7 +714,6 @@ class TodayFragment : Fragment() {
     }
 
     private fun actualizarResumenProgreso() {
-        // Solo actualizar si hay desafíos activos
         if (desafiosActivos.isNotEmpty()) {
             val totalHabitos = desafiosActivos.sumOf { it.habitos.size }
             val habitosCompletados = desafiosActivos.sumOf { desafio ->
@@ -846,88 +835,68 @@ class TodayFragment : Fragment() {
             .show()
     }
 
+    // MÉTODO CORREGIDO - El problema principal estaba aquí
     private fun subirFotoYGuardarComentario(bitmap: Bitmap, comentario: String) {
         val habitoInfo = habitoSeleccionadoParaFoto ?: return
         val (desafioId, habitoNombre) = habitoInfo
 
-        val uid = auth.currentUser?.uid ?: return
+        Log.d(TAG, "Iniciando subida de imagen para hábito: $habitoNombre usando ImgBB")
 
-        Log.d(TAG, "Iniciando subida de imagen para hábito: $habitoNombre")
+        // Mostrar Toast en el hilo principal
+        requireActivity().runOnUiThread {
+            Toast.makeText(requireContext(), "Subiendo imagen...", Toast.LENGTH_SHORT).show()
+        }
 
-        Toast.makeText(requireContext(), getString(R.string.uploading_image), Toast.LENGTH_SHORT).show()
+        imgBBUploader.uploadImage(bitmap, object : ImgBBUploader.UploadCallback {
+            override fun onSuccess(imageUrl: String, deleteUrl: String) {
+                Log.d(TAG, "Imagen subida exitosamente a ImgBB: $imageUrl")
 
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, baos)
-        val data: ByteArray = baos.toByteArray()
-
-        Log.d(TAG, "Tamaño de imagen comprimida: ${data.size} bytes")
-
-        val timestamp = System.currentTimeMillis()
-        val storageRef = storage.reference
-            .child("usuarios/$uid/fotos_habitos/${desafioId}_${habitoNombre}_$timestamp.jpg")
-
-        val metadata = com.google.firebase.storage.StorageMetadata.Builder()
-            .setContentType("image/jpeg")
-            .build()
-
-        storageRef.putBytes(data, metadata)
-            .addOnProgressListener { taskSnapshot ->
-                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
-                Log.d(TAG, "Progreso de subida: $progress%")
-            }
-            .addOnSuccessListener { taskSnapshot ->
-                Log.d(TAG, "Imagen subida exitosamente")
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    actualizarHabitoConFotoYComentario(desafioId, habitoNombre, uri.toString(), comentario)
-                    Toast.makeText(requireContext(), getString(R.string.photo_saved_successfully), Toast.LENGTH_SHORT).show()
-                }.addOnFailureListener { e ->
-                    Log.e(TAG, "Error al obtener URL de descarga", e)
-                    Toast.makeText(requireContext(), getString(R.string.error_getting_image_url), Toast.LENGTH_SHORT).show()
+                // Ejecutar en el hilo principal
+                requireActivity().runOnUiThread {
+                    actualizarHabitoConFotoYComentario(desafioId, habitoNombre, imageUrl, comentario)
+                    Toast.makeText(requireContext(), "¡Foto guardada exitosamente! 📷", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Error al subir imagen", exception)
 
-                val errorMessage = when (exception) {
-                    is StorageException -> {
-                        when (exception.errorCode) {
-                            StorageException.ERROR_OBJECT_NOT_FOUND -> getString(R.string.error_file_not_found)
-                            StorageException.ERROR_BUCKET_NOT_FOUND -> getString(R.string.error_bucket_not_found)
-                            StorageException.ERROR_PROJECT_NOT_FOUND -> getString(R.string.error_project_not_found)
-                            StorageException.ERROR_QUOTA_EXCEEDED -> getString(R.string.error_quota_exceeded)
-                            StorageException.ERROR_NOT_AUTHENTICATED -> getString(R.string.error_not_authenticated)
-                            StorageException.ERROR_NOT_AUTHORIZED -> getString(R.string.error_not_authorized)
-                            StorageException.ERROR_RETRY_LIMIT_EXCEEDED -> getString(R.string.error_retry_limit_exceeded)
-                            StorageException.ERROR_INVALID_CHECKSUM -> getString(R.string.error_invalid_checksum)
-                            StorageException.ERROR_CANCELED -> getString(R.string.error_operation_canceled)
-                            else -> getString(R.string.error_storage_unknown, exception.message)
-                        }
+            override fun onError(error: String) {
+                Log.e(TAG, "Error al subir imagen a ImgBB: $error")
+
+                // Ejecutar en el hilo principal
+                requireActivity().runOnUiThread {
+                    Toast.makeText(requireContext(), "Error al subir imagen: $error", Toast.LENGTH_LONG).show()
+                    mostrarDialogoErrorSubida(bitmap, comentario)
+                }
+            }
+
+            override fun onProgress(progress: Int) {
+                Log.d(TAG, "Progreso de subida a ImgBB: $progress%")
+
+                // Opcional: mostrar progreso en el hilo principal
+                if (progress == 100) {
+                    requireActivity().runOnUiThread {
+                        Log.d(TAG, "Subida completada, procesando respuesta...")
                     }
-                    else -> getString(R.string.error_unknown, exception.message)
                 }
-
-                Toast.makeText(requireContext(), getString(R.string.error_uploading_image_detailed, errorMessage), Toast.LENGTH_LONG).show()
-
-                mostrarDialogoErrorSubida(bitmap, comentario)
             }
+        })
     }
 
     private fun mostrarDialogoErrorSubida(bitmap: Bitmap, comentario: String) {
         AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.error_uploading_image))
-            .setMessage(getString(R.string.error_upload_options_message))
-            .setPositiveButton(getString(R.string.retry)) { _, _ ->
+            .setTitle("Error al subir imagen")
+            .setMessage("Error al subir la imagen a ImgBB. ¿Qué deseas hacer?")
+            .setPositiveButton("Reintentar") { _, _ ->
                 subirFotoYGuardarComentario(bitmap, comentario)
             }
-            .setNegativeButton(getString(R.string.save_locally)) { _, _ ->
+            .setNegativeButton("Solo guardar comentario") { _, _ ->
                 val habitoInfo = habitoSeleccionadoParaFoto ?: return@setNegativeButton
                 val (desafioId, habitoNombre) = habitoInfo
                 if (comentario.isNotEmpty()) {
                     actualizarHabitoConFotoYComentario(desafioId, habitoNombre, null, comentario)
-                    Toast.makeText(requireContext(), getString(R.string.comment_saved_without_image), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Comentario guardado sin imagen", Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNeutralButton(getString(R.string.cancel), null)
+            .setNeutralButton("Cancelar", null)
             .show()
     }
 
@@ -945,6 +914,9 @@ class TodayFragment : Fragment() {
         guardarProgresoHabito(desafio, habito)
 
         Log.d(TAG, "Hábito actualizado: $habitoNombre con foto: ${fotoUrl != null}, comentario: ${comentario.isNotEmpty()}")
+
+        // Actualizar la interfaz para mostrar los cambios
+        actualizarInterfaz()
     }
 
     private fun setupBottomNavigation(view: View) {
@@ -968,7 +940,6 @@ class TodayFragment : Fragment() {
         exploreLayout?.setOnClickListener {
             try {
                 findNavController().navigate(R.id.publicChallengeFragment)
-//                updateBottomNavigationColors("today")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
