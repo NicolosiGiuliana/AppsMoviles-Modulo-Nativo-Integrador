@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.io.FileNotFoundException
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -266,6 +267,7 @@ class ProfileFragment : Fragment() {
         notificationTimeLayout.setOnClickListener { showTimePickerDialog() }
         languageLayout.setOnClickListener { showLanguageDialog() }
         logoutLayout.setOnClickListener { showLogoutDialog() }
+        profileImage.setOnClickListener { mostrarImagenPerfilEnDialogo() }
     }
 
     private fun setupSwitches() {
@@ -428,7 +430,7 @@ class ProfileFragment : Fragment() {
     private fun loadImageFromUrl(imageUrl: String) {
         Thread {
             try {
-                val url = java.net.URL(imageUrl)
+                val url = URL(imageUrl)
                 val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
 
                 // Cambiar al hilo principal para actualizar la UI
@@ -526,6 +528,7 @@ class ProfileFragment : Fragment() {
                 }
         }
     }
+
     private fun checkCameraPermissionAndTakePhoto() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED
@@ -606,15 +609,11 @@ class ProfileFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 PICK_IMAGE_REQUEST -> {
-                    data?.data?.let { uri ->
-                        handleSelectedImage(uri)
-                    }
+                    data?.data?.let { uri -> handleSelectedImage(uri) }
                 }
                 CAMERA_REQUEST -> {
                     val bitmap = data?.extras?.get("data") as? Bitmap
-                    bitmap?.let {
-                        handleCapturedImage(it)
-                    }
+                    bitmap?.let { handleCapturedImage(it) }
                 }
             }
         }
@@ -769,9 +768,7 @@ class ProfileFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Error al subir imagen")
             .setMessage("No se pudo subir la imagen a ImgBB. ¿Qué deseas hacer?")
-            .setPositiveButton("Reintentar") { _, _ ->
-                uploadProfileImage(bitmap)
-            }
+            .setPositiveButton("Reintentar") { _, _ -> uploadProfileImage(bitmap) }
             .setNegativeButton("Usar localmente") { _, _ ->
                 profileImage.setImageBitmap(bitmap)
                 profileImage.visibility = View.VISIBLE
@@ -859,9 +856,7 @@ class ProfileFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.logout))
             .setMessage(getString(R.string.logout_confirmation))
-            .setPositiveButton(getString(R.string.logout)) { _, _ ->
-                performLogout()
-            }
+            .setPositiveButton(getString(R.string.logout)) { _, _ -> performLogout() }
             .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
@@ -880,5 +875,91 @@ class ProfileFragment : Fragment() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         requireActivity().finish()
+    }
+
+    private fun mostrarImagenPerfilEnDialogo() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Toast.makeText(requireContext(), "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Obtener la URL de la imagen guardada
+        val savedImageUrl = sharedPreferences.getString("profile_image_url", null)
+        val useDefaultImage = sharedPreferences.getBoolean("use_default_image", false)
+
+        if (useDefaultImage || savedImageUrl == null) {
+            Toast.makeText(requireContext(), "No hay imagen de perfil para mostrar", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        mostrarImagenEnDialogo(savedImageUrl)
+    }
+
+    private fun mostrarImagenEnDialogo(url: String) {
+        try {
+            // Crear ImageView para mostrar la imagen
+            val imageView = ImageView(requireContext()).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                adjustViewBounds = true
+                scaleType = ImageView.ScaleType.CENTER_CROP
+            }
+
+            // Crear el diálogo
+            val dialog = AlertDialog.Builder(requireContext())
+                .setView(imageView)
+                .setPositiveButton("Cerrar") { dialog, _ -> dialog.dismiss() }
+                .setNeutralButton("Cambiar foto") { dialog, _ ->
+                    dialog.dismiss()
+                    showImagePickerDialog()
+                }
+                .create()
+
+            // Mostrar loading mientras carga la imagen
+            imageView.setImageDrawable(
+                ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_gallery)
+            )
+
+            dialog.show()
+
+            // Cargar la imagen de forma asíncrona
+            Thread {
+                try {
+                    val connection = URL(url).openConnection()
+                    connection.doInput = true
+                    connection.connect()
+                    val inputStream = connection.getInputStream()
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream.close()
+
+                    // Actualizar la UI en el hilo principal
+                    requireActivity().runOnUiThread {
+                        if (bitmap != null) {
+                            imageView.setImageBitmap(bitmap)
+                            Log.d(TAG, "Imagen de perfil cargada en diálogo")
+                        } else {
+                            imageView.setImageDrawable(
+                                ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete)
+                            )
+                            Toast.makeText(context, "Error al cargar la imagen", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error al cargar imagen: ${e.message}")
+                    requireActivity().runOnUiThread {
+                        imageView.setImageDrawable(
+                            ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete)
+                        )
+                        Toast.makeText(context, "Error al cargar la imagen: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al mostrar imagen: ${e.message}")
+            Toast.makeText(context, "Error al mostrar imagen", Toast.LENGTH_SHORT).show()
+        }
     }
 }
