@@ -164,8 +164,11 @@ class NotificationReceiver : BroadcastReceiver() {
     private fun enviarNotificacion(context: Context, titulo: String, mensaje: String) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val intent = Intent(context, MainActivity::class.java).apply {
+        // CAMBIAR: Dirigir directamente a ItemDetailHostActivity
+        val intent = Intent(context, ItemDetailHostActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("navigate_to", "today_fragment")
+            putExtra("from_notification", true)
         }
 
         val pendingIntent = PendingIntent.getActivity(

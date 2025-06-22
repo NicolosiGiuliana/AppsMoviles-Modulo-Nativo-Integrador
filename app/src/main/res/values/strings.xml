@@ -9,6 +9,7 @@
     <string name="tags_title">Etiquetas</string>
     <string name="challenge_description">Descripción</string>
     <string name="challenge_description_hint">Añade una descripción</string>
+    <string name="error_navigating_to_detail">Error al navegar al detalle del desafío</string>
 
     <string name="explore">Explorar</string>
 

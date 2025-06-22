@@ -177,25 +177,4 @@ class NotificationHelper(private val context: Context) {
             apply()
         }
     }
-
-//    /**
-//     * Verifica si las notificaciones están habilitadas
-//     */
-//    fun sonNotificacionesHabilitadas(): Boolean {
-//        return sharedPreferences.getBoolean("notificaciones_habilitadas", false)
-//    }
-//
-//    /**
-//     * Obtiene la hora configurada para las notificaciones
-//     */
-//    fun getHoraNotificacion(): Int {
-//        return sharedPreferences.getInt("hora_notificacion", 9) // Por defecto 9 AM
-//    }
-//
-//    /**
-//     * Obtiene el minuto configurado para las notificaciones
-//     */
-//    fun getMinutoNotificacion(): Int {
-//        return sharedPreferences.getInt("minuto_notificacion", 0) // Por defecto :00
-//    }
 }

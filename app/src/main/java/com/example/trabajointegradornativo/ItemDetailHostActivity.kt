@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -50,13 +51,57 @@ class ItemDetailHostActivity : AppCompatActivity() {
 
         // Verificar que el usuario esté autenticado
         checkAuthentication()
+
+        // Verificar si viene de una notificación y navegar al Today Fragment
+        handleNotificationNavigation(navController)
+    }
+
+    private fun handleNotificationNavigation(navController: androidx.navigation.NavController) {
+        if (intent.hasExtra("navigate_to") && intent.getStringExtra("navigate_to") == "today_fragment") {
+            // CAMBIAR: Aumentar el delay y asegurar navegación
+            findViewById<View>(android.R.id.content).postDelayed({
+                try {
+                    // Verificar que el grafo esté configurado
+                    if (navController.graph.id != 0) {
+                        navController.navigate(R.id.todayFragment)
+                        Log.d("Navigation", "Navegando a Today Fragment desde notificación")
+                    } else {
+                        // Si el grafo no está listo, intentar de nuevo
+                        findViewById<View>(android.R.id.content).postDelayed({
+                            navController.navigate(R.id.todayFragment)
+                        }, 200)
+                    }
+                } catch (e: Exception) {
+                    Log.e("Navigation", "Error navegando a Today Fragment", e)
+                }
+            }, 300) // Aumentar delay a 300ms
+        }
+    }
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+
+        if (intent?.hasExtra("navigate_to") == true && intent.getStringExtra("navigate_to") == "today_fragment") {
+            val navController = findNavController(R.id.nav_host_fragment_item_detail)
+            // CAMBIAR: Agregar delay también aquí
+            findViewById<View>(android.R.id.content).postDelayed({
+                try {
+                    navController.navigate(R.id.todayFragment)
+                } catch (e: Exception) {
+                    Log.e("Navigation", "Error en onNewIntent navegando a Today Fragment", e)
+                }
+            }, 100)
+        }
     }
 
     private fun checkAuthentication() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
 
-        if (currentUser == null || !isLoggedIn) {
+        // CAMBIAR: No verificar si viene de notificación
+        val fromNotification = intent.getBooleanExtra("from_notification", false)
+
+        if ((currentUser == null || !isLoggedIn) && !fromNotification) {
             // Usuario no autenticado, regresar a MainActivity
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)

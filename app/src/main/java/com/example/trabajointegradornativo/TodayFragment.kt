@@ -196,37 +196,6 @@ class TodayFragment : Fragment() {
             cargarDesafiosDelUsuario()
         }
     }
-    private fun calcularDiaSegunFecha(desafioId: String, callback: (Int?) -> Unit) {
-        val uid = auth.currentUser?.uid ?: return
-        val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-
-        Log.d(TAG, "Buscando día para fecha: $fechaHoy en desafío: $desafioId")
-
-        firestore.collection("usuarios")
-            .document(uid)
-            .collection("desafios")
-            .document(desafioId)
-            .collection("dias")
-            .whereEqualTo("fechaRealizacion", fechaHoy)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val document = documents.first()
-                    val nombreDia = document.id // Ejemplo: "dia_5"
-                    val numeroDia = nombreDia.removePrefix("dia_").toIntOrNull()
-                    Log.d(TAG, "Encontrado día $numeroDia para fecha $fechaHoy")
-                    callback(numeroDia)
-                } else {
-                    Log.d(TAG, "No se encontró día para fecha $fechaHoy en desafío $desafioId")
-                    callback(null)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error al buscar día por fecha: ${e.message}")
-                callback(null)
-            }
-    }
 
     private fun cargarDesafiosDelUsuario() {
         val uid = auth.currentUser?.uid
@@ -447,6 +416,16 @@ class TodayFragment : Fragment() {
             radius = 24f
             cardElevation = 4f
             setCardBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
+
+            // Agregar efecto de presionado
+            isClickable = true
+            isFocusable = true
+            foreground = ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
+
+            // Agregar OnClickListener para navegar al detalle
+            setOnClickListener {
+                navegarADetalleDesafio(desafio.id)
+            }
         }
 
         val cardLayout = LinearLayout(requireContext()).apply {
@@ -534,6 +513,22 @@ class TodayFragment : Fragment() {
         }
 
         return habitoLayout
+    }
+
+    private fun navegarADetalleDesafio(desafioId: String) {
+        try {
+            // Crear el Bundle con el ID del desafío
+            val bundle = Bundle().apply {
+                putString("desafioId", desafioId)
+            }
+
+            // Navegar al ItemDetailFragment
+            findNavController().navigate(R.id.itemDetailFragment, bundle)
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al navegar al detalle del desafío: ${e.message}")
+            Toast.makeText(context, getString(R.string.error_navigating_to_detail), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun mostrarOpcionesFoto() {
