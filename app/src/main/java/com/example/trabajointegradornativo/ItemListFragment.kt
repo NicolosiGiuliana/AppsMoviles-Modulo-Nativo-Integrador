@@ -75,6 +75,19 @@ class ItemListFragment : Fragment() {
         }
     }
 
+
+    private fun safeUpdateUI(action: () -> Unit) {
+        // Verificar que el Fragment esté adjunto y el binding no sea null
+        if (isAdded && _binding != null && !isDetached) {
+            try {
+                action()
+            } catch (e: Exception) {
+                // Log el error si es necesario, pero no crashear
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun loadUserData() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -153,7 +166,6 @@ class ItemListFragment : Fragment() {
         if (query.isEmpty()) {
             filteredActiveChallenges.addAll(activeChallenges)
         } else {
-            // Filter by hashtags or name
             val searchQuery = query.lowercase()
             filteredActiveChallenges.addAll(
                 activeChallenges.filter {
@@ -163,7 +175,10 @@ class ItemListFragment : Fragment() {
                 }
             )
         }
-        binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+
+        safeUpdateUI {
+            binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+        }
     }
 
     private fun setupCurrentDayCard() {
@@ -207,6 +222,9 @@ class ItemListFragment : Fragment() {
             .collection("desafios")
             .get()
             .addOnSuccessListener { result ->
+                // Verificar que el Fragment aún esté activo antes de procesar
+                if (!isAdded || _binding == null) return@addOnSuccessListener
+
                 activeChallenges.clear()
                 filteredActiveChallenges.clear()
 
@@ -214,7 +232,9 @@ class ItemListFragment : Fragment() {
                 var contador = 0
 
                 if (result.isEmpty) {
-                    binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                    safeUpdateUI {
+                        binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                    }
                     return@addOnSuccessListener
                 }
 
@@ -224,10 +244,8 @@ class ItemListFragment : Fragment() {
                     val totalHabitos = doc.getLong("totalHabitos")?.toInt() ?: 5
                     val fechaInicio = doc.getTimestamp("fechaInicio") ?: doc.getTimestamp("fechaCreacion")
 
-                    // Calcular el día actual basado en la diferencia de fechas reales
                     val diaActual = calcularDiaActualPorFecha(fechaInicio)
 
-                    // Calcular hábitos completados totales (de todos los días)
                     firestore.collection("usuarios")
                         .document(uid)
                         .collection("desafios")
@@ -235,6 +253,9 @@ class ItemListFragment : Fragment() {
                         .collection("dias")
                         .get()
                         .addOnSuccessListener { diasResult ->
+                            // Verificar nuevamente antes de procesar el resultado
+                            if (!isAdded || _binding == null) return@addOnSuccessListener
+
                             var habitosCompletadosTotal = 0
                             var diasCompletados = 0
 
@@ -246,7 +267,6 @@ class ItemListFragment : Fragment() {
                                     diasCompletados++
                                 }
 
-                                // Contar hábitos completados en este día
                                 habitos.forEach { habito ->
                                     val completado = habito["completado"] as? Boolean ?: false
                                     if (completado) {
@@ -261,9 +281,9 @@ class ItemListFragment : Fragment() {
                                 dias = totalDias,
                                 creadoPor = uid,
                                 id = doc.id,
-                                diaActual = minOf(diaActual, totalDias), // Día basado en fecha real
-                                completados = habitosCompletadosTotal, // Total de hábitos completados
-                                totalHabitos = totalHabitos * totalDias, // Total de hábitos en todo el desafío
+                                diaActual = minOf(diaActual, totalDias),
+                                completados = habitosCompletadosTotal,
+                                totalHabitos = totalHabitos * totalDias,
                                 etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),
                                 visibilidad = doc.getString("visibilidad") ?: "privado"
                             )
@@ -272,15 +292,20 @@ class ItemListFragment : Fragment() {
                             contador++
 
                             if (contador == result.size()) {
-                                activeChallenges.clear()
-                                activeChallenges.addAll(desafiosProcessed)
-                                filteredActiveChallenges.clear()
-                                filteredActiveChallenges.addAll(desafiosProcessed)
-                                binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                                // Usar safeUpdateUI para actualizar la interfaz de forma segura
+                                safeUpdateUI {
+                                    activeChallenges.clear()
+                                    activeChallenges.addAll(desafiosProcessed)
+                                    filteredActiveChallenges.clear()
+                                    filteredActiveChallenges.addAll(desafiosProcessed)
+                                    binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                                }
                             }
                         }
                         .addOnFailureListener { e ->
-                            // Fallback
+                            // Verificar antes de procesar el fallback
+                            if (!isAdded || _binding == null) return@addOnFailureListener
+
                             val desafio = Desafio(
                                 nombre = doc.getString("nombre") ?: "",
                                 descripcion = doc.getString("descripcion") ?: "",
@@ -298,17 +323,21 @@ class ItemListFragment : Fragment() {
                             contador++
 
                             if (contador == result.size()) {
-                                activeChallenges.clear()
-                                activeChallenges.addAll(desafiosProcessed)
-                                filteredActiveChallenges.clear()
-                                filteredActiveChallenges.addAll(desafiosProcessed)
-                                binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                                safeUpdateUI {
+                                    activeChallenges.clear()
+                                    activeChallenges.addAll(desafiosProcessed)
+                                    filteredActiveChallenges.clear()
+                                    filteredActiveChallenges.addAll(desafiosProcessed)
+                                    binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                                }
                             }
                         }
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(context, getString(R.string.error_format, e.message), Toast.LENGTH_LONG).show()
+                safeUpdateUI {
+                    Toast.makeText(context, getString(R.string.error_format, e.message), Toast.LENGTH_LONG).show()
+                }
             }
     }
 
@@ -361,7 +390,10 @@ class ItemListFragment : Fragment() {
             DefaultChallenge("Mindfulness", "🧘", getString(R.string.days_30), "mindfulness"),
             DefaultChallenge(getString(R.string.hydration), "💧", "15 ${getString(R.string.days_30).split(" ")[1]}", "hidratacion")
         ))
-        binding.defaultChallengesGrid?.adapter?.notifyDataSetChanged()
+
+        safeUpdateUI {
+            binding.defaultChallengesGrid?.adapter?.notifyDataSetChanged()
+        }
     }
 
     // Active Challenges Adapter
@@ -869,6 +901,7 @@ class ItemListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        // Cancelar cualquier listener de Firebase activo si es posible
         _binding = null
     }
 }
