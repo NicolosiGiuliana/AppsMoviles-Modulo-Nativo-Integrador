@@ -202,6 +202,7 @@ class ItemListFragment : Fragment() {
         val id: String = "",
         val diaActual: Int = 0,
         val completados: Int = 0,
+        val diasCompletados: Int = 0,
         val totalHabitos: Int = 5,
         val etiquetas: List<String> = emptyList(),  // AGREGAR
         val visibilidad: String = "privado"         // AGREGAR
@@ -222,7 +223,6 @@ class ItemListFragment : Fragment() {
             .collection("desafios")
             .get()
             .addOnSuccessListener { result ->
-                // Verificar que el Fragment aún esté activo antes de procesar
                 if (!isAdded || _binding == null) return@addOnSuccessListener
 
                 activeChallenges.clear()
@@ -253,18 +253,17 @@ class ItemListFragment : Fragment() {
                         .collection("dias")
                         .get()
                         .addOnSuccessListener { diasResult ->
-                            // Verificar nuevamente antes de procesar el resultado
                             if (!isAdded || _binding == null) return@addOnSuccessListener
 
                             var habitosCompletadosTotal = 0
-                            var diasCompletados = 0
+                            var diasCompletados = 0  // AGREGAR ESTA LÍNEA
 
                             diasResult.documents.forEach { diaDoc ->
                                 val habitos = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
                                 val diaCompletado = diaDoc.getBoolean("completado") ?: false
 
                                 if (diaCompletado) {
-                                    diasCompletados++
+                                    diasCompletados++  // CONTAR DÍAS COMPLETADOS
                                 }
 
                                 habitos.forEach { habito ->
@@ -283,6 +282,7 @@ class ItemListFragment : Fragment() {
                                 id = doc.id,
                                 diaActual = minOf(diaActual, totalDias),
                                 completados = habitosCompletadosTotal,
+                                diasCompletados = diasCompletados,  // AGREGAR ESTA LÍNEA
                                 totalHabitos = totalHabitos * totalDias,
                                 etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),
                                 visibilidad = doc.getString("visibilidad") ?: "privado"
@@ -292,7 +292,6 @@ class ItemListFragment : Fragment() {
                             contador++
 
                             if (contador == result.size()) {
-                                // Usar safeUpdateUI para actualizar la interfaz de forma segura
                                 safeUpdateUI {
                                     activeChallenges.clear()
                                     activeChallenges.addAll(desafiosProcessed)
@@ -303,7 +302,6 @@ class ItemListFragment : Fragment() {
                             }
                         }
                         .addOnFailureListener { e ->
-                            // Verificar antes de procesar el fallback
                             if (!isAdded || _binding == null) return@addOnFailureListener
 
                             val desafio = Desafio(
@@ -314,6 +312,7 @@ class ItemListFragment : Fragment() {
                                 id = doc.id,
                                 diaActual = minOf(diaActual, totalDias),
                                 completados = 0,
+                                diasCompletados = 0,  // AGREGAR ESTA LÍNEA
                                 totalHabitos = totalHabitos * totalDias,
                                 etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),
                                 visibilidad = doc.getString("visibilidad") ?: "privado"
@@ -418,23 +417,19 @@ class ItemListFragment : Fragment() {
             val challenge = challenges[position]
             holder.challengeName.text = challenge.nombre
 
-            // Progress bar basada en hábitos completados vs total de hábitos
-            val progressHabitos = if (challenge.totalHabitos > 0) {
-                ((challenge.completados.toFloat() / challenge.totalHabitos.toFloat()) * 100).toInt()
+            // CAMBIAR: Progress bar basada en días completados vs total de días
+            val progressDias = if (challenge.dias > 0) {
+                ((challenge.diasCompletados.toFloat() / challenge.dias.toFloat()) * 100).toInt()
             } else {
                 0
             }
 
             // Asegurar que el progreso esté entre 0 y 100%
-            val safeProgress = maxOf(0, minOf(progressHabitos, 100))
+            val safeProgress = maxOf(0, minOf(progressDias, 100))
             holder.progressBar.progress = safeProgress
 
-            // Mostrar el día actual (basado en fecha real) y progreso de hábitos
-            if (challenge.diaActual > challenge.dias) {
-                holder.progressText.text = "Día ${challenge.dias} de ${challenge.dias}"
-            } else {
-                holder.progressText.text = "Día ${challenge.diaActual} de ${challenge.dias}"
-            }
+            // CAMBIAR: Mostrar días completados en lugar de día actual
+            holder.progressText.text = "${challenge.diasCompletados} de ${challenge.dias} días completados"
 
             // Configurar tag de visibilidad
             holder.visibilityTag.text = if (challenge.visibilidad == "publico") "Público" else "Privado"
