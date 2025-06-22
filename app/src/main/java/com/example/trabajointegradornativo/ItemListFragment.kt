@@ -208,29 +208,122 @@ class ItemListFragment : Fragment() {
             .get()
             .addOnSuccessListener { result ->
                 activeChallenges.clear()
-                activeChallenges.addAll(result.map { doc ->
-                    Desafio(
-                        nombre = doc.getString("nombre") ?: "",
-                        descripcion = doc.getString("descripcion") ?: "",
-                        dias = doc.getLong("dias")?.toInt() ?: 0,
-                        creadoPor = uid,
-                        id = doc.id,
-                        diaActual = doc.getLong("diaActual")?.toInt() ?: 1,
-                        completados = doc.getLong("completados")?.toInt() ?: 0,
-                        totalHabitos = doc.getLong("totalHabitos")?.toInt() ?: 5,
-                        etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),  // AGREGAR
-                        visibilidad = doc.getString("visibilidad") ?: "privado"            // AGREGAR
-                    )
-                })
                 filteredActiveChallenges.clear()
-                filteredActiveChallenges.addAll(activeChallenges)
-                binding.activeChallengesList?.adapter?.notifyDataSetChanged()
 
-//                updateCurrentProgress()
+                val desafiosProcessed = mutableListOf<Desafio>()
+                var contador = 0
+
+                if (result.isEmpty) {
+                    binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                    return@addOnSuccessListener
+                }
+
+                result.forEach { doc ->
+                    val desafioId = doc.id
+                    val totalDias = doc.getLong("dias")?.toInt() ?: 0
+                    val totalHabitos = doc.getLong("totalHabitos")?.toInt() ?: 5
+                    val fechaInicio = doc.getTimestamp("fechaInicio") ?: doc.getTimestamp("fechaCreacion")
+
+                    // Calcular el día actual basado en la diferencia de fechas reales
+                    val diaActual = calcularDiaActualPorFecha(fechaInicio)
+
+                    // Calcular hábitos completados totales (de todos los días)
+                    firestore.collection("usuarios")
+                        .document(uid)
+                        .collection("desafios")
+                        .document(desafioId)
+                        .collection("dias")
+                        .get()
+                        .addOnSuccessListener { diasResult ->
+                            var habitosCompletadosTotal = 0
+                            var diasCompletados = 0
+
+                            diasResult.documents.forEach { diaDoc ->
+                                val habitos = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                                val diaCompletado = diaDoc.getBoolean("completado") ?: false
+
+                                if (diaCompletado) {
+                                    diasCompletados++
+                                }
+
+                                // Contar hábitos completados en este día
+                                habitos.forEach { habito ->
+                                    val completado = habito["completado"] as? Boolean ?: false
+                                    if (completado) {
+                                        habitosCompletadosTotal++
+                                    }
+                                }
+                            }
+
+                            val desafio = Desafio(
+                                nombre = doc.getString("nombre") ?: "",
+                                descripcion = doc.getString("descripcion") ?: "",
+                                dias = totalDias,
+                                creadoPor = uid,
+                                id = doc.id,
+                                diaActual = minOf(diaActual, totalDias), // Día basado en fecha real
+                                completados = habitosCompletadosTotal, // Total de hábitos completados
+                                totalHabitos = totalHabitos * totalDias, // Total de hábitos en todo el desafío
+                                etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),
+                                visibilidad = doc.getString("visibilidad") ?: "privado"
+                            )
+
+                            desafiosProcessed.add(desafio)
+                            contador++
+
+                            if (contador == result.size()) {
+                                activeChallenges.clear()
+                                activeChallenges.addAll(desafiosProcessed)
+                                filteredActiveChallenges.clear()
+                                filteredActiveChallenges.addAll(desafiosProcessed)
+                                binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            // Fallback
+                            val desafio = Desafio(
+                                nombre = doc.getString("nombre") ?: "",
+                                descripcion = doc.getString("descripcion") ?: "",
+                                dias = totalDias,
+                                creadoPor = uid,
+                                id = doc.id,
+                                diaActual = minOf(diaActual, totalDias),
+                                completados = 0,
+                                totalHabitos = totalHabitos * totalDias,
+                                etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),
+                                visibilidad = doc.getString("visibilidad") ?: "privado"
+                            )
+
+                            desafiosProcessed.add(desafio)
+                            contador++
+
+                            if (contador == result.size()) {
+                                activeChallenges.clear()
+                                activeChallenges.addAll(desafiosProcessed)
+                                filteredActiveChallenges.clear()
+                                filteredActiveChallenges.addAll(desafiosProcessed)
+                                binding.activeChallengesList?.adapter?.notifyDataSetChanged()
+                            }
+                        }
+                }
             }
             .addOnFailureListener { e ->
                 Toast.makeText(context, getString(R.string.error_format, e.message), Toast.LENGTH_LONG).show()
             }
+    }
+
+    private fun calcularDiaActualPorFecha(fechaInicio: com.google.firebase.Timestamp?): Int {
+        if (fechaInicio == null) return 1
+
+        val fechaInicioDate = fechaInicio.toDate()
+        val fechaActual = Date()
+
+        // Calcular la diferencia en días
+        val diferenciaMilisegundos = fechaActual.time - fechaInicioDate.time
+        val diferenciaDias = (diferenciaMilisegundos / (1000 * 60 * 60 * 24)).toInt()
+
+        // El día actual es la diferencia + 1 (porque el día 1 es el día de inicio)
+        return maxOf(1, diferenciaDias + 1) // Al menos día 1
     }
 
 //    private fun updateCurrentProgress() {
@@ -279,7 +372,6 @@ class ItemListFragment : Fragment() {
             val challengeName: TextView = view.findViewById(R.id.challenge_name)
             val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
             val progressText: TextView = view.findViewById(R.id.progress_text)
-//            val menuButton: ImageView = view.findViewById(R.id.menu_button)
             val visibilityTag: TextView = view.findViewById(R.id.visibility_tag)  // AGREGAR
             val tagsRecycler: RecyclerView = view.findViewById(R.id.tags_recycler) // AGREGAR
         }
@@ -294,10 +386,25 @@ class ItemListFragment : Fragment() {
             val challenge = challenges[position]
             holder.challengeName.text = challenge.nombre
 
-            val progress = ((challenge.diaActual.toFloat() / challenge.dias.toFloat()) * 100).toInt()
-            holder.progressBar.progress = progress
-            holder.progressText.text = getString(R.string.day_format, challenge.diaActual, challenge.dias)
+            // Progress bar basada en hábitos completados vs total de hábitos
+            val progressHabitos = if (challenge.totalHabitos > 0) {
+                ((challenge.completados.toFloat() / challenge.totalHabitos.toFloat()) * 100).toInt()
+            } else {
+                0
+            }
 
+            // Asegurar que el progreso esté entre 0 y 100%
+            val safeProgress = maxOf(0, minOf(progressHabitos, 100))
+            holder.progressBar.progress = safeProgress
+
+            // Mostrar el día actual (basado en fecha real) y progreso de hábitos
+            if (challenge.diaActual > challenge.dias) {
+                holder.progressText.text = "Día ${challenge.dias} de ${challenge.dias}"
+            } else {
+                holder.progressText.text = "Día ${challenge.diaActual} de ${challenge.dias}"
+            }
+
+            // Configurar tag de visibilidad
             holder.visibilityTag.text = if (challenge.visibilidad == "publico") "Público" else "Privado"
 
             // Configurar etiquetas
@@ -311,51 +418,94 @@ class ItemListFragment : Fragment() {
                 }
                 findNavController().navigate(R.id.show_item_detail, bundle)
             }
-
-//            // MENÚ DE TRES PUNTITOS
-//            holder.menuButton.setOnClickListener {
-//                val popup = PopupMenu(holder.itemView.context, holder.menuButton)
-//                popup.menuInflater.inflate(R.menu.menu_challenge_options, popup.menu)
-//                popup.setOnMenuItemClickListener { item ->
-//                    when (item.itemId) {
-//                        R.id.action_edit -> {
-//                            val bundle = Bundle().apply {
-//                                putParcelable("desafio", challenge)
-//                            }
-////                            findNavController().navigate(R.id.action_itemListFragment_to_editDesafioFragment, bundle)
-//                            true
-//                        }
-//                        R.id.action_delete -> {
-//                            eliminarDesafio(challenge.id)
-//                            true
-//                        }
-//                        else -> false
-//                    }
-//                }
-//                popup.show()
-//            }
         }
 
         override fun getItemCount() = challenges.size
     }
 
+    private fun actualizarProgresoHabitos(desafioId: String) {
+        val uid = auth.currentUser?.uid ?: return
+
+        // Recalcular el progreso y actualizar la UI
+        cargarDesafios()
+
+        // También podrías actualizar el documento principal del desafío con el conteo actual
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafioId)
+            .collection("dias")
+            .get()
+            .addOnSuccessListener { diasResult ->
+                var habitosCompletadosTotal = 0
+
+                diasResult.documents.forEach { diaDoc ->
+                    val habitos = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                    habitos.forEach { habito ->
+                        val completado = habito["completado"] as? Boolean ?: false
+                        if (completado) {
+                            habitosCompletadosTotal++
+                        }
+                    }
+                }
+
+                // Actualizar el documento principal del desafío
+                firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(desafioId)
+                    .update("completados", habitosCompletadosTotal)
+            }
+    }
+
+    private fun calcularDiaActual(fechaRealizacion: String): Boolean {
+        val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        return fechaRealizacion == fechaActual
+    }
+
+    private fun actualizarProgresoDesafio(desafioId: String) {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafioId)
+            .collection("dias")
+            .whereEqualTo("completado", true)
+            .get()
+            .addOnSuccessListener { result ->
+                val diasCompletados = result.size()
+
+                // Actualizar el documento del desafío con los días completados
+                firestore.collection("usuarios")
+                    .document(uid)
+                    .collection("desafios")
+                    .document(desafioId)
+                    .update(
+                        mapOf(
+                            "diaActual" to (diasCompletados + 1), // Próximo día a completar
+                            "completados" to diasCompletados
+                        )
+                    )
+                    .addOnSuccessListener {
+                        // Recargar los desafíos para mostrar el progreso actualizado
+                        cargarDesafios()
+                    }
+            }
+    }
+
 
     private fun createChallengeFromDefault(defaultChallenge: DefaultChallenge) {
         val uid = auth.currentUser?.uid ?: return
-
         val challenge = getInitialChallengeForObjective(defaultChallenge.type)
         val challengesRef = firestore.collection("usuarios").document(uid).collection("desafios")
 
-        // 1. Crear el desafío principal
         challengesRef.add(challenge)
             .addOnSuccessListener { documentRef ->
-
-                // 2. Crear la estructura de días usando batch
                 val batch = firestore.batch()
                 val dias = challenge["dias"] as? Int ?: 30
                 val habitos = challenge["habitos"] as? List<Map<String, Any>> ?: emptyList()
 
-                // Convertir hábitos a la estructura que necesita cada día
                 val habitosParaDias = habitos.map { habito ->
                     mapOf(
                         "nombre" to (habito["nombre"] ?: ""),
@@ -367,14 +517,14 @@ class ItemListFragment : Fragment() {
                 val fechaInicio = Calendar.getInstance()
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-                // Crear cada día del desafío
+                // Crear cada día del desafío con fechas consecutivas
                 for (i in 1..dias) {
                     val diaRef = documentRef.collection("dias").document("dia_$i")
 
-                    // Calcular la fecha para este día (día 1 = hoy, día 2 = mañana, etc.)
+                    // Calcular la fecha para este día
                     val fechaDia = Calendar.getInstance().apply {
                         time = fechaInicio.time
-                        add(Calendar.DAY_OF_YEAR, i - 1) // día 1 = +0 días, día 2 = +1 día, etc.
+                        add(Calendar.DAY_OF_YEAR, i - 1) // día 1 = hoy, día 2 = mañana, etc.
                     }
 
                     val dataDia = hashMapOf(
@@ -387,11 +537,10 @@ class ItemListFragment : Fragment() {
                     batch.set(diaRef, dataDia)
                 }
 
-                // 3. Ejecutar el batch
                 batch.commit()
                     .addOnSuccessListener {
                         Toast.makeText(context, getString(R.string.registration_successful).replace("Registro", "Desafío '${defaultChallenge.title}'"), Toast.LENGTH_SHORT).show()
-                        cargarDesafios() // Recargar la lista de desafíos activos
+                        cargarDesafios()
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(context, getString(R.string.error_saving_data, e.message), Toast.LENGTH_LONG).show()
