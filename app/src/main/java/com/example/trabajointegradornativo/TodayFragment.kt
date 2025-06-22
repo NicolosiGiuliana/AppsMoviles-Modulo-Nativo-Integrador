@@ -608,6 +608,7 @@ class TodayFragment : Fragment() {
             }
     }
 
+    // VERSIÓN CORREGIDA - Reemplaza el método crearContenidoExtra() completo:
     private fun crearContenidoExtra(habito: Habito): LinearLayout {
         val extraLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
@@ -615,29 +616,82 @@ class TodayFragment : Fragment() {
         }
 
         if (habito.fotoUrl != null) {
-            val fotoPlaceholder = LinearLayout(requireContext()).apply {
-                layoutParams = LinearLayout.LayoutParams(160, 160).apply {
+            // IMAGEN MÁS GRANDE: de 160x160 a 240x240 dp
+            val fotoContainer = FrameLayout(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(240, 240).apply { // Aumentado de 160 a 240
                     bottomMargin = 24
                 }
+            }
+
+            // Contenedor de la imagen con fondo
+            val imageContainer = LinearLayout(requireContext()).apply {
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
                 setBackgroundColor(ContextCompat.getColor(context, android.R.color.darker_gray))
                 gravity = android.view.Gravity.CENTER
             }
 
-            val textoFoto = TextView(requireContext()).apply {
-                text = "📷 guardada\nToca para ver"
-                textSize = 12f
+            // ImageView para mostrar la imagen real
+            val imageView = ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                )
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setBackgroundColor(ContextCompat.getColor(context, android.R.color.darker_gray))
+            }
+
+            // Texto de loading (también más grande)
+            val loadingText = TextView(requireContext()).apply {
+                text = "Cargando..."
+                textSize = 14f // Aumentado de 12f a 14f
                 setTextColor(ContextCompat.getColor(context, android.R.color.white))
                 gravity = android.view.Gravity.CENTER
             }
 
-            fotoPlaceholder.addView(textoFoto)
+            imageContainer.addView(imageView)
+            imageContainer.addView(loadingText)
 
-            // Hacer clickeable para abrir la imagen
-            fotoPlaceholder.setOnClickListener {
-                abrirImagenEnNavegador(habito.fotoUrl!!)
+            // Botón de eliminar (mantener tamaño proporcional)
+            val deleteButton = ImageView(requireContext()).apply {
+                layoutParams = FrameLayout.LayoutParams(52, 52).apply { // Ligeramente más grande: de 48 a 52
+                    gravity = android.view.Gravity.TOP or android.view.Gravity.END
+                    topMargin = 8
+                    rightMargin = 8
+                }
+
+                setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+                setBackgroundResource(android.R.drawable.btn_default)
+                background.setTint(ContextCompat.getColor(context, android.R.color.holo_red_light))
+                setColorFilter(ContextCompat.getColor(context, android.R.color.white))
+                setPadding(10, 10, 10, 10) // Aumentado de 8 a 10
+
+                contentDescription = "Eliminar imagen"
+                visibility = View.GONE
+                isClickable = true
+                isFocusable = true
+                foreground = ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
             }
 
-            extraLayout.addView(fotoPlaceholder)
+            fotoContainer.addView(imageContainer)
+            fotoContainer.addView(deleteButton)
+
+            // Cargar la imagen
+            cargarImagenEnMiniatura(habito.fotoUrl!!, imageView, loadingText, deleteButton)
+
+            // Click para ver imagen en grande
+            imageContainer.setOnClickListener {
+                mostrarImagenEnDialogo(habito.fotoUrl!!)
+            }
+
+            // Click para eliminar imagen
+            deleteButton.setOnClickListener {
+                mostrarDialogoEliminarImagen(habito)
+            }
+
+            extraLayout.addView(fotoContainer)
         }
 
         if (habito.comentario != null && habito.comentario!!.isNotEmpty()) {
@@ -652,7 +706,7 @@ class TodayFragment : Fragment() {
 
             val textoComentario = TextView(requireContext()).apply {
                 text = "💬 ${habito.comentario}"
-                textSize = 12f
+                textSize = 13f // Ligeramente más grande: de 12f a 13f
                 setTextColor(ContextCompat.getColor(context, android.R.color.black))
             }
 
@@ -662,17 +716,142 @@ class TodayFragment : Fragment() {
 
         return extraLayout
     }
+    // MANTÉN la función cargarImagenEnMiniatura() tal como está:
+    private fun cargarImagenEnMiniatura(url: String, imageView: ImageView, loadingText: TextView, deleteButton: ImageView) {
+        Thread {
+            try {
+                val connection = java.net.URL(url).openConnection()
+                connection.doInput = true
+                connection.connect()
+                val inputStream = connection.getInputStream()
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
 
-    private fun abrirImagenEnNavegador(url: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error al abrir imagen: ${e.message}")
-            Toast.makeText(context, "Error al abrir imagen", Toast.LENGTH_SHORT).show()
-        }
+                requireActivity().runOnUiThread {
+                    if (bitmap != null) {
+                        imageView.setImageBitmap(bitmap)
+                        loadingText.visibility = View.GONE
+                        deleteButton.visibility = View.VISIBLE
+                        Log.d(TAG, "Imagen cargada en miniatura desde: $url")
+                    } else {
+                        imageView.setImageDrawable(
+                            ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete)
+                        )
+                        loadingText.text = "Error"
+                        loadingText.visibility = View.VISIBLE
+                        deleteButton.visibility = View.GONE
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error al cargar imagen en miniatura: ${e.message}")
+                requireActivity().runOnUiThread {
+                    imageView.setImageDrawable(
+                        ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete)
+                    )
+                    loadingText.text = "Error al cargar"
+                    loadingText.visibility = View.VISIBLE
+                    deleteButton.visibility = View.GONE
+                }
+            }
+        }.start()
+    }
+    private fun mostrarDialogoEliminarImagen(habito: Habito) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar imagen")
+            .setMessage("¿Estás seguro de que quieres eliminar esta imagen del hábito '${habito.nombre}'?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                eliminarImagenDelHabito(habito)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
+    // Agrega este método para eliminar la imagen:
+    private fun eliminarImagenDelHabito(habito: Habito) {
+        val desafio = desafiosActivos.find { desafio ->
+            desafio.habitos.any { it.nombre == habito.nombre }
+        } ?: return
+
+        // Mostrar loading
+        Toast.makeText(requireContext(), "Eliminando imagen...", Toast.LENGTH_SHORT).show()
+
+        // Limpiar la URL de la imagen del hábito
+        habito.fotoUrl = null
+
+        // Guardar cambios en Firestore
+        guardarProgresoHabito(desafio, habito)
+
+        // Actualizar la interfaz
+        actualizarInterfaz()
+
+        Toast.makeText(requireContext(), "Imagen eliminada", Toast.LENGTH_SHORT).show()
+        Log.d(TAG, "Imagen eliminada del hábito: ${habito.nombre}")
+    }
+
+
+    private fun abrirImagenEnNavegador(url: String) {
+        mostrarImagenEnDialogo(url)
+    }
+
+    private fun mostrarImagenEnDialogo(url: String) {
+        try {
+            // Crear ImageView para mostrar la imagen
+            val imageView = ImageView(requireContext()).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                adjustViewBounds = true
+                scaleType = ImageView.ScaleType.CENTER_CROP
+            }
+
+            // Crear el diálogo
+            val dialog = AlertDialog.Builder(requireContext())
+                .setView(imageView)
+                .setPositiveButton("Cerrar") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+
+            // Mostrar loading mientras carga la imagen
+            val progressBar = ProgressBar(requireContext())
+            imageView.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_gallery))
+
+            dialog.show()
+
+            // Cargar la imagen de forma asíncrona
+            Thread {
+                try {
+                    val connection = java.net.URL(url).openConnection()
+                    connection.doInput = true
+                    connection.connect()
+                    val inputStream = connection.getInputStream()
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream.close()
+
+                    // Actualizar la UI en el hilo principal
+                    requireActivity().runOnUiThread {
+                        if (bitmap != null) {
+                            imageView.setImageBitmap(bitmap)
+                        } else {
+                            imageView.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete))
+                            Toast.makeText(context, "Error al cargar la imagen", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error al cargar imagen: ${e.message}")
+                    requireActivity().runOnUiThread {
+                        imageView.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete))
+                        Toast.makeText(context, "Error al cargar la imagen: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al mostrar imagen: ${e.message}")
+            Toast.makeText(context, "Error al mostrar imagen", Toast.LENGTH_SHORT).show()
+        }
+    }
     private fun toggleHabito(desafio: Desafio, habito: Habito, checkbox: ImageView) {
         habito.completado = !habito.completado
 
