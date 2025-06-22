@@ -16,7 +16,9 @@
         android:paddingTop="24dp"
         android:paddingBottom="100dp">
 
+        <!-- CONTAINER PRINCIPAL AGREGADO -->
         <LinearLayout
+            android:id="@+id/main_content_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -34,77 +36,177 @@
                 android:layout_marginBottom="24dp"
                 android:lineSpacingExtra="4dp" />
 
-            <!-- Banner circular con contador de días -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/progress_card"
+            <!-- SECCIÓN DE PROGRESO AGREGADA -->
+            <LinearLayout
+                android:id="@+id/progress_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                android:background="@drawable/progress_card_background">
+                android:orientation="vertical">
 
-                <LinearLayout
+                <!-- Banner circular con contador de días -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/progress_card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="32dp"
-                    android:gravity="center"
+                    android:layout_marginBottom="32dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
                     android:background="@drawable/progress_card_background">
 
-                    <!-- Círculo de progreso -->
-                    <RelativeLayout
-                        android:layout_width="140dp"
-                        android:layout_height="140dp"
-                        android:layout_marginBottom="24dp"
-                        android:rotation="45">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="32dp"
+                        android:gravity="center"
+                        android:background="@drawable/progress_card_background">
 
-                        <ProgressBar
-                            android:id="@+id/circular_progress"
+                        <!-- Círculo de progreso -->
+                        <RelativeLayout
                             android:layout_width="140dp"
                             android:layout_height="140dp"
-                            android:indeterminate="false"
-                            android:progress="75"
-                            android:max="100"
-                            android:progressDrawable="@drawable/circular_progress_modern"
-                            style="?android:attr/progressBarStyleHorizontal" />
+                            android:layout_marginBottom="24dp"
+                            android:rotation="45">
+
+                            <ProgressBar
+                                android:id="@+id/circular_progress"
+                                android:layout_width="140dp"
+                                android:layout_height="140dp"
+                                android:indeterminate="false"
+                                android:progress="75"
+                                android:max="100"
+                                android:progressDrawable="@drawable/circular_progress_modern"
+                                style="?android:attr/progressBarStyleHorizontal" />
+
+                            <TextView
+                                android:id="@+id/progress_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:textColor="#FFFFFF"
+                                android:rotation="-45" />
+
+                        </RelativeLayout>
 
                         <TextView
-                            android:id="@+id/progress_text"
+                            android:id="@+id/progress_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:textSize="24sp"
+                            android:text="@string/excellent_progress"
+                            android:textSize="22sp"
                             android:textStyle="bold"
                             android:textColor="#FFFFFF"
-                            android:rotation="-45" />
+                            android:layout_marginBottom="8dp" />
 
-                    </RelativeLayout>
+                        <TextView
+                            android:id="@+id/progress_subtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/days_completed_consecutive"
+                            android:textSize="16sp"
+                            android:textColor="#E8F5E8"
+                            android:gravity="center"
+                            android:lineSpacingExtra="4dp"
+                            android:alpha="0.9" />
 
-                    <TextView
-                        android:id="@+id/progress_title"
-                        android:layout_width="wrap_content"
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+            <!-- FIN SECCIÓN DE PROGRESO -->
+
+            <!-- NUEVA SECCIÓN DE FINALIZACIÓN -->
+            <LinearLayout
+                android:id="@+id/finalizacion_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="32dp"
+                android:visibility="gone">
+
+                <!-- Card principal de finalización -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="8dp"
+                    android:backgroundTint="#E8F5E8">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/excellent_progress"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:textColor="#FFFFFF"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="vertical"
+                        android:padding="32dp"
+                        android:gravity="center">
 
-                    <TextView
-                        android:id="@+id/progress_subtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/days_completed_consecutive"
-                        android:textSize="16sp"
-                        android:textColor="#E8F5E8"
-                        android:gravity="center"
-                        android:lineSpacingExtra="4dp"
-                        android:alpha="0.9" />
+                        <!-- Título de finalización -->
+                        <TextView
+                            android:id="@+id/titulo_finalizacion"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="¡Desafío Finalizado!"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32"
+                            android:gravity="center"
+                            android:layout_marginBottom="24dp" />
 
-                </LinearLayout>
+                        <!-- Icono de éxito -->
+                        <ImageView
+                            android:id="@+id/icono_finalizacion"
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:src="@drawable/ic_check_green"
+                            android:layout_marginBottom="24dp"
+                            app:tint="#4CAF50" />
 
-            </androidx.cardview.widget.CardView>
+                        <!-- Mensaje de felicitación -->
+                        <TextView
+                            android:id="@+id/mensaje_felicitacion"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="¡Felicitaciones! Has completado tu desafío con éxito. Tu dedicación y constancia han dado frutos."
+                            android:textSize="16sp"
+                            android:textColor="#5A6C7D"
+                            android:gravity="center"
+                            android:lineSpacingExtra="4dp"
+                            android:layout_marginBottom="24dp" />
+
+                        <!-- Estadísticas finales -->
+                        <TextView
+                            android:id="@+id/estadisticas_finales"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Cargando estadísticas..."
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E3A59"
+                            android:gravity="center"
+                            android:layout_marginBottom="32dp" />
+
+                        <!-- Botón finalizar -->
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/boton_finalizar_desafio"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:text="Finalizar Desafío"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:background="@drawable/button_solid_green"
+                            android:backgroundTint="@color/primary_green"
+                            android:layout_marginBottom="16dp" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+            <!-- FIN SECCIÓN DE FINALIZACIÓN -->
 
             <!-- Descripción del Desafío -->
             <androidx.cardview.widget.CardView
@@ -116,6 +218,7 @@
                 android:backgroundTint="#F8F9FA">
 
                 <LinearLayout
+                    android:id="@+id/item_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -152,6 +255,7 @@
                 android:backgroundTint="#F8F9FA">
 
                 <LinearLayout
+                    android:id="@+id/item_habits"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -210,11 +314,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                android:backgroundTint="#F8F9FA"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#F8F9FA">
+                app:cardElevation="2dp">
 
                 <LinearLayout
+                    android:id="@+id/item_etiquetas"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -223,18 +328,18 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
                         android:text="@string/tags_title"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
                         android:textColor="#2E3A59"
-                        android:layout_marginBottom="12dp" />
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
                     <com.google.android.flexbox.FlexboxLayout
                         android:id="@+id/tags_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:flexWrap="wrap"
                         app:alignItems="center"
+                        app:flexWrap="wrap"
                         app:justifyContent="flex_start">
 
                         <!-- Las etiquetas se agregan programáticamente aquí -->
@@ -263,6 +368,7 @@
                     android:backgroundTint="#E3F2FD">
 
                     <LinearLayout
+                        android:id="@+id/item_duracion"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -309,6 +415,7 @@
                     android:backgroundTint="#E8F5E8">
 
                     <LinearLayout
+                        android:id="@+id/item_estado"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -408,6 +515,7 @@
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
+        <!-- FIN CONTAINER PRINCIPAL -->
 
     </androidx.core.widget.NestedScrollView>
 

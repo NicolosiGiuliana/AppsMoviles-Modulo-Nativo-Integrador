@@ -1,11 +1,13 @@
 package com.example.trabajointegradornativo
 
 // IMPORTACIONES PARA EL MAPA
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -176,6 +178,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    @SuppressLint("UseRequireInsteadOfGet")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -213,6 +216,10 @@ class ItemDetailFragment : Fragment() {
                 R.id.action_itemDetailFragment_to_editDesafioFragment,
                 bundle
             )
+        }
+
+        binding.botonFinalizarDesafio?.setOnClickListener {
+            finalizarDesafio()
         }
 
         binding.btnDeleteChallenge?.setOnClickListener {
@@ -399,74 +406,88 @@ class ItemDetailFragment : Fragment() {
         isUpdatingContent = true
         val uid = auth.currentUser?.uid ?: return
 
-        // Obtener la información actualizada del desafío desde Firestore
-        firestore.collection("usuarios")
-            .document(uid)
-            .collection("desafios")
-            .document(desafio.id)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val nombre = document.getString("nombre") ?: "Sin nombre"
-                    val descripcion = document.getString("descripcion") ?: "Sin descripción"
-                    val dias = document.getLong("dias")?.toInt() ?: 0
-                    val estado = document.getString("estado") ?: "Indefinido"
-                    val completados = diasCompletados.size
+        // PRIMERO verificar si el desafío ha finalizado
+        verificarSiDesafioFinalizado { desafioFinalizado ->
+            if (desafioFinalizado) {
+                Log.d("ItemDetailFragment", "Desafío finalizado detectado - Mostrando vista especial")
+                // Mostrar vista de desafío finalizado
+                mostrarVistaDesafioFinalizado()
+                isUpdatingContent = false
+                return@verificarSiDesafioFinalizado
+            }
 
-                    // Calcular el día actual basado en la fecha de inicio
-                    val fechaInicioTimestamp = document.getTimestamp("fechaInicio")
-                    val fechaCreacionTimestamp = document.getTimestamp("fechaCreacion")
-                    val fechaInicio =
-                        fechaInicioTimestamp?.toDate() ?: fechaCreacionTimestamp?.toDate()
-                    val fechaInicioString = fechaInicio?.let {
-                        val formatter =
-                            java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                        formatter.format(it)
-                    } ?: LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            // Si no ha finalizado, continuar con el flujo normal
+            Log.d("ItemDetailFragment", "Desafío activo - Mostrando contenido normal")
 
-                    val diaActualCalculado = calcularDiaActual(fechaInicioString)
+            // Resto del código original de updateContent()...
+            firestore.collection("usuarios")
+                .document(uid)
+                .collection("desafios")
+                .document(desafio.id)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val nombre = document.getString("nombre") ?: "Sin nombre"
+                        val descripcion = document.getString("descripcion") ?: "Sin descripción"
+                        val dias = document.getLong("dias")?.toInt() ?: 0
+                        val estado = document.getString("estado") ?: "Indefinido"
+                        val completados = diasCompletados.size
 
-                    val etiquetas = document.get("etiquetas") as? List<String> ?: emptyList()
-                    val habitosBase =
-                        document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
-                    val totalHabitos = habitosBase.size
+                        // Calcular el día actual basado en la fecha de inicio
+                        val fechaInicioTimestamp = document.getTimestamp("fechaInicio")
+                        val fechaCreacionTimestamp = document.getTimestamp("fechaCreacion")
+                        val fechaInicio =
+                            fechaInicioTimestamp?.toDate() ?: fechaCreacionTimestamp?.toDate()
+                        val fechaInicioString = fechaInicio?.let {
+                            val formatter =
+                                java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            formatter.format(it)
+                        } ?: LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-                    // Obtener los hábitos del día actual con su estado
-                    obtenerHabitosDiaActual(uid, desafio.id) { habitosDelDia ->
-                        // Configurar UI con los datos de Firestore
-                        actualizarUI(
-                            nombre = nombre,
-                            descripcion = descripcion,
-                            dias = dias,
-                            diaActual = diaActualCalculado, // Usar el día calculado
-                            completados = completados,
-                            totalHabitos = totalHabitos,
-                            estado = estado,
-                            habitos = habitosDelDia
-                        )
+                        val diaActualCalculado = calcularDiaActual(fechaInicioString)
 
-                        actualizarInformacionGeneral(
-                            nombre,
-                            descripcion,
-                            dias,
-                            diaActualCalculado,
-                            completados,
-                            estado
-                        )
-                        mostrarEtiquetas(etiquetas)
+                        val etiquetas = document.get("etiquetas") as? List<String> ?: emptyList()
+                        val habitosBase =
+                            document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                        val totalHabitos = habitosBase.size
 
-                        // Liberar el flag
+                        // Obtener los hábitos del día actual con su estado
+                        obtenerHabitosDiaActual(uid, desafio.id) { habitosDelDia ->
+                            // Configurar UI con los datos de Firestore
+                            actualizarUI(
+                                nombre = nombre,
+                                descripcion = descripcion,
+                                dias = dias,
+                                diaActual = diaActualCalculado,
+                                completados = completados,
+                                totalHabitos = totalHabitos,
+                                estado = estado,
+                                habitos = habitosDelDia
+                            )
+
+                            actualizarInformacionGeneral(
+                                nombre,
+                                descripcion,
+                                dias,
+                                diaActualCalculado,
+                                completados,
+                                estado
+                            )
+                            mostrarEtiquetas(etiquetas)
+
+                            // Liberar el flag
+                            isUpdatingContent = false
+                        }
+                    } else {
                         isUpdatingContent = false
                     }
-                } else {
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firestore", "Error al obtener los datos del desafío", exception)
+                    Toast.makeText(context, "Error al cargar el desafío", Toast.LENGTH_SHORT).show()
                     isUpdatingContent = false
                 }
-            }
-            .addOnFailureListener { exception ->
-                Log.e("Firestore", "Error al obtener los datos del desafío", exception)
-                Toast.makeText(context, "Error al cargar el desafío", Toast.LENGTH_SHORT).show()
-                isUpdatingContent = false
-            }
+        }
     }
 
     private fun actualizarInformacionGeneral(
@@ -920,30 +941,459 @@ class ItemDetailFragment : Fragment() {
     ) {
         val fechaHoy = LocalDate.now().toString() // Fecha actual en formato "yyyy-MM-dd"
 
+        // Primero verificar si el desafío ha finalizado
+        verificarSiDesafioFinalizado { desafioFinalizado ->
+            if (desafioFinalizado) {
+                // No crear días adicionales, devolver lista vacía
+                callback(emptyList())
+                return@verificarSiDesafioFinalizado
+            }
+
+            firestore.collection("usuarios")
+                .document(uid)
+                .collection("desafios")
+                .document(desafioId)
+                .collection("dias")
+                .whereEqualTo("fechaRealizacion", fechaHoy)
+                .get()
+                .addOnSuccessListener { result ->
+                    if (!result.isEmpty) {
+                        val document = result.documents[0]
+                        val habitos = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                        Log.d("Firestore", "Hábitos del día actual obtenidos: ${habitos.size} hábitos")
+                        callback(habitos)
+                    } else {
+                        // Verificar si ya hemos superado el límite de días del desafío
+                        verificarLimiteDiasDesafio(uid, desafioId) { puedeCrearDia ->
+                            if (puedeCrearDia) {
+                                // Si no hay día para hoy y no hemos superado el límite, crear uno
+                                Log.d("Firestore", "No se encontró día para hoy, creando...")
+                                crearDiaActual(uid, desafioId, fechaHoy) { habitos ->
+                                    callback(habitos)
+                                }
+                            } else {
+                                // Si ya hemos superado el límite, no crear más días
+                                Log.d("Firestore", "Límite de días alcanzado, no se crean más días")
+                                callback(emptyList())
+                            }
+                        }
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firestore", "Error al obtener hábitos del día actual", e)
+                    callback(emptyList())
+                }
+        }
+    }
+
+    private fun verificarSiDesafioFinalizado(callback: (Boolean) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .orderBy("dia", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { result ->
+                if (!result.isEmpty) {
+                    val ultimoDia = result.documents[0]
+                    val fechaRealizacion = ultimoDia.getString("fechaRealizacion")
+                    val diaNumero = ultimoDia.getLong("dia")?.toInt() ?: 0
+
+                    Log.d("ItemDetailFragment", "Verificando finalización - Último día: $diaNumero de ${desafio.dias}")
+                    Log.d("ItemDetailFragment", "Fecha realización último día: $fechaRealizacion")
+
+                    // Verificar si llegamos al último día del desafío
+                    if (diaNumero >= desafio.dias && fechaRealizacion != null) {
+                        try {
+                            val fechaUltimoDia = LocalDate.parse(fechaRealizacion, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            val fechaHoy = LocalDate.now()
+                            val diasTranscurridos = ChronoUnit.DAYS.between(fechaUltimoDia, fechaHoy)
+
+                            Log.d("ItemDetailFragment", "Días transcurridos desde último día: $diasTranscurridos")
+
+                            // Si ha pasado más de 1 día desde el último día del desafío
+                            val desafioFinalizado = diasTranscurridos >= 1
+                            Log.d("ItemDetailFragment", "¿Desafío finalizado? $desafioFinalizado")
+                            callback(desafioFinalizado)
+                        } catch (e: Exception) {
+                            Log.e("ItemDetailFragment", "Error parseando fecha: ${e.message}")
+                            callback(false)
+                        }
+                    } else {
+                        Log.d("ItemDetailFragment", "Desafío no ha llegado al final o no hay fecha")
+                        callback(false)
+                    }
+                } else {
+                    Log.d("ItemDetailFragment", "No hay días registrados")
+                    callback(false)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ItemDetailFragment", "Error verificando finalización: ${e.message}")
+                callback(false)
+            }
+    }
+
+    private fun mostrarVistaDesafioFinalizado() {
+        Log.d("ItemDetailFragment", "Mostrando vista de desafío finalizado")
+
+        // Ocultar TODOS los elementos del contenido normal
+        ocultarContenidoNormal()
+
+        // Crear o mostrar vista de finalización
+        val finalizacionContainer = binding.root.findViewById<LinearLayout>(R.id.finalizacion_container)
+            ?: crearVistaFinalizacion()
+
+        finalizacionContainer.visibility = View.VISIBLE
+
+        // Calcular días completados para mostrar estadísticas
+        calcularEstadisticasFinales { diasCompletados, totalDias ->
+            actualizarEstadisticasFinales(finalizacionContainer, diasCompletados, totalDias)
+        }
+    }
+
+    private fun ocultarContenidoNormal() {
+        // Ocultar descripción
+        binding.root.findViewById<LinearLayout>(R.id.item_description)?.visibility = View.GONE
+
+        // Ocultar listado de hábitos
+        binding.root.findViewById<LinearLayout>(R.id.item_habits)?.visibility = View.GONE
+
+        // Ocultar etiquetas
+        binding.root.findViewById<LinearLayout>(R.id.item_etiquetas)?.visibility = View.GONE
+
+        // Ocultar duración
+        binding.root.findViewById<LinearLayout>(R.id.item_duracion)?.visibility = View.GONE
+
+        // Ocultar estado del día
+        binding.root.findViewById<LinearLayout>(R.id.item_estado)?.visibility = View.GONE
+
+        // Ocultar sección de progreso si existe
+        binding.root.findViewById<View>(R.id.progress_section)?.visibility = View.GONE
+
+        // Ocultar botones de edición y eliminación
+        binding.btnEditChallenge?.visibility = View.GONE
+        binding.btnDeleteChallenge?.visibility = View.GONE
+
+//        // Ocultar cualquier otra vista relacionada con el contenido del día
+//        binding.root.findViewById<View>(R.id.day_content_section)?.visibility = View.GONE
+
+        Log.d("ItemDetailFragment", "Contenido normal ocultado")
+    }
+
+    // Nuevo método para crear la vista de finalización
+    private fun crearVistaFinalizacion(): LinearLayout {
+        val context = requireContext()
+
+        // Crear container principal
+        val finalizacionContainer = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(32, 64, 32, 32) // Más margen superior
+            }
+            id = R.id.finalizacion_container
+            gravity = android.view.Gravity.CENTER_HORIZONTAL
+        }
+
+        // Icono de finalización grande
+        val icono = ImageView(context).apply {
+            setImageResource(R.drawable.ic_check_green)
+            layoutParams = LinearLayout.LayoutParams(150, 150).apply {
+                gravity = android.view.Gravity.CENTER_HORIZONTAL
+                setMargins(0, 0, 0, 32)
+            }
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
+        }
+
+        // Título principal
+        val titulo = TextView(context).apply {
+            text = "¡Desafío Terminado!"
+            textSize = 28f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setTextColor(android.graphics.Color.parseColor("#4CAF50"))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, 16)
+            }
+        }
+
+        // Mensaje de felicitación
+        val mensaje = TextView(context).apply {
+            text = "¡Felicitaciones! Has completado tu desafío de ${desafio.dias} días."
+            textSize = 16f
+            gravity = android.view.Gravity.CENTER
+            setTextColor(android.graphics.Color.parseColor("#666666"))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, 32)
+            }
+        }
+
+        // Card para estadísticas
+        val statsCard = CardView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, 32)
+            }
+            radius = 16f
+            cardElevation = 8f
+            setCardBackgroundColor(android.graphics.Color.parseColor("#F5F5F5"))
+        }
+
+        val statsContainer = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(32, 24, 32, 24)
+            gravity = android.view.Gravity.CENTER_HORIZONTAL
+        }
+
+        val statsTitle = TextView(context).apply {
+            text = "Resumen del Desafío"
+            textSize = 18f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            gravity = android.view.Gravity.CENTER
+            setTextColor(android.graphics.Color.parseColor("#333333"))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(0, 0, 0, 16)
+            }
+        }
+
+        // Estadísticas
+        val estadisticas = TextView(context).apply {
+            text = "Cargando estadísticas..."
+            textSize = 20f
+            gravity = android.view.Gravity.CENTER
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(android.graphics.Color.parseColor("#4CAF50"))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            id = R.id.estadisticas_finales
+        }
+
+        statsContainer.addView(statsTitle)
+        statsContainer.addView(estadisticas)
+        statsCard.addView(statsContainer)
+
+        // Botón finalizar con diseño mejorado
+        val botonFinalizar = androidx.appcompat.widget.AppCompatButton(context).apply {
+            text = "Finalizar Desafío"
+            textSize = 18f
+            setTextColor(android.graphics.Color.WHITE)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setBackgroundColor(android.graphics.Color.parseColor("#FF5722"))
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                140 // Altura fija para el botón
+            ).apply {
+                setMargins(0, 16, 0, 16)
+            }
+
+            // Esquinas redondeadas
+            background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 12f
+                setColor(android.graphics.Color.parseColor("#FF5722"))
+            }
+
+            setOnClickListener {
+                finalizarDesafio()
+            }
+        }
+
+        // Agregar elementos al container
+        finalizacionContainer.addView(icono)
+        finalizacionContainer.addView(titulo)
+        finalizacionContainer.addView(mensaje)
+        finalizacionContainer.addView(statsCard)
+        finalizacionContainer.addView(botonFinalizar)
+
+        // Agregar al layout principal
+        val mainContainer = binding.root.findViewById<LinearLayout>(R.id.main_content_container)
+            ?: binding.root as ViewGroup
+
+        if (mainContainer is LinearLayout) {
+            mainContainer.addView(finalizacionContainer)
+        } else {
+            (mainContainer as ViewGroup).addView(finalizacionContainer)
+        }
+
+        Log.d("ItemDetailFragment", "Vista de finalización creada")
+        return finalizacionContainer
+    }
+
+    // Nuevo método para calcular estadísticas finales
+    private fun calcularEstadisticasFinales(callback: (Int, Int) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .collection("desafios")
+            .document(desafio.id)
+            .collection("dias")
+            .whereEqualTo("completado", true)
+            .get()
+            .addOnSuccessListener { result ->
+                val diasCompletados = result.size()
+                callback(diasCompletados, desafio.dias)
+            }
+            .addOnFailureListener { e ->
+                Log.e("ItemDetailFragment", "Error calculando estadísticas: ${e.message}")
+                callback(0, desafio.dias)
+            }
+    }
+
+    // Nuevo método para actualizar estadísticas en la vista
+    private fun actualizarEstadisticasFinales(container: LinearLayout, diasCompletados: Int, totalDias: Int) {
+        val estadisticasView = container.findViewById<TextView>(R.id.estadisticas_finales)
+        val porcentaje = if (totalDias > 0) (diasCompletados * 100) / totalDias else 0
+
+        val estadisticasText = when {
+            porcentaje == 100 -> "¡Perfecto! 🎉\n$diasCompletados de $totalDias días completados\n(100% de éxito)"
+            porcentaje >= 80 -> "¡Excelente! 👏\n$diasCompletados de $totalDias días completados\n($porcentaje% de éxito)"
+            porcentaje >= 60 -> "¡Buen trabajo! 👍\n$diasCompletados de $totalDias días completados\n($porcentaje% de éxito)"
+            else -> "¡Sigue intentando! 💪\n$diasCompletados de $totalDias días completados\n($porcentaje% de éxito)"
+        }
+
+        estadisticasView?.text = estadisticasText
+        Log.d("ItemDetailFragment", "Estadísticas actualizadas: $diasCompletados/$totalDias ($porcentaje%)")
+    }
+
+    // Nuevo método para finalizar el desafío
+    private fun finalizarDesafio() {
+        val context = requireContext()
+        val uid = auth.currentUser?.uid ?: return
+
+        // Mostrar progress dialog
+        val progressDialog = androidx.appcompat.app.AlertDialog.Builder(context)
+            .setMessage("Finalizando desafío...")
+            .setCancelable(false)
+            .create()
+        progressDialog.show()
+
+        // Eliminar el desafío completo (incluye subcolecciones)
+        eliminarDesafioCompleto(uid, desafio.id) { success ->
+            progressDialog.dismiss()
+
+            if (success) {
+                Toast.makeText(context, "¡Desafío finalizado exitosamente!", Toast.LENGTH_LONG).show()
+                // Redirigir a ItemListFragment
+                try {
+                    findNavController().navigate(R.id.itemListFragment)
+                } catch (e: Exception) {
+                    Log.e("ItemDetailFragment", "Error navegando: ${e.message}")
+                    // Alternativa si falla la navegación
+                    requireActivity().onBackPressed()
+                }
+            } else {
+                Toast.makeText(context, "Error al finalizar el desafío", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    // Nuevo método para eliminar el desafío completo incluyendo subcolecciones
+    private fun eliminarDesafioCompleto(uid: String, desafioId: String, callback: (Boolean) -> Unit) {
+        try {
+            // Primero eliminar todos los días
+            firestore.collection("usuarios")
+                .document(uid)
+                .collection("desafios")
+                .document(desafioId)
+                .collection("dias")
+                .get()
+                .addOnSuccessListener { diasSnapshot ->
+                    val batch = firestore.batch()
+
+                    // Agregar eliminación de días al batch
+                    for (diaDoc in diasSnapshot.documents) {
+                        batch.delete(diaDoc.reference)
+                    }
+
+                    // Agregar eliminación del desafío al batch
+                    val desafioRef = firestore.collection("usuarios")
+                        .document(uid)
+                        .collection("desafios")
+                        .document(desafioId)
+                    batch.delete(desafioRef)
+
+                    // Ejecutar batch
+                    batch.commit()
+                        .addOnSuccessListener {
+                            Log.d("ItemDetailFragment", "Desafío eliminado completamente")
+                            callback(true)
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("ItemDetailFragment", "Error eliminando desafío: ${e.message}")
+                            callback(false)
+                        }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("ItemDetailFragment", "Error obteniendo días para eliminar: ${e.message}")
+                    callback(false)
+                }
+        } catch (e: Exception) {
+            Log.e("ItemDetailFragment", "Error general en eliminarDesafioCompleto: ${e.message}")
+            callback(false)
+        }
+    }
+
+    private fun verificarLimiteDiasDesafio(uid: String, desafioId: String, callback: (Boolean) -> Unit) {
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
             .document(desafioId)
             .collection("dias")
-            .whereEqualTo("fechaRealizacion", fechaHoy)
+            .orderBy("dia", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(1)
             .get()
             .addOnSuccessListener { result ->
                 if (!result.isEmpty) {
-                    val document = result.documents[0]
-                    val habitos = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
-                    Log.d("Firestore", "Hábitos del día actual obtenidos: ${habitos.size} hábitos")
-                    callback(habitos)
+                    val ultimoDia = result.documents[0]
+                    val diaNumero = ultimoDia.getLong("dia")?.toInt() ?: 0
+
+                    // Obtener el límite de días del desafío
+                    firestore.collection("usuarios")
+                        .document(uid)
+                        .collection("desafios")
+                        .document(desafioId)
+                        .get()
+                        .addOnSuccessListener { desafioDoc ->
+                            val limiteDias = desafioDoc.getLong("dias")?.toInt() ?: 0
+                            val puedeCrear = diaNumero < limiteDias
+                            Log.d("ItemDetailFragment", "Último día: $diaNumero, Límite: $limiteDias, Puede crear: $puedeCrear")
+                            callback(puedeCrear)
+                        }
+                        .addOnFailureListener {
+                            callback(false)
+                        }
                 } else {
-                    // Si no hay día para hoy, crear uno con hábitos basados en el desafío
-                    Log.d("Firestore", "No se encontró día para hoy, creando...")
-                    crearDiaActual(uid, desafioId, fechaHoy) { habitos ->
-                        callback(habitos)
-                    }
+                    // Si no hay días, puede crear el primero
+                    callback(true)
                 }
             }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error al obtener hábitos del día actual", e)
-                callback(emptyList())
+            .addOnFailureListener {
+                callback(false)
             }
     }
 
