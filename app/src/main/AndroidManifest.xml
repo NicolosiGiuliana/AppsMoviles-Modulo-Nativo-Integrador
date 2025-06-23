@@ -88,11 +88,5 @@
             android:resizeableActivity="true"
             tools:targetApi="24" />
 
-
-        <!-- REMOVIDO: Ya no necesitas Google Maps API Key -->
-        <!-- <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="TU_API_KEY_AQUI" /> -->
-
     </application>
 </manifest>

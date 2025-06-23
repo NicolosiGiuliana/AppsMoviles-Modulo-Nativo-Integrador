@@ -20,14 +20,12 @@ class LoginFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
-    private var isLoginMode = true // true = login, false = register
+    private var isLoginMode = true
 
-    // Views
     private lateinit var tvTitle: TextView
     private lateinit var usernameInput: EditText
     private lateinit var nameInputLayout: TextInputLayout
 
-    // New register fields
     private lateinit var dateTitle: TextView
     private lateinit var dateInput: EditText
     private lateinit var dateInputLayout: TextInputLayout
@@ -38,7 +36,6 @@ class LoginFragment : Fragment() {
     private lateinit var confirmPasswordInput: EditText
     private lateinit var confirmPasswordInputLayout: TextInputLayout
 
-    // Existing fields
     private lateinit var emailTitle: TextView
     private lateinit var nameTitle: TextView
     private lateinit var passwordTitle: TextView
@@ -57,7 +54,6 @@ class LoginFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
 
-        // Inicializar SharedPreferences
         sharedPreferences = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
         initViews(view)
@@ -70,7 +66,6 @@ class LoginFragment : Fragment() {
     private fun initViews(view: View) {
         tvTitle = view.findViewById(R.id.tvTitle)
 
-        // Titles
         nameTitle = view.findViewById(R.id.nameTitle)
         dateTitle = view.findViewById(R.id.dateTitle)
         objectiveTitle = view.findViewById(R.id.objectiveTitle)
@@ -78,7 +73,6 @@ class LoginFragment : Fragment() {
         passwordTitle = view.findViewById(R.id.passwordTitle)
         confirmPasswordTitle = view.findViewById(R.id.confirmPasswordTitle)
 
-        // Input fields
         usernameInput = view.findViewById(R.id.usernameInput)
         nameInputLayout = view.findViewById(R.id.nameInputLayout)
         dateInput = view.findViewById(R.id.dateInput)
@@ -90,7 +84,6 @@ class LoginFragment : Fragment() {
         confirmPasswordInput = view.findViewById(R.id.confirmPasswordInput)
         confirmPasswordInputLayout = view.findViewById(R.id.confirmPasswordInputLayout)
 
-        // Buttons
         actionButton = view.findViewById(R.id.actionButton)
         toggleModeButton = view.findViewById(R.id.toggleModeButton)
     }
@@ -124,8 +117,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupPasswordConfirmation() {
-        // Disable copy/paste for confirm password
-        confirmPasswordInput.setOnLongClickListener { true } // Block long click
+        confirmPasswordInput.setOnLongClickListener { true }
         confirmPasswordInput.setTextIsSelectable(false)
         confirmPasswordInput.customSelectionActionModeCallback = object : android.view.ActionMode.Callback {
             override fun onCreateActionMode(mode: android.view.ActionMode?, menu: android.view.Menu?): Boolean = false
@@ -154,13 +146,11 @@ class LoginFragment : Fragment() {
             year, month, day
         )
 
-        // Set max date to today (user must be born before today)
         datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
         datePickerDialog.show()
     }
 
     private fun setupClickListeners() {
-        // Botón principal (Login/Register)
         actionButton.setOnClickListener {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
@@ -177,7 +167,6 @@ class LoginFragment : Fragment() {
             }
         }
 
-        // Botón para cambiar entre Login y Register
         toggleModeButton.setOnClickListener {
             isLoginMode = !isLoginMode
             clearInputs()
@@ -187,12 +176,10 @@ class LoginFragment : Fragment() {
 
     private fun updateUIMode() {
         if (isLoginMode) {
-            // Login Mode
             tvTitle.text = getString(R.string.login)
             actionButton.text = getString(R.string.login)
             toggleModeButton.text = getString(R.string.no_account)
 
-            // Hide register-only fields
             nameTitle.visibility = View.GONE
             nameInputLayout.visibility = View.GONE
             dateTitle.visibility = View.GONE
@@ -203,12 +190,10 @@ class LoginFragment : Fragment() {
             confirmPasswordInputLayout.visibility = View.GONE
 
         } else {
-            // Register Mode
             tvTitle.text = getString(R.string.register)
             actionButton.text = getString(R.string.register)
             toggleModeButton.text = getString(R.string.have_account)
 
-            // Show register-only fields
             nameTitle.visibility = View.VISIBLE
             nameInputLayout.visibility = View.VISIBLE
             dateTitle.visibility = View.VISIBLE
@@ -229,12 +214,10 @@ class LoginFragment : Fragment() {
         birthDate: String
     ): Boolean {
 
-        // Clear previous errors
         clearErrors()
 
         var isValid = true
 
-        // Email validation
         if (email.isEmpty()) {
             emailInput.error = getString(R.string.email_required)
             isValid = false
@@ -243,7 +226,6 @@ class LoginFragment : Fragment() {
             isValid = false
         }
 
-        // Password validation
         if (password.isEmpty()) {
             passwordInput.error = getString(R.string.password_required)
             isValid = false
@@ -252,9 +234,7 @@ class LoginFragment : Fragment() {
             isValid = false
         }
 
-        // Register mode validations
         if (!isLoginMode) {
-            // Username validation
             if (username.isEmpty()) {
                 usernameInput.error = getString(R.string.full_name_required)
                 isValid = false
@@ -263,7 +243,6 @@ class LoginFragment : Fragment() {
                 isValid = false
             }
 
-            // Birth date validation
             if (birthDate.isEmpty()) {
                 dateInput.error = getString(R.string.birth_date_required)
                 isValid = false
@@ -272,13 +251,11 @@ class LoginFragment : Fragment() {
                 isValid = false
             }
 
-            // Objective validation
             if (objective.isEmpty()) {
                 objectiveSpinner.error = getString(R.string.objective_required)
                 isValid = false
             }
 
-            // Confirm password validation
             if (confirmPassword.isEmpty()) {
                 confirmPasswordInput.error = getString(R.string.confirm_password_required)
                 isValid = false
@@ -341,7 +318,6 @@ class LoginFragment : Fragment() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
 
-                    // Guardar datos en SharedPreferences
                     saveUserToPreferences(
                         email = email,
                         username = user?.displayName ?: getString(R.string.default_name),
@@ -367,7 +343,6 @@ class LoginFragment : Fragment() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
 
-                    // Actualizar el perfil del usuario con el nombre
                     val profileUpdates = UserProfileChangeRequest.Builder()
                         .setDisplayName(username)
                         .build()
@@ -414,14 +389,11 @@ class LoginFragment : Fragment() {
 
     private fun navigateToMainApp() {
         try {
-            // Opción 1: Si tienes MainActivity
             val intent = Intent(requireContext(), MainActivity::class.java)
             startActivity(intent)
             activity?.finish()
         } catch (e: Exception) {
-            // Opción 2: Si no existe MainActivity, simplemente cerrar el fragment actual
             Toast.makeText(context, getString(R.string.navigation_successful), Toast.LENGTH_SHORT).show()
-            // O puedes navegar a otro fragment/activity que sí exista
         }
     }
 
@@ -445,10 +417,8 @@ class LoginFragment : Fragment() {
 
         val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
-        // Crear el documento del usuario
         db.collection("usuarios").document(user.uid).set(userData)
             .addOnSuccessListener {
-                // Solo crear el desafío inicial si NO eligió "Otro"
                 if (objective != getString(R.string.other_objective)) {
                     createInitialChallenge(db, user.uid, objective, onSuccess, onError)
                 } else {
@@ -468,16 +438,13 @@ class LoginFragment : Fragment() {
         val challenge = getInitialChallengeForObjective(objective)
         val challengesRef = db.collection("usuarios").document(userId).collection("desafios")
 
-        // 1. Crear el desafío principal
         challengesRef.add(challenge)
             .addOnSuccessListener { documentRef ->
 
-                // 2. Crear la estructura de días usando batch
                 val batch = db.batch()
                 val dias = challenge["dias"] as? Int ?: 30
                 val habitos = challenge["habitos"] as? List<Map<String, Any>> ?: emptyList()
 
-                // Convertir hábitos a la estructura que necesita cada día
                 val habitosParaDias = habitos.map { habito ->
                     mapOf(
                         "nombre" to (habito["nombre"] ?: ""),
@@ -485,7 +452,6 @@ class LoginFragment : Fragment() {
                     )
                 }
 
-                // Crear cada día del desafío
                 for (i in 1..dias) {
                     val diaRef = documentRef.collection("dias").document("dia_$i")
                     val dataDia = hashMapOf(
@@ -497,7 +463,6 @@ class LoginFragment : Fragment() {
                     batch.set(diaRef, dataDia)
                 }
 
-                // 3. Ejecutar el batch
                 batch.commit()
                     .addOnSuccessListener {
                         onSuccess()

@@ -608,7 +608,6 @@ class TodayFragment : Fragment() {
             }
     }
 
-    // VERSIÓN CORREGIDA - Reemplaza el método crearContenidoExtra() completo:
     private fun crearContenidoExtra(habito: Habito): LinearLayout {
         val extraLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
@@ -716,7 +715,6 @@ class TodayFragment : Fragment() {
 
         return extraLayout
     }
-    // MANTÉN la función cargarImagenEnMiniatura() tal como está:
     private fun cargarImagenEnMiniatura(url: String, imageView: ImageView, loadingText: TextView, deleteButton: ImageView) {
         Thread {
             try {
@@ -766,7 +764,6 @@ class TodayFragment : Fragment() {
             .show()
     }
 
-    // Agrega este método para eliminar la imagen:
     private fun eliminarImagenDelHabito(habito: Habito) {
         val desafio = desafiosActivos.find { desafio ->
             desafio.habitos.any { it.nombre == habito.nombre }
@@ -787,7 +784,6 @@ class TodayFragment : Fragment() {
         Toast.makeText(requireContext(), "Imagen eliminada", Toast.LENGTH_SHORT).show()
         Log.d(TAG, "Imagen eliminada del hábito: ${habito.nombre}")
     }
-
 
     private fun abrirImagenEnNavegador(url: String) {
         mostrarImagenEnDialogo(url)
@@ -852,6 +848,7 @@ class TodayFragment : Fragment() {
             Toast.makeText(context, "Error al mostrar imagen", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun toggleHabito(desafio: Desafio, habito: Habito, checkbox: ImageView) {
         habito.completado = !habito.completado
 
@@ -1014,7 +1011,6 @@ class TodayFragment : Fragment() {
             .show()
     }
 
-    // MÉTODO CORREGIDO - El problema principal estaba aquí
     private fun subirFotoYGuardarComentario(bitmap: Bitmap, comentario: String) {
         val habitoInfo = habitoSeleccionadoParaFoto ?: return
         val (desafioId, habitoNombre) = habitoInfo

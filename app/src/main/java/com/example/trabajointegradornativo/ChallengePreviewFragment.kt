@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
@@ -78,10 +77,8 @@ class ChallengePreviewFragment : Fragment() {
             defaultChallengeType = bundle.getString("defaultChallengeType", "")
 
             if (challengeId != null && !isDefaultChallenge) {
-                // Cargar desde Firestore (desafíos públicos)
                 loadFullChallengeFromFirestore(challengeId)
             } else {
-                // Cargar desde argumentos (desafíos por defecto o datos directos)
                 loadChallengeFromArguments(bundle)
             }
         }
@@ -152,7 +149,6 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
-
     private fun createHabitPreviewItem(habito: Habito): View {
         val habitLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -167,21 +163,8 @@ class ChallengePreviewFragment : Fragment() {
             this.layoutParams = layoutParams
         }
 
-        // Ícono del hábito (círculo vacío)
-//        val iconView = android.widget.ImageView(requireContext()).apply {
-//            setImageResource(R.drawable.ic_circle_empty)
-//            setColorFilter(resources.getColor(R.color.gray_text, null))
-//            layoutParams = LinearLayout.LayoutParams(
-//                24.dpToPx(),
-//                24.dpToPx()
-//            ).apply {
-//                setMargins(0, 0, 12.dpToPx(), 0)
-//            }
-//        }
-
-        // Texto del hábito - SOLO EL NOMBRE
         val textView = TextView(requireContext()).apply {
-            text = habito.nombre  // Solo el nombre, sin emojis
+            text = habito.nombre
             textSize = 16f
             setTextColor(resources.getColor(R.color.dark_text, null))
             layoutParams = LinearLayout.LayoutParams(
@@ -191,14 +174,12 @@ class ChallengePreviewFragment : Fragment() {
             )
         }
 
-//        habitLayout.addView(iconView)
         habitLayout.addView(textView)
 
         return habitLayout
     }
 
     private fun loadChallengeFromArguments(bundle: Bundle) {
-        // Método de respaldo para mantener compatibilidad
         val challengeName = bundle.getString("challengeName")
         val challengeAuthor = bundle.getString("challengeAuthor")
         val challengeDescription = bundle.getString("challengeDescription")
@@ -255,7 +236,6 @@ class ChallengePreviewFragment : Fragment() {
     private fun createHabitPreviewItem(habitText: String): View {
         val inflater = LayoutInflater.from(requireContext())
 
-        // Crear un LinearLayout para el hábito
         val habitLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(12.dpToPx(), 12.dpToPx(), 12.dpToPx(), 12.dpToPx())
@@ -269,7 +249,6 @@ class ChallengePreviewFragment : Fragment() {
             this.layoutParams = layoutParams
         }
 
-        // Ícono del hábito (círculo sin check)
         val iconView = android.widget.ImageView(requireContext()).apply {
             setImageResource(R.drawable.ic_circle_empty)
             setColorFilter(resources.getColor(R.color.gray_text, null))
@@ -281,7 +260,6 @@ class ChallengePreviewFragment : Fragment() {
             }
         }
 
-        // Texto del hábito
         val textView = TextView(requireContext()).apply {
             text = habitText
             textSize = 16f
@@ -317,7 +295,6 @@ class ChallengePreviewFragment : Fragment() {
         val inflater = LayoutInflater.from(requireContext())
         val tagView = inflater.inflate(R.layout.item_tag_public, null, false)
 
-        // Configurar los LayoutParams para FlexboxLayout
         tagView.layoutParams = FlexboxLayout.LayoutParams(
             FlexboxLayout.LayoutParams.WRAP_CONTENT,
             FlexboxLayout.LayoutParams.WRAP_CONTENT
@@ -325,7 +302,6 @@ class ChallengePreviewFragment : Fragment() {
             setMargins(0, 0, 8.dpToPx(), 4.dpToPx())
         }
 
-        // Configurar el texto
         val tvTagText = tagView.findViewById<TextView>(R.id.tag_text_public)
         tvTagText.text = "#${tagText}"
 
@@ -341,10 +317,8 @@ class ChallengePreviewFragment : Fragment() {
         }
 
         if (isDefaultChallenge) {
-            // Para desafíos por defecto, usar la función de creación existente
             createDefaultChallengeForUser()
         } else {
-            // Para desafíos públicos, verificar duplicados primero
             checkIfChallengeExists(challenge) { exists ->
                 if (exists) {
                     Toast.makeText(
@@ -365,19 +339,15 @@ class ChallengePreviewFragment : Fragment() {
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         val userId = currentUser?.uid ?: return
 
-        // Obtener la configuración del desafío por defecto
         val challengeData = getInitialChallengeForObjective(defaultChallengeType)
         val challengesRef = db.collection("usuarios").document(userId).collection("desafios")
 
-        // 1. Crear el desafío principal
         challengesRef.add(challengeData)
             .addOnSuccessListener { documentRef ->
-                // 2. Crear la estructura de días usando batch
                 val batch = db.batch()
                 val dias = challengeData["dias"] as? Int ?: 30
                 val habitos = challengeData["habitos"] as? List<Map<String, Any>> ?: emptyList()
 
-                // Convertir hábitos a la estructura que necesita cada día
                 val habitosParaDias = habitos.map { habito ->
                     mapOf(
                         "nombre" to (habito["nombre"] ?: ""),
@@ -385,15 +355,12 @@ class ChallengePreviewFragment : Fragment() {
                     )
                 }
 
-                // Obtener la fecha actual para calcular las fechas de cada día
                 val fechaInicio = java.util.Calendar.getInstance()
                 val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
 
-                // Crear cada día del desafío
                 for (i in 1..dias) {
                     val diaRef = documentRef.collection("dias").document("dia_$i")
 
-                    // Calcular la fecha para este día
                     val fechaDia = java.util.Calendar.getInstance().apply {
                         time = fechaInicio.time
                         add(java.util.Calendar.DAY_OF_YEAR, i - 1)
@@ -409,7 +376,6 @@ class ChallengePreviewFragment : Fragment() {
                     batch.set(diaRef, dataDia)
                 }
 
-                // 3. Ejecutar el batch
                 batch.commit()
                     .addOnSuccessListener {
                         Toast.makeText(
@@ -438,7 +404,6 @@ class ChallengePreviewFragment : Fragment() {
             }
     }
 
-    // Método para obtener la configuración del desafío (copia del ItemListFragment)
     private fun getInitialChallengeForObjective(objective: String): HashMap<String, Any> {
         val currentTime = com.google.firebase.Timestamp.now()
         return when (objective) {
@@ -542,7 +507,6 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
-    // Método adicional para verificar si el usuario ya tiene este desafío
     private fun checkIfChallengeExists(challenge: DesafioPublico, onResult: (Boolean) -> Unit) {
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
 
@@ -572,12 +536,10 @@ class ChallengePreviewFragment : Fragment() {
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         val userId = currentUser?.uid ?: return
 
-        // Convertir los hábitos al formato Habit de tu estructura
         val habitosList = challenge.habitos.map { habito ->
             hashMapOf("nombre" to habito.nombre)
         }
 
-        // Determinar el tipo basado en las etiquetas o usar un valor por defecto
         val tipo = if (challenge.etiquetas.isNotEmpty()) {
             challenge.etiquetas.first().lowercase()
         } else {
@@ -590,21 +552,19 @@ class ChallengePreviewFragment : Fragment() {
             "dias" to challenge.dias,
             "habitos" to habitosList,
             "fechaCreacion" to com.google.firebase.Timestamp.now(),
-            "fechaInicio" to null, // null inicialmente hasta que el usuario lo inicie
-            "estado" to "activo", // El usuario debe activarlo manualmente
+            "fechaInicio" to null,
+            "estado" to "activo",
             "completado" to false,
-            "completados" to 0, // Ningún hábito completado inicialmente
+            "completados" to 0,
             "tipo" to tipo,
             "totalHabitos" to challenge.habitos.size
         )
 
-        // Primero guardar el desafío principal
         db.collection("usuarios")
             .document(userId)
             .collection("desafios")
             .add(personalChallenge)
             .addOnSuccessListener { documentReference ->
-                // Una vez guardado el desafío, crear todos los días
                 createDaysForChallenge(documentReference.id, challenge.dias, challenge.habitos)
             }
             .addOnFailureListener { exception ->
@@ -628,11 +588,9 @@ class ChallengePreviewFragment : Fragment() {
             .document(desafioId)
             .collection("dias")
 
-        // Obtener la fecha actual para calcular las fechas de cada día
         val calendar = java.util.Calendar.getInstance()
 
         for (i in 1..duracionDias) {
-            // Crear los hábitos para este día
             val habitosDia = habitos.map { habito ->
                 hashMapOf(
                     "nombre" to habito.nombre,
@@ -640,11 +598,10 @@ class ChallengePreviewFragment : Fragment() {
                 )
             }
 
-            // Formatear la fecha en formato YYYY-MM-DD
             val fechaRealizacion = String.format(
                 "%04d-%02d-%02d",
                 calendar.get(java.util.Calendar.YEAR),
-                calendar.get(java.util.Calendar.MONTH) + 1, // Los meses van de 0-11
+                calendar.get(java.util.Calendar.MONTH) + 1,
                 calendar.get(java.util.Calendar.DAY_OF_MONTH)
             )
 
@@ -656,15 +613,12 @@ class ChallengePreviewFragment : Fragment() {
                 "habitos" to habitosDia
             )
 
-            // Agregar al batch
             val diaDocRef = diasCollection.document("dia_$i")
             batch.set(diaDocRef, diaData)
 
-            // Avanzar al siguiente día
             calendar.add(java.util.Calendar.DAY_OF_MONTH, 1)
         }
 
-        // Ejecutar el batch para crear todos los días de una vez
         batch.commit()
             .addOnSuccessListener {
                 Toast.makeText(
@@ -684,11 +638,6 @@ class ChallengePreviewFragment : Fragment() {
             }
     }
 
-
-
-
-
-    // Función auxiliar para convertir dp a px
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
     }

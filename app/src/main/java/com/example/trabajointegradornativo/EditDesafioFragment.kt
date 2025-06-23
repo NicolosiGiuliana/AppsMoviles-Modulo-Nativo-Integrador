@@ -27,24 +27,21 @@ class EditDesafioFragment : Fragment() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // UI Components
     private lateinit var etDescripcion: EditText
     private lateinit var habitosContainer: LinearLayout
     private lateinit var btnAgregarHabito: FloatingActionButton
     private lateinit var btnGuardar: Button
     private lateinit var btnCancelar: Button
 
-    // Nuevos componentes para etiquetas
     private lateinit var chipGroupEtiquetas: ChipGroup
     private lateinit var btnAgregarEtiqueta: FloatingActionButton
 
-    // Data
     private val habitos = mutableListOf<HabitoItem>()
     private val etiquetas = mutableListOf<String>()
 
     private var cambiosRealizados = false
-    private val habitosOriginales = mutableListOf<HabitoItem>() // Estado original de los hábitos
-    private val cambiosPendientes = mutableMapOf<Int, Boolean>() // Cambios temporales por índice
+    private val habitosOriginales = mutableListOf<HabitoItem>()
+    private val cambiosPendientes = mutableMapOf<Int, Boolean>()
 
     data class HabitoItem(
         var nombre: String,
@@ -81,7 +78,6 @@ class EditDesafioFragment : Fragment() {
         btnGuardar = view.findViewById(R.id.btn_guardar)
         btnCancelar = view.findViewById(R.id.btn_cancelar)
 
-        // Inicializar componentes de etiquetas
         chipGroupEtiquetas = view.findViewById(R.id.chip_group_etiquetas)
         btnAgregarEtiqueta = view.findViewById(R.id.btn_agregar_etiqueta)
     }
@@ -108,17 +104,14 @@ class EditDesafioFragment : Fragment() {
     }
 
     private fun revertirCambios() {
-        // Restaurar estados originales
         for (i in habitos.indices) {
             if (i < habitosOriginales.size) {
                 habitos[i].completado = habitosOriginales[i].completado
             }
         }
 
-        // Limpiar cambios pendientes
         cambiosPendientes.clear()
 
-        // Actualizar UI para mostrar estados originales
         actualizarUIHabitos()
     }
 
@@ -132,11 +125,9 @@ class EditDesafioFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // Cargar descripción
                     val descripcion = document.getString("descripcion") ?: ""
                     etDescripcion.setText(descripcion)
 
-                    // Cargar hábitos
                     val habitosBase = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
                     habitos.clear()
 
@@ -146,12 +137,10 @@ class EditDesafioFragment : Fragment() {
                         habitos.add(HabitoItem(nombre, completado))
                     }
 
-                    // Asegurar mínimo 3 hábitos
                     while (habitos.size < 3) {
                         habitos.add(HabitoItem("Nuevo hábito ${habitos.size + 1}", false, true))
                     }
 
-                    // Cargar etiquetas
                     val etiquetasBase = document.get("etiquetas") as? List<String> ?: emptyList()
                     etiquetas.clear()
                     etiquetas.addAll(etiquetasBase)
@@ -183,7 +172,6 @@ class EditDesafioFragment : Fragment() {
                     val diaDoc = diasSnapshot.documents[0]
                     val habitosDelDia = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
 
-                    // Actualizar el estado de los hábitos con los datos del día actual
                     for ((index, habitoDelDia) in habitosDelDia.withIndex()) {
                         if (index < habitos.size) {
                             val completado = habitoDelDia["completado"] as? Boolean ?: false
@@ -193,10 +181,8 @@ class EditDesafioFragment : Fragment() {
                     habitosOriginales.clear()
                     habitosOriginales.addAll(habitos.map { it.copy() })
 
-                    // Limpiar cambios pendientes
                     cambiosPendientes.clear()
 
-                    // Refrescar la UI con los estados actualizados
                     actualizarUIHabitos()
                 }
             }
@@ -219,21 +205,17 @@ class EditDesafioFragment : Fragment() {
             etNombre.setText(habito.nombre)
             switchCompletado.isChecked = habito.completado
 
-            // Listener para cambios en el nombre
             etNombre.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
                     habitos[index].nombre = etNombre.text.toString().trim()
                 }
             }
 
-            // Listener para cambios en el estado - MEJORADO
             switchCompletado.setOnCheckedChangeListener { _, isChecked ->
                 habitos[index].completado = isChecked
-                // NO guardar inmediatamente, solo marcar como cambio pendiente
                 cambiosPendientes[index] = isChecked
             }
 
-            // Listener para eliminar hábito
             btnEliminar.setOnClickListener {
                 if (habitos.size > 3) {
                     mostrarDialogoEliminarHabito(index)
@@ -242,7 +224,6 @@ class EditDesafioFragment : Fragment() {
                 }
             }
 
-            // Deshabilitar eliminación si solo hay 3 hábitos
             btnEliminar.isEnabled = habitos.size > 3
             btnEliminar.alpha = if (habitos.size > 3) 1.0f else 0.5f
 
@@ -250,32 +231,6 @@ class EditDesafioFragment : Fragment() {
         }
     }
 
-    private fun actualizarHabitoEnDiaActual(habitoIndex: Int, completado: Boolean) {
-        val uid = auth.currentUser?.uid ?: return
-        val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-
-        firestore.collection("usuarios")
-            .document(uid)
-            .collection("desafios")
-            .document(desafio.id)
-            .collection("dias")
-            .whereEqualTo("fechaRealizacion", fechaHoy)
-            .get()
-            .addOnSuccessListener { diasSnapshot ->
-                if (!diasSnapshot.isEmpty) {
-                    val diaDoc = diasSnapshot.documents[0]
-                    val habitosDelDia = (diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()).toMutableList()
-
-                    if (habitoIndex < habitosDelDia.size) {
-                        val habitoActualizado = habitosDelDia[habitoIndex].toMutableMap()
-                        habitoActualizado["completado"] = completado
-                        habitosDelDia[habitoIndex] = habitoActualizado
-
-                        diaDoc.reference.update("habitos", habitosDelDia)
-                    }
-                }
-            }
-    }
 
     private fun actualizarUIEtiquetas() {
         chipGroupEtiquetas.removeAllViews()
@@ -285,12 +240,10 @@ class EditDesafioFragment : Fragment() {
                 text = etiqueta
                 isCloseIconVisible = true
 
-                // Configurar estilo del chip
                 setChipBackgroundColorResource(R.color.primary_green)
                 setTextColor(resources.getColor(android.R.color.white, null))
                 setCloseIconTintResource(android.R.color.white)
 
-                // Listener para eliminar etiqueta
                 setOnCloseIconClickListener {
                     etiquetas.remove(etiqueta)
                     actualizarUIEtiquetas()
@@ -359,20 +312,17 @@ class EditDesafioFragment : Fragment() {
     }
 
     private fun validarDatos(): Boolean {
-        // Validar descripción
         val descripcion = etDescripcion.text.toString().trim()
         if (descripcion.isEmpty()) {
             etDescripcion.error = "La descripción es obligatoria"
             return false
         }
 
-        // Validar hábitos
         if (habitos.size < 3) {
             Toast.makeText(context, "Debe haber al menos 3 hábitos", Toast.LENGTH_SHORT).show()
             return false
         }
 
-        // Actualizar nombres de hábitos desde los EditText
         for (i in habitos.indices) {
             val habitoView = habitosContainer.getChildAt(i)
             val etNombre = habitoView.findViewById<EditText>(R.id.et_habito_nombre)
@@ -393,7 +343,6 @@ class EditDesafioFragment : Fragment() {
         val uid = auth.currentUser?.uid ?: return
         val descripcion = etDescripcion.text.toString().trim()
 
-        // Preparar datos para actualizar
         val habitosMap = habitos.map { habito ->
             mapOf(
                 "nombre" to habito.nombre,
@@ -407,7 +356,6 @@ class EditDesafioFragment : Fragment() {
             "etiquetas" to etiquetas
         )
 
-        // Mostrar progress
         val progressDialog = android.app.ProgressDialog(requireContext()).apply {
             setMessage("Guardando cambios...")
             setCancelable(false)
@@ -420,14 +368,11 @@ class EditDesafioFragment : Fragment() {
             .document(desafio.id)
             .update(updates)
             .addOnSuccessListener {
-                // AGREGAR: Guardar cambios de hábitos del día actual
                 guardarCambiosHabitosDelDia {
                     progressDialog.dismiss()
                     actualizarDiasConNuevosHabitos(uid) {
-                        // Marcar que se realizaron cambios
                         cambiosRealizados = true
 
-                        // Enviar resultado al ItemDetailFragment
                         val bundle = Bundle().apply {
                             putBoolean("cambios_realizados", true)
                         }
@@ -466,7 +411,6 @@ class EditDesafioFragment : Fragment() {
                     val diaDoc = diasSnapshot.documents[0]
                     val habitosDelDia = (diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()).toMutableList()
 
-                    // Aplicar todos los cambios pendientes
                     for ((index, nuevoEstado) in cambiosPendientes) {
                         if (index < habitosDelDia.size) {
                             val habitoActualizado = habitosDelDia[index].toMutableMap()
@@ -475,10 +419,8 @@ class EditDesafioFragment : Fragment() {
                         }
                     }
 
-                    // Verificar si todos los hábitos están completados para actualizar el estado del día
                     val todosCompletados = habitosDelDia.all { (it["completado"] as? Boolean) == true }
 
-                    // Actualizar tanto los hábitos como el estado del día
                     val updatesDelDia = mapOf(
                         "habitos" to habitosDelDia,
                         "completado" to todosCompletados
@@ -492,7 +434,7 @@ class EditDesafioFragment : Fragment() {
                         }
                         .addOnFailureListener { e ->
                             Log.e("EditDesafio", "Error al guardar cambios de hábitos: ${e.message}")
-                            callback() // Continuar aunque falle
+                            callback()
                         }
                 } else {
                     callback()
@@ -505,7 +447,6 @@ class EditDesafioFragment : Fragment() {
     }
 
     private fun actualizarDiasConNuevosHabitos(uid: String, callback: () -> Unit) {
-        // Obtener todos los días del desafío
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -519,18 +460,15 @@ class EditDesafioFragment : Fragment() {
                     val habitosActuales = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
                     val nuevosHabitos = mutableListOf<Map<String, Any>>()
 
-                    // Mantener hábitos existentes y agregar nuevos
                     for ((index, nuevoHabito) in habitos.withIndex()) {
                         val habitoExistente = habitosActuales.getOrNull(index)
 
                         if (habitoExistente != null) {
-                            // Mantener el estado del hábito existente pero actualizar el nombre
                             nuevosHabitos.add(mapOf(
                                 "nombre" to nuevoHabito.nombre,
                                 "completado" to (habitoExistente["completado"] as? Boolean ?: false)
                             ))
                         } else {
-                            // Nuevo hábito - usar el estado del hábito principal
                             nuevosHabitos.add(mapOf(
                                 "nombre" to nuevoHabito.nombre,
                                 "completado" to nuevoHabito.completado
@@ -554,19 +492,18 @@ class EditDesafioFragment : Fragment() {
                     }
                     .addOnFailureListener { e ->
                         Log.e("EditDesafio", "Error al actualizar días: ${e.message}")
-                        callback() // Continuar aunque falle la actualización de días
+                        callback()
                     }
             }
             .addOnFailureListener { e ->
                 Log.e("EditDesafio", "Error al obtener días: ${e.message}")
-                callback() // Continuar aunque falle
+                callback()
             }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
 
-        // Si hay cambios sin guardar, también envía la señal
         if (cambiosRealizados) {
             val bundle = Bundle().apply {
                 putBoolean("cambios_realizados", true)

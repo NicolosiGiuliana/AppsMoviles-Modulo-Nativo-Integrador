@@ -15,12 +15,10 @@ class ImgBBUploader {
     companion object {
         private const val TAG = "ImgBBUploader"
         private const val IMGBB_API_URL = "https://api.imgbb.com/1/upload"
-        // Tu API key está aquí - ¡perfecto!
         private const val API_KEY = "3fc24a14a9488f101644740df249948a"
         private const val JPEG_QUALITY = 80
     }
 
-    // Clases para manejar la respuesta de ImgBB
     data class ImgBBResponse(
         @SerializedName("data") val data: ImgBBData?,
         @SerializedName("success") val success: Boolean,
@@ -89,7 +87,6 @@ class ImgBBUploader {
     private val gson = Gson()
 
     fun uploadImage(bitmap: Bitmap, callback: UploadCallback) {
-        // Convertir bitmap a base64
         val base64Image = bitmapToBase64(bitmap)
 
         if (base64Image == null) {
@@ -100,14 +97,12 @@ class ImgBBUploader {
         Log.d(TAG, "Iniciando subida a ImgBB...")
         callback.onProgress(10)
 
-        // Crear el cuerpo de la petición
         val requestBody = FormBody.Builder()
             .add("key", API_KEY)
             .add("image", base64Image)
             .add("name", "profile_${System.currentTimeMillis()}")
             .build()
 
-        // Crear la petición
         val request = Request.Builder()
             .url(IMGBB_API_URL)
             .post(requestBody)
@@ -115,7 +110,6 @@ class ImgBBUploader {
 
         callback.onProgress(30)
 
-        // Ejecutar la petición de forma asíncrona
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(TAG, "Error en la petición HTTP", e)

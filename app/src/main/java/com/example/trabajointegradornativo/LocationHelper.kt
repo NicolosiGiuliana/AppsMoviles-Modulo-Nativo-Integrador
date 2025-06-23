@@ -27,7 +27,6 @@ class LocationHelper(private val context: Context) {
 
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        // Verificar si el GPS está habilitado
         if (!isGPSEnabled()) {
             callback.onLocationError("GPS deshabilitado. Por favor, actívalo en configuración")
             return
@@ -38,10 +37,8 @@ class LocationHelper(private val context: Context) {
                 val latitude = location.latitude
                 val longitude = location.longitude
 
-                // Obtener dirección legible (opcional)
                 val address = getAddressFromLocation(latitude, longitude)
 
-                // Detener las actualizaciones después de obtener la primera ubicación
                 stopLocationUpdates()
 
                 callback.onLocationReceived(latitude, longitude, address)
@@ -55,7 +52,6 @@ class LocationHelper(private val context: Context) {
         }
 
         try {
-            // Intentar obtener la última ubicación conocida primero
             val lastKnownLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             if (lastKnownLocation != null) {
                 val address = getAddressFromLocation(lastKnownLocation.latitude, lastKnownLocation.longitude)
@@ -63,11 +59,10 @@ class LocationHelper(private val context: Context) {
                 return
             }
 
-            // Si no hay ubicación conocida, solicitar actualizaciones
             locationManager?.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                5000, // 5 segundos
-                10f,  // 10 metros
+                5000,
+                10f,
                 locationListener!!
             )
 

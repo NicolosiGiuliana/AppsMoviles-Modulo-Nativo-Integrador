@@ -38,7 +38,6 @@ class DayDetailFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_day_detail, container, false)
 
-        // Obtener argumentos
         arguments?.let {
             dayNumber = it.getInt(ARG_DAY_NUMBER, 1)
             desafio = it.getParcelable("desafio")
@@ -52,7 +51,6 @@ class DayDetailFragment : Fragment() {
         val dayTextView = view.findViewById<TextView>(R.id.day_detail_text)
         dayTextView.text = getString(R.string.day_number, dayNumber)
 
-        // Cargar hábitos del día específico desde Firestore
         cargarHabitosDesafio(view)
 
         val completeButton = view.findViewById<Button>(R.id.complete_day_button)
@@ -69,7 +67,6 @@ class DayDetailFragment : Fragment() {
     private fun cargarHabitosDesafio(view: View) {
         val uid = auth.currentUser?.uid ?: return
 
-        // Primero intentar cargar desde el día específico
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -79,24 +76,20 @@ class DayDetailFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // Si el día existe, cargar hábitos desde ahí
                     val habitos = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
                     habitosDesafio.clear()
                     habitosDesafio.addAll(habitos)
 
                     Log.d("DayDetailFragment", "Hábitos cargados desde día específico: ${habitosDesafio.size}")
 
-                    // Cargar estados de completado
                     cargarEstadoHabitos(view)
                 } else {
-                    // Si el día no existe, crear los hábitos base desde el desafío
                     Log.d("DayDetailFragment", "Día no existe, creando hábitos base")
                     crearHabitosBaseDia(view)
                 }
             }
             .addOnFailureListener { e ->
                 Log.e("DayDetailFragment", "Error al cargar hábitos del día: ${e.message}")
-                // Intentar crear hábitos base como fallback
                 crearHabitosBaseDia(view)
             }
     }
@@ -104,7 +97,6 @@ class DayDetailFragment : Fragment() {
     private fun crearHabitosBaseDia(view: View) {
         val uid = auth.currentUser?.uid ?: return
 
-        // Cargar hábitos base del desafío para crear el día
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -114,7 +106,6 @@ class DayDetailFragment : Fragment() {
                 if (document.exists()) {
                     val habitosBase = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
 
-                    // Crear hábitos para este día con estado inicial false
                     val habitosParaGuardar = habitosBase.map { habito ->
                         hashMapOf(
                             "nombre" to (habito["nombre"] as? String ?: ""),
@@ -122,7 +113,6 @@ class DayDetailFragment : Fragment() {
                         )
                     }
 
-                    // Guardar en el día específico
                     firestore.collection("usuarios")
                         .document(uid)
                         .collection("desafios")
@@ -136,7 +126,6 @@ class DayDetailFragment : Fragment() {
                         ))
                         .addOnSuccessListener {
                             Log.d("DayDetailFragment", "Día creado con hábitos base")
-                            // Recargar después de crear
                             cargarHabitosDesafio(view)
                         }
                         .addOnFailureListener { e ->
@@ -157,7 +146,6 @@ class DayDetailFragment : Fragment() {
     private fun cargarEstadoHabitos(view: View) {
         habitosCompletados.clear()
 
-        // Los estados ya están en habitosDesafio, extraerlos
         habitosDesafio.forEachIndexed { index, habito ->
             val completado = habito["completado"] as? Boolean ?: false
             habitosCompletados[index] = completado
@@ -165,14 +153,12 @@ class DayDetailFragment : Fragment() {
 
         Log.d("DayDetailFragment", "Estados de hábitos cargados: $habitosCompletados")
 
-        // Mostrar hábitos en la UI
         mostrarHabitos(view)
     }
 
     private fun mostrarHabitos(view: View) {
         val rootLayout = view.findViewById<LinearLayout>(R.id.day_detail_container)
 
-        // Limpiar hábitos existentes (mantener solo título y botón)
         val childrenToRemove = mutableListOf<View>()
         for (i in 0 until rootLayout.childCount) {
             val child = rootLayout.getChildAt(i)
@@ -182,7 +168,6 @@ class DayDetailFragment : Fragment() {
         }
         childrenToRemove.forEach { rootLayout.removeView(it) }
 
-        // Agregar hábitos del desafío
         val inflater = LayoutInflater.from(requireContext())
 
         habitosDesafio.forEachIndexed { index, habito ->
@@ -194,13 +179,11 @@ class DayDetailFragment : Fragment() {
 
             nombreHabito.text = habito["nombre"] as? String ?: getString(R.string.habit_name_default)
 
-            // Establecer estado inicial del ícono
             val completado = habitosCompletados[index] ?: false
             iconoHabito.setImageResource(
                 if (completado) R.drawable.ic_check_green else R.drawable.ic_circle_empty
             )
 
-            // Manejar click
             habitoView.setOnClickListener {
                 val nuevoEstado = !habitosCompletados.getOrDefault(index, false)
                 habitosCompletados[index] = nuevoEstado
@@ -212,7 +195,6 @@ class DayDetailFragment : Fragment() {
                 guardarEstadoHabito(index, nuevoEstado)
             }
 
-            // Insertar antes del botón (que debería ser el último elemento)
             val buttonIndex = rootLayout.childCount - 1
             rootLayout.addView(habitoView, buttonIndex)
         }
@@ -221,10 +203,8 @@ class DayDetailFragment : Fragment() {
     private fun guardarEstadoHabito(index: Int, completado: Boolean) {
         val uid = auth.currentUser?.uid ?: return
 
-        // Actualizar el estado local
         habitosCompletados[index] = completado
 
-        // Preparar datos de hábitos para guardar
         val habitosParaGuardar = habitosDesafio.mapIndexed { i, habito ->
             hashMapOf(
                 "nombre" to (habito["nombre"] as? String ?: ""),
@@ -251,7 +231,6 @@ class DayDetailFragment : Fragment() {
     private fun completarDia() {
         val uid = auth.currentUser?.uid ?: return
 
-        // Verificar si todos los hábitos están completados
         val todosCompletados = habitosDesafio.indices.all { index ->
             habitosCompletados.getOrDefault(index, false)
         }
@@ -261,7 +240,6 @@ class DayDetailFragment : Fragment() {
             return
         }
 
-        // Marcar día como completado en Firestore
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -274,14 +252,11 @@ class DayDetailFragment : Fragment() {
                 "fecha_completado" to com.google.firebase.Timestamp.now()
             ))
             .addOnSuccessListener {
-                // Mensaje de día completado traducido correctamente
                 val dayCompletedMessage = "${getString(R.string.day_number, dayNumber)} ${getString(R.string.completed)}!"
                 Toast.makeText(context, dayCompletedMessage, Toast.LENGTH_SHORT).show()
 
-                // Actualizar contador de días completados en el desafío
                 actualizarContadorDiasCompletados()
 
-                // Volver automáticamente a ItemDetailFragment
                 findNavController().popBackStack()
             }
             .addOnFailureListener { e ->
@@ -316,28 +291,24 @@ class DayDetailFragment : Fragment() {
     private fun setupBottomNavigation() {
         val view = requireView()
 
-        // Home
         val homeLayout = view.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(0) as? LinearLayout
         homeLayout?.setOnClickListener {
             navigateToHome()
         }
 
-        // Hoy (ya estamos aquí)
         val todayLayout = view.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
             updateBottomNavigationColors("today")
         }
 
-        // Configuración (deshabilitado por ahora)
         val settingsLayout = view.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(2) as? LinearLayout
         settingsLayout?.setOnClickListener {
             Toast.makeText(context, getString(R.string.settings_coming_soon), Toast.LENGTH_SHORT).show()
         }
 
-        // Establecer colores iniciales
         updateBottomNavigationColors("today")
     }
 
@@ -358,22 +329,18 @@ class DayDetailFragment : Fragment() {
         val view = requireView()
         val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        // Home
         val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
         val homeIcon = homeLayout?.getChildAt(0) as? ImageView
         val homeText = homeLayout?.getChildAt(1) as? TextView
 
-        // Hoy
         val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
         val todayIcon = todayLayout?.getChildAt(0) as? ImageView
         val todayText = todayLayout?.getChildAt(1) as? TextView
 
-        // Configuración
         val settingsLayout = bottomNav?.getChildAt(2) as? LinearLayout
         val settingsIcon = settingsLayout?.getChildAt(0) as? ImageView
         val settingsText = settingsLayout?.getChildAt(1) as? TextView
 
-        // Colores
         val activeColor = ContextCompat.getColor(requireContext(), R.color.primary_green)
         val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
         val disabledColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
@@ -393,7 +360,6 @@ class DayDetailFragment : Fragment() {
             }
         }
 
-        // Configuración siempre deshabilitada
         settingsIcon?.setColorFilter(disabledColor)
         settingsText?.setTextColor(disabledColor)
     }

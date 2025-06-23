@@ -19,7 +19,6 @@ import java.util.Locale
 
 class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
-    // Views principales
     private lateinit var nombreInput: EditText
     private lateinit var descripcionInput: EditText
     private lateinit var habitoInput1: EditText
@@ -29,53 +28,44 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     private lateinit var cancelarButton: TextView
     private lateinit var agregarHabitoButton: TextView
 
-    // Opciones de duración
     private lateinit var option30Days: TextView
     private lateinit var option45Days: TextView
     private lateinit var option75Days: TextView
 
-    // Ubicación
     private lateinit var layoutSelectLocation: LinearLayout
     private lateinit var textUbicacionSeleccionada: TextView
     private lateinit var buttonObtenerUbicacion: Button
     private lateinit var buttonEliminarUbicacion: Button
     private lateinit var checkboxUbicacionOpcional: CheckBox
 
-    // NUEVOS ELEMENTOS - Etiquetas
     private lateinit var inputNewTag: EditText
     private lateinit var buttonAddTag: Button
     private lateinit var tagsContainer: LinearLayout
 
-    // NUEVOS ELEMENTOS - Visibilidad
     private lateinit var radioGroupVisibility: RadioGroup
     private lateinit var radioPublic: RadioButton
     private lateinit var radioPrivate: RadioButton
 
-    // Variables para almacenar datos
-    private var duracionSeleccionada = 30 // Por defecto 30 días
+    private var duracionSeleccionada = 30
     private val habitosAdicionales = mutableListOf<EditText>()
     private var ubicacionSeleccionada: String? = null
     private var latitudSeleccionada: Double? = null
     private var longitudSeleccionada: Double? = null
 
-    // NUEVAS VARIABLES - Etiquetas y visibilidad
     private val etiquetasAgregadas = mutableListOf<String>()
-    private var esPublico = true // Por defecto público
+    private var esPublico = true
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // Helper para geolocalización
     private lateinit var locationHelper: LocationHelper
 
-    // Launcher para solicitar permisos
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         when {
             permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
                     permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true -> {
-                // Permisos concedidos, obtener ubicación
                 obtenerUbicacionActual()
             }
 
@@ -92,7 +82,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     ): View {
         val view = inflater.inflate(R.layout.fragment_create_challenge, container, false)
 
-        // Inicializar helper de ubicación
         locationHelper = LocationHelper(requireContext())
 
         inicializarViews(view)
@@ -102,44 +91,36 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     }
 
     private fun inicializarViews(view: View) {
-        // Inputs principales
         nombreInput = view.findViewById(R.id.inputChallengeName)
         descripcionInput = view.findViewById(R.id.inputChallengeDescription)
         habitoInput1 = view.findViewById(R.id.inputHabit1)
         habitoInput2 = view.findViewById(R.id.inputHabit2)
         habitoInput3 = view.findViewById(R.id.inputHabit3)
 
-        // Botones
         crearButton = view.findViewById(R.id.buttonCreateChallenge)
         cancelarButton = view.findViewById(R.id.buttonCancel)
         agregarHabitoButton = view.findViewById(R.id.buttonAddHabit)
 
-        // Opciones de duración
         option30Days = view.findViewById(R.id.option30Days)
         option45Days = view.findViewById(R.id.option45Days)
         option75Days = view.findViewById(R.id.option75Days)
 
-        // Ubicación
         layoutSelectLocation = view.findViewById(R.id.layoutSelectLocation)
         textUbicacionSeleccionada = view.findViewById(R.id.textUbicacionSeleccionada)
         buttonObtenerUbicacion = view.findViewById(R.id.buttonObtenerUbicacion)
         buttonEliminarUbicacion = view.findViewById(R.id.buttonEliminarUbicacion)
         checkboxUbicacionOpcional = view.findViewById(R.id.checkboxUbicacionOpcional)
 
-        // NUEVAS INICIALIZACIONES - Etiquetas
         inputNewTag = view.findViewById(R.id.inputNewTag)
         buttonAddTag = view.findViewById(R.id.buttonAddTag)
         tagsContainer = view.findViewById(R.id.tagsContainer)
 
-        // NUEVAS INICIALIZACIONES - Visibilidad
         radioGroupVisibility = view.findViewById(R.id.radioGroupVisibility)
         radioPublic = view.findViewById(R.id.radioPublic)
         radioPrivate = view.findViewById(R.id.radioPrivate)
 
-        // Establecer 30 días como seleccionado por defecto
         seleccionarDuracion(option30Days, 30)
 
-        // Configurar estado inicial de ubicación
         actualizarEstadoUbicacion()
         if (esPublico) {
             checkboxUbicacionOpcional.visibility = View.GONE
@@ -147,38 +128,31 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     }
 
     private fun configurarEventos() {
-        // Eventos de duración
         option30Days.setOnClickListener { seleccionarDuracion(option30Days, 30) }
         option45Days.setOnClickListener { seleccionarDuracion(option45Days, 45) }
         option75Days.setOnClickListener { seleccionarDuracion(option75Days, 75) }
 
-        // Agregar hábito
         agregarHabitoButton.setOnClickListener { agregarNuevoHabito() }
 
-        // NUEVOS EVENTOS - Etiquetas
         buttonAddTag.setOnClickListener { agregarEtiqueta() }
         inputNewTag.setOnEditorActionListener { _, _, _ ->
             agregarEtiqueta()
             true
         }
 
-        // NUEVOS EVENTOS - Visibilidad
         radioGroupVisibility.setOnCheckedChangeListener { _, checkedId ->
             esPublico = checkedId == R.id.radioPublic
 
-            // Si se selecciona público, ocultar y limpiar ubicación
             if (esPublico) {
                 checkboxUbicacionOpcional.visibility = View.GONE
                 checkboxUbicacionOpcional.isChecked = false
                 layoutSelectLocation.visibility = View.GONE
                 limpiarUbicacion()
             } else {
-                // Si se selecciona privado, mostrar opción de ubicación
                 checkboxUbicacionOpcional.visibility = View.VISIBLE
             }
         }
 
-        // Eventos de ubicación
         checkboxUbicacionOpcional.setOnCheckedChangeListener { _, isChecked ->
             layoutSelectLocation.visibility = if (isChecked) View.VISIBLE else View.GONE
             if (!isChecked) {
@@ -189,12 +163,10 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         buttonObtenerUbicacion.setOnClickListener { solicitarUbicacion() }
         buttonEliminarUbicacion.setOnClickListener { limpiarUbicacion() }
 
-        // Botones principales
         crearButton.setOnClickListener { guardarDesafio() }
         cancelarButton.setOnClickListener { cancelarCreacion() }
     }
 
-    // NUEVOS MÉTODOS - Gestión de etiquetas
     private fun agregarEtiqueta() {
         val nuevaEtiqueta = inputNewTag.text.toString().trim()
 
@@ -270,10 +242,8 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     }
 
     private fun seleccionarDuracion(opcionSeleccionada: TextView, dias: Int) {
-        // Resetear todas las opciones
         resetearOpcionesDuracion()
 
-        // Marcar la opción seleccionada
         opcionSeleccionada.setBackgroundResource(R.drawable.duration_selected_background)
         opcionSeleccionada.setTextColor(resources.getColor(R.color.green_primary, null))
 
@@ -291,7 +261,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     private fun agregarNuevoHabito() {
         val containerPadre = view?.findViewById<LinearLayout>(R.id.habitosContainer)
 
-        if (habitosAdicionales.size < 2) { // Máximo 5 hábitos (3 fijos + 2 adicionales)
+        if (habitosAdicionales.size < 2) {
             val nuevoHabito = EditText(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -312,18 +282,15 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
             habitosAdicionales.add(nuevoHabito)
 
-            // Agregar antes del botón de agregar hábito
             val indexBotonAgregar = containerPadre?.indexOfChild(agregarHabitoButton) ?: 0
             containerPadre?.addView(nuevoHabito, indexBotonAgregar)
 
-            // Ocultar botón si llegamos al máximo
             if (habitosAdicionales.size >= 2) {
                 agregarHabitoButton.visibility = View.GONE
             }
         }
     }
 
-    // Métodos de geolocalización (sin cambios)
     private fun solicitarUbicacion() {
         if (tienePermisosUbicacion()) {
             obtenerUbicacionActual()
@@ -359,7 +326,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         locationHelper.getCurrentLocation(this)
     }
 
-    // Implementar LocationCallback
     override fun onLocationReceived(latitude: Double, longitude: Double, address: String) {
         latitudSeleccionada = latitude
         longitudSeleccionada = longitude
@@ -401,7 +367,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     private fun recopilarHabitos(): List<String> {
         val habitos = mutableListOf<String>()
 
-        // Agregar hábitos principales
         val habito1 = habitoInput1.text.toString().trim()
         val habito2 = habitoInput2.text.toString().trim()
         val habito3 = habitoInput3.text.toString().trim()
@@ -410,7 +375,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         if (habito2.isNotEmpty()) habitos.add(habito2)
         if (habito3.isNotEmpty()) habitos.add(habito3)
 
-        // Agregar hábitos adicionales
         habitosAdicionales.forEach { editText ->
             val habito = editText.text.toString().trim()
             if (habito.isNotEmpty()) habitos.add(habito)
@@ -471,7 +435,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         val uid = auth.currentUser?.uid!!
         val currentTime = com.google.firebase.Timestamp.now()
 
-        // CORREGIR: Crear estructura de ubicación con nombres correctos
         val ubicacionData = if (ubicacionSeleccionada != null && latitudSeleccionada != null && longitudSeleccionada != null) {
             mapOf(
                 "ubicacion_latitude" to latitudSeleccionada!!,
@@ -482,7 +445,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             emptyMap<String, Any>()
         }
 
-        // Crear estructura del desafío incluyendo etiquetas y visibilidad
         val desafioBase = hashMapOf(
             "nombre" to nombre,
             "descripcion" to descripcion,
@@ -496,7 +458,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             "totalHabitos" to habitos.size,
             "creadoPor" to uid,
             "estado" to "activo",
-            // NUEVOS CAMPOS - Etiquetas y visibilidad
             "etiquetas" to etiquetasAgregadas.toList(),
             "esPublico" to esPublico,
             "visibilidad" to if (esPublico) "publico" else "privado",
@@ -513,13 +474,11 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             )
         )
 
-        // Agregar datos de ubicación al documento principal
         desafioBase.putAll(ubicacionData)
 
         crearButton.isEnabled = false
         crearButton.text = "Creando..."
 
-        // 1. Crear el desafío con la estructura completa
         firestore.collection("usuarios")
             .document(uid)
             .collection("desafios")
@@ -528,7 +487,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
                 val batch = firestore.batch()
 
-                // 2. Crear los días dentro del desafío con sus hábitos
                 val habitosParaDias = habitos.map { habito ->
                     mapOf(
                         "nombre" to habito,
@@ -556,7 +514,6 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                     batch.set(diaRef, dataDia)
                 }
 
-                // 3. Si es público, también guardarlo en la colección pública
                 if (esPublico) {
                     val desafioPublico = desafioBase.toMutableMap().apply {
                         put("autorId", uid)
@@ -571,12 +528,10 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                     batch.set(publicRef, desafioPublico)
                 }
 
-                // 4. Commit de batch
                 batch.commit().addOnSuccessListener {
                     Toast.makeText(context, "¡Desafío creado exitosamente!", Toast.LENGTH_SHORT)
                         .show()
 
-                    // CORREGIR: Pasar el ID del desafío al Intent
                     val intent = Intent(requireContext(), ItemDetailHostActivity::class.java)
                     intent.putExtra("desafio_id", documentRef.id)
                     startActivity(intent)
@@ -600,12 +555,10 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
     }
 
     private fun cancelarCreacion() {
-        // Detener actualizaciones de ubicación si están activas
         locationHelper.stopLocationUpdates()
 
-        // Mostrar diálogo de confirmación si hay datos ingresados
         val hayDatos = nombreInput.text.toString().trim().isNotEmpty() ||
-                descripcionInput.text.toString().trim().isNotEmpty() || // Nueva línea
+                descripcionInput.text.toString().trim().isNotEmpty() ||
                 recopilarHabitos().isNotEmpty() ||
                 etiquetasAgregadas.isNotEmpty()
 

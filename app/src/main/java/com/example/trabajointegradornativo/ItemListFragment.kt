@@ -49,27 +49,21 @@ class ItemListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize SharedPreferences
         sharedPreferences = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
         ViewCompat.addOnUnhandledKeyEventListener(view) { _, _ -> false }
 
-        // Setup RecyclerViews
         setupRecyclerViews()
 
-        // Setup search functionality
         setupSearchBar()
 
-        // Load user data and setup welcome message
         loadUserData()
 
-        // Load data
         cargarDesafios()
         cargarDesafiosPorDefecto()
         setupCurrentDayCard()
         setupBottomNavigation()
 
-        // Setup FAB
         binding.fab?.setOnClickListener {
             findNavController().navigate(R.id.action_itemListFragment_to_createDesafioFragment)
         }
@@ -77,12 +71,10 @@ class ItemListFragment : Fragment() {
 
 
     private fun safeUpdateUI(action: () -> Unit) {
-        // Verificar que el Fragment esté adjunto y el binding no sea null
         if (isAdded && _binding != null && !isDetached) {
             try {
                 action()
             } catch (e: Exception) {
-                // Log el error si es necesario, pero no crashear
                 e.printStackTrace()
             }
         }
@@ -91,18 +83,15 @@ class ItemListFragment : Fragment() {
     private fun loadUserData() {
         val uid = auth.currentUser?.uid ?: return
 
-        // First try to get from SharedPreferences (faster)
         val savedName = sharedPreferences.getString("user_name", null)
         if (!savedName.isNullOrEmpty()) {
             updateWelcomeText(savedName)
         }
 
-        // Then get from Firestore (more up-to-date)
         firestore.collection("usuarios")
             .document(uid)
             .get()
             .addOnSuccessListener { document ->
-                // Verificar que el fragmento aún esté activo antes de procesar
                 if (!isAdded || _binding == null) return@addOnSuccessListener
 
                 if (document.exists()) {
@@ -112,34 +101,27 @@ class ItemListFragment : Fragment() {
                     auth.currentUser?.displayName ?:
                     getString(R.string.default_name)
 
-                    // Save to SharedPreferences for future use
                     sharedPreferences.edit()
                         .putString("user_name", userName)
                         .apply()
 
                     updateWelcomeText(userName)
                 } else {
-                    // If no user document exists, try to get from Firebase Auth
                     val userName = auth.currentUser?.displayName ?: getString(R.string.default_name)
                     updateWelcomeText(userName)
                 }
             }
             .addOnFailureListener {
-                // Verificar que el fragmento aún esté activo
                 if (!isAdded || _binding == null) return@addOnFailureListener
 
-                // Fallback to Firebase Auth or default
                 val userName = auth.currentUser?.displayName ?: getString(R.string.default_name)
                 updateWelcomeText(userName)
             }
     }
 
     private fun updateWelcomeText(userName: String) {
-        // Usar safeUpdateUI para evitar crashes cuando el binding es null
         safeUpdateUI {
-            // Crear el texto de saludo personalizado usando el formato de string
             val helloText = getString(R.string.hello_user)
-            // Reemplazar "Usuario" o "User" o "Usuário" con el nombre real
             val personalizedText = when {
                 helloText.contains("Usuario") -> helloText.replace("Usuario", userName)
                 helloText.contains("User") -> helloText.replace("User", userName)
@@ -151,11 +133,9 @@ class ItemListFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        // Active challenges RecyclerView
         binding.activeChallengesList?.layoutManager = LinearLayoutManager(requireContext())
         binding.activeChallengesList?.adapter = ActiveChallengesAdapter(filteredActiveChallenges)
 
-        // Default challenges RecyclerView (Grid)
         binding.defaultChallengesGrid?.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.defaultChallengesGrid?.adapter = DefaultChallengesAdapter(defaultChallenges)
     }
@@ -191,15 +171,12 @@ class ItemListFragment : Fragment() {
     }
 
     private fun setupCurrentDayCard() {
-        // Get current date
         val dateFormat = SimpleDateFormat("EEEE d MMM", Locale.getDefault())
         val currentDate = dateFormat.format(Date())
-//        binding.currentDate?.text = currentDate
 
-        // Setup current day card click
+
         binding.currentDayCard?.setOnClickListener {
             findNavController().navigate(R.id.action_itemListFragment_to_todayFragment)
-//            navigateToToday()
         }
     }
     @Parcelize
@@ -213,8 +190,8 @@ class ItemListFragment : Fragment() {
         val completados: Int = 0,
         val diasCompletados: Int = 0,
         val totalHabitos: Int = 5,
-        val etiquetas: List<String> = emptyList(),  // AGREGAR
-        val visibilidad: String = "privado"         // AGREGAR
+        val etiquetas: List<String> = emptyList(),
+        val visibilidad: String = "privado"
     ) : Parcelable
 
     data class DefaultChallenge(
@@ -265,14 +242,14 @@ class ItemListFragment : Fragment() {
                             if (!isAdded || _binding == null) return@addOnSuccessListener
 
                             var habitosCompletadosTotal = 0
-                            var diasCompletados = 0  // AGREGAR ESTA LÍNEA
+                            var diasCompletados = 0
 
                             diasResult.documents.forEach { diaDoc ->
                                 val habitos = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
                                 val diaCompletado = diaDoc.getBoolean("completado") ?: false
 
                                 if (diaCompletado) {
-                                    diasCompletados++  // CONTAR DÍAS COMPLETADOS
+                                    diasCompletados++
                                 }
 
                                 habitos.forEach { habito ->
@@ -291,7 +268,7 @@ class ItemListFragment : Fragment() {
                                 id = doc.id,
                                 diaActual = minOf(diaActual, totalDias),
                                 completados = habitosCompletadosTotal,
-                                diasCompletados = diasCompletados,  // AGREGAR ESTA LÍNEA
+                                diasCompletados = diasCompletados,
                                 totalHabitos = totalHabitos * totalDias,
                                 etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),
                                 visibilidad = doc.getString("visibilidad") ?: "privado"
@@ -321,7 +298,7 @@ class ItemListFragment : Fragment() {
                                 id = doc.id,
                                 diaActual = minOf(diaActual, totalDias),
                                 completados = 0,
-                                diasCompletados = 0,  // AGREGAR ESTA LÍNEA
+                                diasCompletados = 0,
                                 totalHabitos = totalHabitos * totalDias,
                                 etiquetas = doc.get("etiquetas") as? List<String> ?: emptyList(),
                                 visibilidad = doc.getString("visibilidad") ?: "privado"
@@ -355,20 +332,11 @@ class ItemListFragment : Fragment() {
         val fechaInicioDate = fechaInicio.toDate()
         val fechaActual = Date()
 
-        // Calcular la diferencia en días
         val diferenciaMilisegundos = fechaActual.time - fechaInicioDate.time
         val diferenciaDias = (diferenciaMilisegundos / (1000 * 60 * 60 * 24)).toInt()
 
-        // El día actual es la diferencia + 1 (porque el día 1 es el día de inicio)
-        return maxOf(1, diferenciaDias + 1) // Al menos día 1
+        return maxOf(1, diferenciaDias + 1)
     }
-
-//    private fun updateCurrentProgress() {
-//        if (activeChallenges.isNotEmpty()) {
-//            val currentChallenge = activeChallenges.first()
-////            binding.currentProgress?.text = getString(R.string.completed_format, currentChallenge.completados, currentChallenge.totalHabitos)
-//        }
-//    }
 
     inner class TagsAdapter(private val tags: List<String>) :
         RecyclerView.Adapter<TagsAdapter.TagViewHolder>() {
@@ -404,7 +372,6 @@ class ItemListFragment : Fragment() {
         }
     }
 
-    // Active Challenges Adapter
     inner class ActiveChallengesAdapter(private val challenges: List<Desafio>) :
         RecyclerView.Adapter<ActiveChallengesAdapter.ViewHolder>() {
 
@@ -412,8 +379,8 @@ class ItemListFragment : Fragment() {
             val challengeName: TextView = view.findViewById(R.id.challenge_name)
             val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
             val progressText: TextView = view.findViewById(R.id.progress_text)
-            val visibilityTag: TextView = view.findViewById(R.id.visibility_tag)  // AGREGAR
-            val tagsRecycler: RecyclerView = view.findViewById(R.id.tags_recycler) // AGREGAR
+            val visibilityTag: TextView = view.findViewById(R.id.visibility_tag)
+            val tagsRecycler: RecyclerView = view.findViewById(R.id.tags_recycler)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -426,24 +393,19 @@ class ItemListFragment : Fragment() {
             val challenge = challenges[position]
             holder.challengeName.text = challenge.nombre
 
-            // CAMBIAR: Progress bar basada en días completados vs total de días
             val progressDias = if (challenge.dias > 0) {
                 ((challenge.diasCompletados.toFloat() / challenge.dias.toFloat()) * 100).toInt()
             } else {
                 0
             }
 
-            // Asegurar que el progreso esté entre 0 y 100%
             val safeProgress = maxOf(0, minOf(progressDias, 100))
             holder.progressBar.progress = safeProgress
 
-            // CAMBIAR: Mostrar días completados en lugar de día actual
             holder.progressText.text = "${challenge.diasCompletados} de ${challenge.dias} días completados"
 
-            // Configurar tag de visibilidad
             holder.visibilityTag.text = if (challenge.visibilidad == "publico") "Público" else "Privado"
 
-            // Configurar etiquetas
             val tagsLayoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
             holder.tagsRecycler.layoutManager = tagsLayoutManager
             holder.tagsRecycler.adapter = TagsAdapter(challenge.etiquetas)
@@ -457,134 +419,6 @@ class ItemListFragment : Fragment() {
         }
 
         override fun getItemCount() = challenges.size
-    }
-
-    private fun actualizarProgresoHabitos(desafioId: String) {
-        val uid = auth.currentUser?.uid ?: return
-
-        // Recalcular el progreso y actualizar la UI
-        cargarDesafios()
-
-        // También podrías actualizar el documento principal del desafío con el conteo actual
-        firestore.collection("usuarios")
-            .document(uid)
-            .collection("desafios")
-            .document(desafioId)
-            .collection("dias")
-            .get()
-            .addOnSuccessListener { diasResult ->
-                var habitosCompletadosTotal = 0
-
-                diasResult.documents.forEach { diaDoc ->
-                    val habitos = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
-                    habitos.forEach { habito ->
-                        val completado = habito["completado"] as? Boolean ?: false
-                        if (completado) {
-                            habitosCompletadosTotal++
-                        }
-                    }
-                }
-
-                // Actualizar el documento principal del desafío
-                firestore.collection("usuarios")
-                    .document(uid)
-                    .collection("desafios")
-                    .document(desafioId)
-                    .update("completados", habitosCompletadosTotal)
-            }
-    }
-
-    private fun calcularDiaActual(fechaRealizacion: String): Boolean {
-        val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        return fechaRealizacion == fechaActual
-    }
-
-    private fun actualizarProgresoDesafio(desafioId: String) {
-        val uid = auth.currentUser?.uid ?: return
-
-        firestore.collection("usuarios")
-            .document(uid)
-            .collection("desafios")
-            .document(desafioId)
-            .collection("dias")
-            .whereEqualTo("completado", true)
-            .get()
-            .addOnSuccessListener { result ->
-                val diasCompletados = result.size()
-
-                // Actualizar el documento del desafío con los días completados
-                firestore.collection("usuarios")
-                    .document(uid)
-                    .collection("desafios")
-                    .document(desafioId)
-                    .update(
-                        mapOf(
-                            "diaActual" to (diasCompletados + 1), // Próximo día a completar
-                            "completados" to diasCompletados
-                        )
-                    )
-                    .addOnSuccessListener {
-                        // Recargar los desafíos para mostrar el progreso actualizado
-                        cargarDesafios()
-                    }
-            }
-    }
-
-
-    private fun createChallengeFromDefault(defaultChallenge: DefaultChallenge) {
-        val uid = auth.currentUser?.uid ?: return
-        val challenge = getInitialChallengeForObjective(defaultChallenge.type)
-        val challengesRef = firestore.collection("usuarios").document(uid).collection("desafios")
-
-        challengesRef.add(challenge)
-            .addOnSuccessListener { documentRef ->
-                val batch = firestore.batch()
-                val dias = challenge["dias"] as? Int ?: 30
-                val habitos = challenge["habitos"] as? List<Map<String, Any>> ?: emptyList()
-
-                val habitosParaDias = habitos.map { habito ->
-                    mapOf(
-                        "nombre" to (habito["nombre"] ?: ""),
-                        "completado" to false
-                    )
-                }
-
-                // Obtener la fecha actual para calcular las fechas de cada día
-                val fechaInicio = Calendar.getInstance()
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-                // Crear cada día del desafío con fechas consecutivas
-                for (i in 1..dias) {
-                    val diaRef = documentRef.collection("dias").document("dia_$i")
-
-                    // Calcular la fecha para este día
-                    val fechaDia = Calendar.getInstance().apply {
-                        time = fechaInicio.time
-                        add(Calendar.DAY_OF_YEAR, i - 1) // día 1 = hoy, día 2 = mañana, etc.
-                    }
-
-                    val dataDia = hashMapOf(
-                        "dia" to i,
-                        "habitos" to habitosParaDias,
-                        "completado" to false,
-                        "fecha_creacion" to com.google.firebase.Timestamp.now(),
-                        "fechaRealizacion" to dateFormat.format(fechaDia.time)
-                    )
-                    batch.set(diaRef, dataDia)
-                }
-
-                batch.commit()
-                    .addOnSuccessListener {
-                        Toast.makeText(context, getString(R.string.registration_successful).replace("Registro", "Desafío '${defaultChallenge.title}'"), Toast.LENGTH_SHORT).show()
-                        cargarDesafios()
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, getString(R.string.error_saving_data, e.message), Toast.LENGTH_LONG).show()
-                    }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(context, getString(R.string.error_saving_data, e.message), Toast.LENGTH_LONG).show()
-            }
     }
 
     private fun getInitialChallengeForObjective(objective: String): HashMap<String, Any> {
@@ -693,7 +527,6 @@ class ItemListFragment : Fragment() {
         }
     }
 
-    // Default Challenges Adapter
     inner class DefaultChallengesAdapter(private val challenges: List<DefaultChallenge>) :
         RecyclerView.Adapter<DefaultChallengesAdapter.ViewHolder>() {
 
@@ -716,7 +549,6 @@ class ItemListFragment : Fragment() {
             holder.challengeDuration.text = challenge.duration
 
             holder.itemView.setOnClickListener {
-                // En lugar de crear directamente, abrir previsualización
                 openDefaultChallengePreview(challenge)
             }
         }
@@ -727,11 +559,10 @@ class ItemListFragment : Fragment() {
     private fun openDefaultChallengePreview(defaultChallenge: DefaultChallenge) {
         val challengeData = getInitialChallengeForObjective(defaultChallenge.type)
 
-        // Crear un DesafioPublico temporal para la previsualización
         val previewChallenge = DesafioPublico(
-            id = "", // ID temporal
+            id = "",
             nombre = challengeData["nombre"] as? String ?: "",
-            autorNombre = "Sistema", // Indicar que es un desafío del sistema
+            autorNombre = "Sistema",
             descripcion = challengeData["descripcion"] as? String ?: "",
             dias = challengeData["dias"] as? Int ?: 30,
             etiquetas = listOf(challengeData["tipo"] as? String ?: "general"),
@@ -744,7 +575,6 @@ class ItemListFragment : Fragment() {
             fechaCreacion = com.google.firebase.Timestamp.now()
         )
 
-        // Navegar a la previsualización con datos especiales para desafíos por defecto
         val bundle = Bundle().apply {
             putString("challengeName", previewChallenge.nombre)
             putString("challengeAuthor", previewChallenge.autorNombre)
@@ -752,16 +582,13 @@ class ItemListFragment : Fragment() {
             putInt("challengeDuration", previewChallenge.dias)
             putStringArrayList("challengeTags", ArrayList(previewChallenge.etiquetas))
             putStringArrayList("challengeHabits", ArrayList(previewChallenge.habitos.map { it.nombre }))
-            putBoolean("isDefaultChallenge", true) // Flag para identificar que es un desafío por defecto
-            putString("defaultChallengeType", defaultChallenge.type) // Tipo para poder recrearlo
+            putBoolean("isDefaultChallenge", true)
+            putString("defaultChallengeType", defaultChallenge.type)
         }
 
         findNavController().navigate(R.id.action_itemListFragment_to_challengePreviewFragment, bundle)
     }
 
-
-
-    // Context Menu handling
     override fun onCreateContextMenu(
         menu: ContextMenu,
         v: View,
@@ -790,22 +617,18 @@ class ItemListFragment : Fragment() {
     }
 
     private fun setupBottomNavigation() {
-        // Home (ya estamos aquí)
         val homeLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(0) as? LinearLayout
         homeLayout?.setOnClickListener {
-            // Ya estamos en Home, solo actualizar colores
             updateBottomNavigationColors("home")
         }
 
-        // Hoy
         val todayLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
             navigateToToday()
         }
 
-        // Explorar (nuevo botón)
         val exploreLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(2) as? LinearLayout
         exploreLayout?.setOnClickListener {
@@ -813,7 +636,6 @@ class ItemListFragment : Fragment() {
             updateBottomNavigationColors("explore")
         }
 
-        // Profile (ahora es el índice 3)
         val profileLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(3) as? LinearLayout
         profileLayout?.setOnClickListener {
@@ -821,7 +643,6 @@ class ItemListFragment : Fragment() {
             updateBottomNavigationColors("profile")
         }
 
-        // Establecer colores iniciales
         updateBottomNavigationColors("home")
     }
 
@@ -837,7 +658,6 @@ class ItemListFragment : Fragment() {
     }
 
     private fun getCurrentDayNumber(): Int {
-        // Obtener el día actual del desafío activo
         return if (activeChallenges.isNotEmpty()) {
             activeChallenges.first().diaActual
         } else {
@@ -848,22 +668,18 @@ class ItemListFragment : Fragment() {
     private fun updateBottomNavigationColors(activeTab: String) {
         val bottomNav = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        // Home
         val homeLayout = bottomNav?.getChildAt(0) as? LinearLayout
         val homeIcon = homeLayout?.getChildAt(0) as? ImageView
         val homeText = homeLayout?.getChildAt(1) as? TextView
 
-        // Hoy
         val todayLayout = bottomNav?.getChildAt(1) as? LinearLayout
         val todayIcon = todayLayout?.getChildAt(0) as? ImageView
         val todayText = todayLayout?.getChildAt(1) as? TextView
 
-        // Profile
         val profileLayout = bottomNav?.getChildAt(2) as? LinearLayout
         val profileIcon = profileLayout?.getChildAt(0) as? ImageView
         val profileText = profileLayout?.getChildAt(1) as? TextView
 
-        // Colores
         val activeColor = ContextCompat.getColor(requireContext(), R.color.primary_green)
         val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
 
@@ -897,15 +713,12 @@ class ItemListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Refresh data when returning to fragment
         cargarDesafios()
-        // Refresh user data too
         loadUserData()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Cancelar cualquier listener de Firebase activo si es posible
         _binding = null
     }
 }

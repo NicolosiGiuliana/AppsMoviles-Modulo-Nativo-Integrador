@@ -18,17 +18,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Usar el layout existente sin binding
+
         setContentView(R.layout.activity_main)
 
-        // Inicializar SharedPreferences
         sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
-        // Obtener el NavController del NavHostFragment
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Verificar si el usuario está autenticado
         checkUserStatus()
     }
 
@@ -36,12 +33,9 @@ class MainActivity : AppCompatActivity() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val isLoggedInPrefs = sharedPreferences.getBoolean("is_logged_in", false)
 
-        // Verificar tanto Firebase Auth como SharedPreferences
         if (currentUser != null && isLoggedInPrefs) {
-            // Usuario está logueado, ir a la app principal
             navigateToMainApp()
         } else {
-            // Usuario no está logueado, mostrar pantalla de login
             navController.navigate(R.id.loginFragment)
         }
     }
@@ -49,12 +43,11 @@ class MainActivity : AppCompatActivity() {
     private fun navigateToMainApp() {
         val intent = Intent(this, ItemDetailHostActivity::class.java)
         startActivity(intent)
-        finish() // Cerrar MainActivity para que no pueda volver con back
+        finish()
     }
 
     override fun onResume() {
         super.onResume()
-        // Verificar el estado del usuario cada vez que la actividad se reanuda
         checkUserStatus()
     }
 

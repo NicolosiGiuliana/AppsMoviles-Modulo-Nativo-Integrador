@@ -124,7 +124,6 @@ class PublicChallengeFragment: Fragment() {
             }
     }
 
-
     private fun displayChallenges() {
         challengesContainer.removeAllViews()
 
@@ -145,7 +144,6 @@ class PublicChallengeFragment: Fragment() {
         val inflater = LayoutInflater.from(requireContext())
         val cardView = inflater.inflate(R.layout.item_challenge_card, challengesContainer, false)
 
-        // Referencias a las vistas
         val tvChallengeName = cardView.findViewById<TextView>(R.id.tv_challenge_name)
         val tvChallengeCreator = cardView.findViewById<TextView>(R.id.tv_challenge_creator)
         val tvChallengeDescription = cardView.findViewById<TextView>(R.id.tv_challenge_description)
@@ -154,12 +152,10 @@ class PublicChallengeFragment: Fragment() {
         val llTagsContainer = cardView.findViewById<com.google.android.flexbox.FlexboxLayout>(R.id.ll_tags_container)
         val cvJoinButton = cardView.findViewById<CardView>(R.id.cv_join_button)
 
-        // Configurar datos
         tvChallengeName.text = challenge.nombre
         tvChallengeCreator.text = "Por @${challenge.autorNombre}"
         tvChallengeDescription.text = challenge.descripcion
 
-        // Configurar duración (usando días)
         if (challenge.dias > 0) {
             tvDuration.text = "${challenge.dias} días"
             cvDurationTag.visibility = View.VISIBLE
@@ -167,10 +163,8 @@ class PublicChallengeFragment: Fragment() {
             cvDurationTag.visibility = View.GONE
         }
 
-        // Limpiar el contenedor de etiquetas antes de agregar nuevas
         llTagsContainer.removeAllViews()
 
-        // Crear etiquetas dinámicamente
         val etiquetas = challenge.etiquetas
         if (etiquetas.isNotEmpty()) {
             for (etiqueta in etiquetas) {
@@ -182,7 +176,6 @@ class PublicChallengeFragment: Fragment() {
             llTagsContainer.visibility = View.GONE
         }
 
-        // Configurar botón de unirse
         cvJoinButton.setOnClickListener {
             onJoinChallenge(challenge)
         }
@@ -194,7 +187,6 @@ class PublicChallengeFragment: Fragment() {
         val inflater = LayoutInflater.from(requireContext())
         val tagView = inflater.inflate(R.layout.item_tag_public, null, false)
 
-        // Configurar los LayoutParams para FlexboxLayout
         tagView.layoutParams = com.google.android.flexbox.FlexboxLayout.LayoutParams(
             com.google.android.flexbox.FlexboxLayout.LayoutParams.WRAP_CONTENT,
             com.google.android.flexbox.FlexboxLayout.LayoutParams.WRAP_CONTENT
@@ -202,20 +194,17 @@ class PublicChallengeFragment: Fragment() {
             setMargins(0, 0, 8.dpToPx(), 4.dpToPx()) // Margin derecho y abajo
         }
 
-        // Configurar el texto
         val tvTagText = tagView.findViewById<TextView>(R.id.tag_text_public)
         tvTagText.text = "#${tagText}"
 
         return tagView
     }
 
-    // Función auxiliar para convertir dp a px (si no la tienes ya)
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
     }
 
     private fun onJoinChallenge(challenge: DesafioPublico) {
-        // Navegar al fragmento de previsualización pasando el ID del desafío
         val bundle = Bundle().apply {
             putString("challengeId", challenge.id)
         }
@@ -244,7 +233,6 @@ class PublicChallengeFragment: Fragment() {
     private fun setupBottomNavigation() {
         val bottomNavigation = view?.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        // Home (índice 0) - Navega a itemListFragment
         val homeLayout = bottomNavigation?.getChildAt(0) as? LinearLayout
         homeLayout?.setOnClickListener {
             try {
@@ -254,7 +242,6 @@ class PublicChallengeFragment: Fragment() {
             }
         }
 
-        // Today (índice 1)
         val todayLayout = bottomNavigation?.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
             try {
@@ -264,13 +251,10 @@ class PublicChallengeFragment: Fragment() {
             }
         }
 
-        // Explorar (índice 2) - ya estamos aquí
         val exploreLayout = bottomNavigation?.getChildAt(2) as? LinearLayout
         exploreLayout?.setOnClickListener {
-            // Ya estamos en Explorar, solo actualizar colores
         }
 
-        // Profile (índice 3)
         val profileLayout = bottomNavigation?.getChildAt(3) as? LinearLayout
         profileLayout?.setOnClickListener {
             try {

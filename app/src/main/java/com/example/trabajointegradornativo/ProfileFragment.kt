@@ -53,7 +53,6 @@ class ProfileFragment : Fragment() {
     private lateinit var storage: FirebaseStorage
     private lateinit var sharedPreferences: SharedPreferences
 
-    // Views
     private lateinit var profileImage: ImageView
     private lateinit var profileInitials: TextView
     private lateinit var profileName: TextView
@@ -68,7 +67,6 @@ class ProfileFragment : Fragment() {
     private lateinit var selectedLanguageText: TextView
     private lateinit var logoutLayout: LinearLayout
 
-    // Data - Ahora usando arrays de strings
     private lateinit var languages: Array<String>
     private val languageCodes = arrayOf("es", "en", "pt")
     private var selectedLanguageIndex = 0
@@ -107,7 +105,6 @@ class ProfileFragment : Fragment() {
     private fun setupBottomNavigation() {
         val bottomNavigation = view?.findViewById<LinearLayout>(R.id.bottom_navigation)
 
-        // Home (índice 0) - Navega a itemListFragment
         val homeLayout = bottomNavigation?.getChildAt(0) as? LinearLayout
         homeLayout?.setOnClickListener {
             try {
@@ -117,7 +114,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Today (índice 1)
         val todayLayout = bottomNavigation?.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
             try {
@@ -127,7 +123,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Explorar (índice 2)
         val exploreLayout = bottomNavigation?.getChildAt(2) as? LinearLayout
         exploreLayout?.setOnClickListener {
             try {
@@ -137,10 +132,8 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Profile (índice 3)
         val profileLayout = bottomNavigation?.getChildAt(3) as? LinearLayout
         profileLayout?.setOnClickListener {
-            // Ya estamos en Profile
         }
     }
 
@@ -212,10 +205,8 @@ class ProfileFragment : Fragment() {
         selectedNotificationMinute = sharedPreferences.getInt("notification_minute", 0)
         updateNotificationTimeDisplay()
 
-        // Detectar el idioma actual correctamente
         selectedLanguageIndex = getCurrentLanguageIndex()
 
-        // Asegurar que el índice esté dentro del rango válido
         if (selectedLanguageIndex < 0 || selectedLanguageIndex >= languages.size) {
             selectedLanguageIndex = 0
         }
@@ -226,7 +217,6 @@ class ProfileFragment : Fragment() {
     }
 
     private fun getCurrentLanguageIndex(): Int {
-        // Obtener el idioma actual del sistema/configuración
         val currentLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             resources.configuration.locales[0].language
         } else {
@@ -236,13 +226,11 @@ class ProfileFragment : Fragment() {
 
         Log.d(TAG, "Idioma actual detectado: $currentLocale")
 
-        // Mapear el idioma actual al índice correcto
         val index = when (currentLocale) {
-            "es" -> 0  // Español
-            "en" -> 1  // English
-            "pt" -> 2  // Português
+            "es" -> 0
+            "en" -> 1
+            "pt" -> 2
             else -> {
-                // Si no reconoce el idioma, usar el guardado en preferencias
                 val savedLanguage = LanguageHelper.getAppLanguage(requireContext())
                 Log.d(TAG, "Idioma guardado en preferencias: $savedLanguage")
                 languageCodes.indexOf(savedLanguage).takeIf { it >= 0 } ?: 0
@@ -300,7 +288,6 @@ class ProfileFragment : Fragment() {
     private fun checkNotificationPermissions(callback: (Boolean) -> Unit) {
         var permissionsNeeded = mutableListOf<String>()
 
-        // Verificar permiso de notificaciones para Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
@@ -311,7 +298,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        // Si hay permisos pendientes, solicitarlos
         if (permissionsNeeded.isNotEmpty()) {
             requestPermissions(
                 permissionsNeeded.toTypedArray(),
@@ -324,7 +310,6 @@ class ProfileFragment : Fragment() {
             val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
             if (!alarmManager.canScheduleExactAlarms()) {
                 showExactAlarmPermissionDialog()
-                // Aún podemos continuar con alarmas inexactas
                 callback(true)
                 return
             }
@@ -365,7 +350,6 @@ class ProfileFragment : Fragment() {
         if (currentUser != null) {
             Log.d(TAG, "Cargando imagen de perfil para usuario: ${currentUser.uid}")
 
-            // Primero verificar si el usuario eligió usar imagen por defecto
             val useDefaultImage = sharedPreferences.getBoolean("use_default_image", false)
 
             if (useDefaultImage) {
@@ -373,14 +357,12 @@ class ProfileFragment : Fragment() {
                 return
             }
 
-            // Cargar URL de imagen desde SharedPreferences o Firestore
             val savedImageUrl = sharedPreferences.getString("profile_image_url", null)
 
             if (savedImageUrl != null) {
                 Log.d(TAG, "URL de imagen encontrada: $savedImageUrl")
                 loadImageFromUrl(savedImageUrl)
             } else {
-                // Intentar cargar desde Firestore
                 loadImageUrlFromFirestore(currentUser.uid)
             }
         } else {
@@ -389,17 +371,14 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // MODIFICAR: Función para cargar desde Firestore
     private fun loadImageUrlFromFirestore(userId: String) {
         firestore.collection("usuarios").document(userId)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // Verificar si el usuario eligió usar imagen por defecto
                     val useDefaultImage = document.getBoolean("useDefaultImage") ?: false
 
                     if (useDefaultImage) {
-                        // Guardar preferencia localmente
                         sharedPreferences.edit().putBoolean("use_default_image", true).apply()
                         setDefaultProfileImage()
                         return@addOnSuccessListener
@@ -409,7 +388,6 @@ class ProfileFragment : Fragment() {
                     if (imageUrl != null) {
                         Log.d(TAG, "URL de imagen encontrada en Firestore: $imageUrl")
                         loadImageFromUrl(imageUrl)
-                        // Guardar en SharedPreferences para acceso rápido
                         sharedPreferences.edit()
                             .putString("profile_image_url", imageUrl)
                             .putBoolean("use_default_image", false)
@@ -433,7 +411,6 @@ class ProfileFragment : Fragment() {
                 val url = URL(imageUrl)
                 val bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream())
 
-                // Cambiar al hilo principal para actualizar la UI
                 Handler(Looper.getMainLooper()).post {
                     profileImage.setImageBitmap(bitmap)
                     profileImage.visibility = View.VISIBLE
@@ -455,21 +432,18 @@ class ProfileFragment : Fragment() {
             val userName = currentUser?.displayName ?: getString(R.string.default_name)
             val initials = getInitials(userName)
 
-            // Ocultar la imagen y mostrar las iniciales
             profileImage.visibility = View.GONE
             profileInitials.text = initials
             profileInitials.visibility = View.VISIBLE
 
-            // Opcional: establecer un fondo circular para las iniciales si no está en el XML
             profileInitials.setBackgroundResource(R.drawable.profile_circle_bg)
 
             Log.d(TAG, "Imagen por defecto establecida para usuario: $userName con iniciales: $initials")
 
         } catch (e: Exception) {
             Log.e(TAG, "Error al establecer imagen por defecto", e)
-            // Como fallback, asegurar que al menos las iniciales sean visibles
             profileImage.visibility = View.GONE
-            profileInitials.text = "U" // Usuario por defecto
+            profileInitials.text = "U"
             profileInitials.visibility = View.VISIBLE
         }
     }
@@ -489,28 +463,24 @@ class ProfileFragment : Fragment() {
                     0 -> checkCameraPermissionAndTakePhoto()
                     1 -> checkGalleryPermissionAndOpenGallery()
                     2 -> {
-                        // CAMBIO: Limpiar las URLs guardadas cuando se selecciona imagen por defecto
                         clearSavedImageUrls()
                         setDefaultProfileImage()
                         Toast.makeText(requireContext(), getString(R.string.default_image_set), Toast.LENGTH_SHORT).show()
                     }
-                    3 -> { /* Cancelar */ }
+                    3 -> { }
                 }
             }
             .show()
     }
 
-    // NUEVA FUNCIÓN: Limpiar URLs guardadas
     private fun clearSavedImageUrls() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            // Limpiar SharedPreferences
             sharedPreferences.edit()
                 .remove("profile_image_url")
                 .remove("profile_image_delete_url")
                 .apply()
 
-            // Limpiar Firestore
             firestore.collection("usuarios").document(currentUser.uid)
                 .update(
                     mapOf(
@@ -676,16 +646,13 @@ class ProfileFragment : Fragment() {
 
         imgBBUploader.uploadImage(bitmap, object : ImgBBUploader.UploadCallback {
             override fun onSuccess(imageUrl: String, deleteUrl: String) {
-                // Cambiar al hilo principal
                 Handler(Looper.getMainLooper()).post {
                     hideUploadProgressDialog()
 
-                    // Actualizar la imagen en la UI
                     profileImage.setImageBitmap(bitmap)
                     profileImage.visibility = View.VISIBLE
                     profileInitials.visibility = View.GONE
 
-                    // Guardar URL en SharedPreferences Y marcar que NO usa imagen por defecto
                     sharedPreferences.edit()
                         .putString("profile_image_url", imageUrl)
                         .putString("profile_image_delete_url", deleteUrl)

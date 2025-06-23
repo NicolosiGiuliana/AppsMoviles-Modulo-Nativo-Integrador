@@ -19,7 +19,6 @@ class NotificationHelper(private val context: Context) {
         private const val CHANNEL_DESCRIPTION = "Notificaciones para recordar completar hábitos diarios"
         private const val NOTIFICATION_ID = 1001
 
-        // Frases motivacionales
         private val FRASES_MOTIVACIONALES = arrayOf(
             "¡Cada día es una nueva oportunidad!",
             "¡Tú puedes lograrlo!",
@@ -33,9 +32,6 @@ class NotificationHelper(private val context: Context) {
             "¡Hoy también puedes ser extraordinario!"
         )
 
-        /**
-         * Obtiene una frase motivacional aleatoria
-         */
         fun obtenerFraseMotivacional(): String {
             return FRASES_MOTIVACIONALES[Random.nextInt(FRASES_MOTIVACIONALES.size)]
         }
@@ -51,9 +47,6 @@ class NotificationHelper(private val context: Context) {
         createNotificationChannel()
     }
 
-    /**
-     * Crea el canal de notificaciones (necesario para Android 8.0+)
-     */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -69,13 +62,8 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    /**
-     * Programa la notificación diaria
-     * @param hour Hora del día (0-23)
-     * @param minute Minuto de la hora (0-59)
-     */
     fun programarNotificacionDiaria(hour: Int, minute: Int) {
-        // Guardar la configuración
+
         with(sharedPreferences.edit()) {
             putBoolean("notificaciones_habilitadas", true)
             putInt("hora_notificacion", hour)
@@ -83,10 +71,8 @@ class NotificationHelper(private val context: Context) {
             apply()
         }
 
-        // Cancelar alarma anterior si existe
         cancelarNotificacionDiaria()
 
-        // Programar nueva alarma
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, NotificationReceiver::class.java).apply {
             action = "RECORDATORIO_HABITOS"
@@ -99,7 +85,6 @@ class NotificationHelper(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Configurar el tiempo para la notificación
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
@@ -107,16 +92,13 @@ class NotificationHelper(private val context: Context) {
             set(Calendar.MILLISECOND, 0)
         }
 
-        // Si la hora ya pasó hoy, programar para mañana
         if (calendar.timeInMillis <= System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
         try {
-            // Programar alarma exacta
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    // Android 12+ - verificar permisos
                     if (alarmManager.canScheduleExactAlarms()) {
                         alarmManager.setExactAndAllowWhileIdle(
                             AlarmManager.RTC_WAKEUP,
@@ -124,7 +106,6 @@ class NotificationHelper(private val context: Context) {
                             pendingIntent
                         )
                     } else {
-                        // Usar alarma inexacta si no hay permisos
                         alarmManager.setAndAllowWhileIdle(
                             AlarmManager.RTC_WAKEUP,
                             calendar.timeInMillis,
@@ -153,9 +134,6 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    /**
-     * Cancela la notificación diaria programada
-     */
     fun cancelarNotificacionDiaria() {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, NotificationReceiver::class.java).apply {
@@ -171,7 +149,6 @@ class NotificationHelper(private val context: Context) {
 
         alarmManager.cancel(pendingIntent)
 
-        // Actualizar SharedPreferences
         with(sharedPreferences.edit()) {
             putBoolean("notificaciones_habilitadas", false)
             apply()

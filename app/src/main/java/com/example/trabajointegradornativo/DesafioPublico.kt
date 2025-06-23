@@ -21,7 +21,6 @@ data class DesafioPublico(
 )
 
 {
-    // Constructor vacío requerido por Firebase
     constructor() : this(
         id = "",
         activo = true,

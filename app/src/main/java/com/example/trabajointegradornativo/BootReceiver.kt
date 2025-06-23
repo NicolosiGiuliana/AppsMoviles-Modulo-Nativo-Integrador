@@ -13,14 +13,10 @@ class BootReceiver : BroadcastReceiver() {
             Intent.ACTION_MY_PACKAGE_REPLACED == action ||
             Intent.ACTION_PACKAGE_REPLACED == action) {
 
-            // Reprogramar notificaciones si estaban habilitadas
             reprogramarNotificaciones(context)
         }
     }
 
-    /**
-     * Reprograma las notificaciones después del reinicio del sistema
-     */
     private fun reprogramarNotificaciones(context: Context) {
         val prefs = context.getSharedPreferences("desafio_prefs", Context.MODE_PRIVATE)
 
