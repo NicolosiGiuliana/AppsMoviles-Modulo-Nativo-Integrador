@@ -1072,6 +1072,8 @@ class ItemDetailFragment : Fragment() {
         // Ocultar estado del día
         binding.root.findViewById<LinearLayout>(R.id.item_estado)?.visibility = View.GONE
 
+        binding.root.findViewById<LinearLayout>(R.id.item_location)?.visibility = View.GONE
+
         // Ocultar sección de progreso si existe
         binding.root.findViewById<View>(R.id.progress_section)?.visibility = View.GONE
 
