@@ -145,7 +145,6 @@ class ItemDetailFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Error cargando desafío: ${e.message}")
                 mostrarError("Error al cargar el desafío")
                 findNavController().popBackStack()
             }
@@ -211,7 +210,6 @@ class ItemDetailFragment : Fragment() {
                         bundle
                     )
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error navegando a editar: ${e.message}")
                     mostrarError("Error al abrir editor")
                 }
             }
@@ -242,7 +240,7 @@ class ItemDetailFragment : Fragment() {
                 map.controller.setZoom(15.0)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error inicializando mapa: ${e.message}")
+
         }
     }
 
@@ -668,7 +666,7 @@ class ItemDetailFragment : Fragment() {
                             val nuevoEstado = !estadoActual
 
                             if (diaCompletado && todosHabitosCompletados && !nuevoEstado) {
-                                mostrarError("No puedes desmarcar hábitos de un día ya completado")
+                                mostrarError(getString(R.string.all_habits_completed))
                                 return@setOnClickListener
                             }
 
@@ -694,12 +692,10 @@ class ItemDetailFragment : Fragment() {
                     actualizarEstadoUI(todosHabitosCompletados)
                 }
             } else {
-                Log.e("Firestore", "No se encontró el día actual.")
-                mostrarError("No se encontró información del día actual")
+                 mostrarError(getString(R.string.day_info_not_found))
             }
         }
     }
-
     private fun verificarSiDiaEstaCompletado(
         uid: String,
         desafioId: String,
@@ -718,7 +714,6 @@ class ItemDetailFragment : Fragment() {
                 callback(completado)
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "Error al verificar estado del día", e)
                 callback(false)
             }
     }
@@ -773,12 +768,10 @@ class ItemDetailFragment : Fragment() {
                         callback(habitosDelDia)
                     }
                     .addOnFailureListener { e ->
-                        Log.e(TAG, "Error creando día actual: ${e.message}")
                         callback(emptyList())
                     }
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Error obteniendo desafío para crear día: ${e.message}")
                 callback(emptyList())
             }
     }
@@ -862,7 +855,6 @@ class ItemDetailFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Error verificando si desafío está finalizado: ${e.message}")
                 callback(false)
             }
     }
@@ -905,7 +897,6 @@ class ItemDetailFragment : Fragment() {
                 callback(diasCompletados, desafio.dias)
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Error calculando estadísticas: ${e.message}")
                 callback(0, desafio.dias)
             }
     }
@@ -942,7 +933,6 @@ class ItemDetailFragment : Fragment() {
                 try {
                     findNavController().navigate(R.id.itemListFragment)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error navegando de vuelta: ${e.message}")
                     requireActivity().onBackPressed()
                 }
             } else {
@@ -977,16 +967,13 @@ class ItemDetailFragment : Fragment() {
                             callback(true)
                         }
                         .addOnFailureListener { e ->
-                            Log.e(TAG, "Error eliminando desafío completo: ${e.message}")
                             callback(false)
                         }
                 }
                 .addOnFailureListener { e ->
-                    Log.e(TAG, "Error obteniendo días para eliminar: ${e.message}")
                     callback(false)
                 }
         } catch (e: Exception) {
-            Log.e(TAG, "Error general eliminando desafío: ${e.message}")
             callback(false)
         }
     }
@@ -1053,7 +1040,6 @@ class ItemDetailFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.publicChallengeFragment)
             } catch (e: Exception) {
-                Log.e(TAG, "Error navegando a explorar: ${e.message}")
             }
         }
 

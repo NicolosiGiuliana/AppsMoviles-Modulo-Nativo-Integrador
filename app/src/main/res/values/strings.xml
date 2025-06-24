@@ -358,6 +358,7 @@
     <string name="day_completed">Completado</string>
 
     <string name="all_habits_completed">Todos los hábitos están completados. No puedes desmarcar.</string>
+    <string name="day_info_not_found">No se encontró información del día actual</string>
 
     <string name="day_pending">Pendiente</string>
     <string name="default_challenge_description">Este desafío te ayudará a desarrollar hábitos positivos</string>
@@ -439,7 +440,7 @@
     <string name="fitness_challenge_description_text">Mejora tu condición física con hábitos diarios</string>
     <string name="initial_reading_challenge_name">Desafío de Lectura Inicial</string>
     <string name="reading_challenge_description_text">Desarrolla el hábito de la lectura diaria</string>
-    <string name="mindfulness_challenge_name">Desafío de Mindfulness</string>
+    <string name="mindfulness_challenge_name">Mindfulness</string>
     <string name="mindfulness_challenge_description_text">Cultiva la atención plena y reduce el estrés</string>
     <string name="hydration_challenge_name">Desafío de Hidratación</string>
     <string name="hydration_challenge_description_text">Mantente hidratado para una mejor salud</string>

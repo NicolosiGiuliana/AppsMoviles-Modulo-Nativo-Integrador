@@ -946,7 +946,6 @@
     <string name="challenge_state_unknown">Unknown status</string>
 
     <string name="use_boton">Use Challenge</string>
-    <!-- Add these strings to your English strings.xml file -->
     <string name="public_challenges_title">Public Challenges</string>
     <string name="discover_community_challenges">Discover new challenges created by the community</string>
     <string name="search_challenges_hint">Search challenges by name or tag</string>
@@ -962,5 +961,6 @@
     <string name="days_label">Days</string>
     <string name="of_label">of</string>
     <string name="search_name">Search by name...</string>
+    <string name="day_info_not_found">Current day information not found</string>
 
 </resources>

@@ -888,5 +888,5 @@
     <string name="days_label">Dias</string>
     <string name="of_label">de</string>
     <string name="search_name">Pesquisar por nome...</string>
-
+    <string name="day_info_not_found">Informações do dia atual não encontradas</string>
 </resources>
