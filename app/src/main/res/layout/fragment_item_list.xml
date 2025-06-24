@@ -98,7 +98,7 @@
                     android:layout_height="48dp"
                     android:layout_marginBottom="24dp"
                     android:background="@drawable/search_background"
-                    android:hint="@string/search_tags"
+                    android:hint="@string/search_name"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="12dp"
                     android:textSize="14sp"
@@ -184,14 +184,14 @@
                 android:layout_height="24dp"
                 android:src="@drawable/add_home"
                 android:contentDescription="@string/home"
-                app:tint="@color/gray_text" />
+                app:tint="@color/primary_green" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/home"
                 android:textSize="12sp"
-                android:textColor="@color/gray_text"
+                android:textColor="@color/primary_green"
                 android:layout_marginTop="4dp" />
         </LinearLayout>
 

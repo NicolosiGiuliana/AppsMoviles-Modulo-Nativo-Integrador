@@ -9,7 +9,6 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.example.trabajointegradornativo.MainActivity.App.Companion.context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -18,7 +17,6 @@ import java.util.*
 class NotificationReceiver : BroadcastReceiver() {
 
     companion object {
-        private const val CHANNEL_ID = "desafio_recordatorios"
         private const val NOTIFICATION_ID = 1001
         private const val TAG = "NotificationReceiver"
     }
@@ -35,11 +33,11 @@ class NotificationReceiver : BroadcastReceiver() {
 
         val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        obtenerHabitosDelDia(userId, fechaHoy) { totalHabitos, habitosCompletados ->
+        obtenerHabitosDelDia(context, userId, fechaHoy) { totalHabitos, habitosCompletados ->
             if (totalHabitos > 0) {
                 val habitosFaltantes = totalHabitos - habitosCompletados
                 if (habitosFaltantes > 0) {
-                    val notificacion = generarNotificacion(habitosFaltantes)
+                    val notificacion = generarNotificacion(context, habitosFaltantes)
                     enviarNotificacion(context, notificacion.titulo, notificacion.mensaje)
                 }
             }
@@ -47,6 +45,7 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     private fun obtenerHabitosDelDia(
+        context: Context,
         userId: String,
         fechaHoy: String,
         callback: (totalHabitos: Int, habitosCompletados: Int) -> Unit
@@ -54,13 +53,14 @@ class NotificationReceiver : BroadcastReceiver() {
         val db = FirebaseFirestore.getInstance()
 
         // Obtener desafíos activos
-        db.collection("usuarios").document(userId).collection("desafios")
+        db.collection("usuarios")
+            .document(userId)
+            .collection("desafios")
             .whereEqualTo("estado", "activo")
             .get()
             .addOnSuccessListener { desafiosSnapshot ->
 
                 if (desafiosSnapshot.isEmpty) {
-                    Log.d(TAG, "No hay desafíos activos")
                     callback(0, 0)
                     return@addOnSuccessListener
                 }
@@ -70,14 +70,14 @@ class NotificationReceiver : BroadcastReceiver() {
                 var desafiosProcesados = 0
                 val totalDesafios = desafiosSnapshot.size()
 
-                Log.d(TAG, "Desafíos activos encontrados: $totalDesafios")
-
                 for (desafioDoc in desafiosSnapshot) {
                     val desafioId = desafioDoc.id
 
                     // Obtener el progreso del día específico en la subcolección 'dias'
-                    db.collection("usuarios").document(userId)
-                        .collection("desafios").document(desafioId)
+                    db.collection("usuarios")
+                        .document(userId)
+                        .collection("desafios")
+                        .document(desafioId)
                         .collection("dias")
                         .whereEqualTo("fechaRealizacion", fechaHoy)
                         .get()
@@ -87,7 +87,6 @@ class NotificationReceiver : BroadcastReceiver() {
                                 // Si no hay progreso para hoy, contar todos los hábitos como pendientes
                                 val habitosDelDesafio = (desafioDoc.get("habitos") as? List<*>)?.size ?: 0
                                 totalHabitos += habitosDelDesafio
-                                Log.d(TAG, "Desafío $desafioId: Sin progreso hoy, $habitosDelDesafio hábitos pendientes")
                             } else {
                                 // Procesar el progreso del día
                                 for (diaDoc in diasSnapshot) {
@@ -99,10 +98,8 @@ class NotificationReceiver : BroadcastReceiver() {
                                         val completadosEnEsteDia = habitosArray.count { habito ->
                                             habito["completado"] as? Boolean == true
                                         }
-
                                         habitosCompletados += completadosEnEsteDia
 
-                                        Log.d(TAG, "Desafío $desafioId - Día ${diaDoc.id}: ${habitosArray.size} hábitos, $completadosEnEsteDia completados")
                                     }
                                 }
                             }
@@ -111,44 +108,43 @@ class NotificationReceiver : BroadcastReceiver() {
 
                             // Cuando hayamos procesado todos los desafíos, ejecutar callback
                             if (desafiosProcesados == totalDesafios) {
-                                Log.d(TAG, "Resumen final - Total: $totalHabitos, Completados: $habitosCompletados")
                                 callback(totalHabitos, habitosCompletados)
                             }
                         }
                         .addOnFailureListener { error ->
-                            Log.e(TAG, "Error al obtener días del desafío $desafioId", error)
                             desafiosProcesados++
 
                             if (desafiosProcesados == totalDesafios) {
-                                Log.d(TAG, "Resumen final (con errores) - Total: $totalHabitos, Completados: $habitosCompletados")
                                 callback(totalHabitos, habitosCompletados)
                             }
                         }
                 }
             }
             .addOnFailureListener { error ->
-                Log.e(TAG, "Error al obtener desafíos", error)
+                Log.e(TAG, context.getString(R.string.log_error_obtener_desafios), error)
                 enviarNotificacionGenerica(context)
             }
     }
 
-    private fun generarNotificacion(habitosFaltantes: Int): NotificacionData {
+    private fun generarNotificacion(context: Context, habitosFaltantes: Int): NotificacionData {
+        val fraseMotivacional = NotificationHelper.obtenerFraseMotivacional(context)
+
         return when (habitosFaltantes) {
             1 -> NotificacionData(
-                titulo = "¡Te falta 1 hábito!",
-                mensaje = "Solo un pequeño paso más para completar tu día. ${NotificationHelper.obtenerFraseMotivacional()}"
+                titulo = context.getString(R.string.notificacion_titulo_un_habito),
+                mensaje = context.getString(R.string.notificacion_mensaje_un_habito, fraseMotivacional)
             )
             in 2..3 -> NotificacionData(
-                titulo = "¡Te faltan $habitosFaltantes hábitos!",
-                mensaje = "Ya vas por buen camino, continúa así. ${NotificationHelper.obtenerFraseMotivacional()}"
+                titulo = context.getString(R.string.notificacion_titulo_pocos_habitos, habitosFaltantes),
+                mensaje = context.getString(R.string.notificacion_mensaje_buen_camino, fraseMotivacional)
             )
             in 4..6 -> NotificacionData(
-                titulo = "¡Te faltan $habitosFaltantes hábitos!",
-                mensaje = "Es momento de retomar el ritmo. ${NotificationHelper.obtenerFraseMotivacional()}"
+                titulo = context.getString(R.string.notificacion_titulo_pocos_habitos, habitosFaltantes),
+                mensaje = context.getString(R.string.notificacion_mensaje_retomar_ritmo, fraseMotivacional)
             )
             else -> NotificacionData(
-                titulo = "¡Te faltan $habitosFaltantes hábitos!",
-                mensaje = "Cada gran logro comienza con la decisión de intentarlo. ${NotificationHelper.obtenerFraseMotivacional()}"
+                titulo = context.getString(R.string.notificacion_titulo_pocos_habitos, habitosFaltantes),
+                mensaje = context.getString(R.string.notificacion_mensaje_decision_intentar, fraseMotivacional)
             )
         }
     }
@@ -156,15 +152,14 @@ class NotificationReceiver : BroadcastReceiver() {
     private fun enviarNotificacionGenerica(context: Context) {
         enviarNotificacion(
             context,
-            "¡Hora de revisar tus hábitos!",
-            NotificationHelper.obtenerFraseMotivacional()
+            context.getString(R.string.notificacion_titulo_generica),
+            NotificationHelper.obtenerFraseMotivacional(context)
         )
     }
 
     private fun enviarNotificacion(context: Context, titulo: String, mensaje: String) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // CAMBIAR: Dirigir directamente a ItemDetailHostActivity
         val intent = Intent(context, ItemDetailHostActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("navigate_to", "today_fragment")
@@ -178,7 +173,7 @@ class NotificationReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, context.getString(R.string.channel_id_desafio_recordatorios))
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(titulo)
             .setContentText(mensaje)
@@ -233,9 +228,8 @@ class NotificationReceiver : BroadcastReceiver() {
                     pendingIntent
                 )
             }
-            Log.d(TAG, "Notificación reprogramada para: ${calendar.time}")
         } catch (e: Exception) {
-            Log.e(TAG, "Error al reprogramar notificación", e)
+            Log.e(TAG, context.getString(R.string.log_error_reprogramar_notificacion), e)
         }
     }
 

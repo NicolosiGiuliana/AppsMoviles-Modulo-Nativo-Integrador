@@ -14,26 +14,25 @@ import kotlin.random.Random
 class NotificationHelper(private val context: Context) {
 
     companion object {
-        private const val CHANNEL_ID = "desafio_recordatorios"
-        private const val CHANNEL_NAME = "Recordatorios de Desafío"
-        private const val CHANNEL_DESCRIPTION = "Notificaciones para recordar completar hábitos diarios"
         private const val NOTIFICATION_ID = 1001
 
-        private val FRASES_MOTIVACIONALES = arrayOf(
-            "¡Cada día es una nueva oportunidad!",
-            "¡Tú puedes lograrlo!",
-            "¡Un paso más hacia tu objetivo!",
-            "¡La constancia es la clave del éxito!",
-            "¡Hoy es el día perfecto para brillar!",
-            "¡Tus hábitos definen tu futuro!",
-            "¡Cada pequeño progreso cuenta!",
-            "¡Mantén el ritmo, vas por buen camino!",
-            "¡La disciplina te llevará lejos!",
-            "¡Hoy también puedes ser extraordinario!"
+        @JvmStatic
+        private val FRASES_MOTIVACIONALES_IDS = arrayOf(
+            R.string.frase_motivacional_1,
+            R.string.frase_motivacional_2,
+            R.string.frase_motivacional_3,
+            R.string.frase_motivacional_4,
+            R.string.frase_motivacional_5,
+            R.string.frase_motivacional_6,
+            R.string.frase_motivacional_7,
+            R.string.frase_motivacional_8,
+            R.string.frase_motivacional_9,
+            R.string.frase_motivacional_10
         )
 
-        fun obtenerFraseMotivacional(): String {
-            return FRASES_MOTIVACIONALES[Random.nextInt(FRASES_MOTIVACIONALES.size)]
+        fun obtenerFraseMotivacional(context: Context): String {
+            val randomIndex = Random.nextInt(FRASES_MOTIVACIONALES_IDS.size)
+            return context.getString(FRASES_MOTIVACIONALES_IDS[randomIndex])
         }
     }
 
@@ -50,11 +49,11 @@ class NotificationHelper(private val context: Context) {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
+                context.getString(R.string.channel_id_desafio_recordatorios),
+                context.getString(R.string.channel_name_desafio_recordatorios),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = CHANNEL_DESCRIPTION
+                description = context.getString(R.string.channel_description_desafio_recordatorios)
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 1000, 500, 1000)
             }
@@ -127,9 +126,9 @@ class NotificationHelper(private val context: Context) {
                 )
             }
 
-            android.util.Log.d("NotificationHelper", "Notificación programada para: ${calendar.time}")
+            android.util.Log.d("NotificationHelper", context.getString(R.string.log_notification_scheduled, calendar.time.toString()))
         } catch (e: Exception) {
-            android.util.Log.e("NotificationHelper", "Error al programar notificación", e)
+            android.util.Log.e("NotificationHelper", context.getString(R.string.log_notification_error), e)
             throw e
         }
     }

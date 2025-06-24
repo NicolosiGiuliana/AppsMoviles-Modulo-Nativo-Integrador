@@ -1,10 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.TrabajoIntegradorNativo" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Configura el ActionBar verde directamente en el tema principal -->
+    <!-- Base application theme SIN ActionBar -->
+    <style name="Theme.TrabajoIntegradorNativo" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Configura colores principales -->
         <item name="colorPrimary">@color/primary_green</item>
         <item name="colorPrimaryVariant">@color/primary_green</item>
-        <item name="android:actionBarStyle">@style/CustomActionBar</item>
+        <item name="android:statusBarColor">@color/primary_green</item>
     </style>
 
     <style name="Theme.TrabajoIntegradorNativo.NoActionBar">
@@ -13,7 +13,7 @@
         <item name="android:statusBarColor">@color/primary_green</item>
     </style>
 
-    <!-- Estilo personalizado para ActionBar verde -->
+    <!-- Estilo personalizado para ActionBar verde (si lo necesitas en algunas actividades) -->
     <style name="CustomActionBar" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/primary_green</item>
         <item name="background">@color/primary_green</item>

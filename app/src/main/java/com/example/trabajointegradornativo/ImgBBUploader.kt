@@ -17,6 +17,21 @@ class ImgBBUploader {
         private const val IMGBB_API_URL = "https://api.imgbb.com/1/upload"
         private const val API_KEY = "3fc24a14a9488f101644740df249948a"
         private const val JPEG_QUALITY = 80
+
+        // Constantes para mensajes (NO localizados - para logs y errores técnicos)
+        private const val ERROR_CONVERTING_IMAGE = "Error al convertir imagen a base64"
+        private const val STARTING_UPLOAD = "Iniciando subida a ImgBB..."
+        private const val HTTP_REQUEST_ERROR = "Error en la petición HTTP"
+        private const val CONNECTION_ERROR_PREFIX = "Error de conexión: "
+        private const val EMPTY_SERVER_RESPONSE = "Respuesta vacía del servidor"
+        private const val IMGBB_RESPONSE_PREFIX = "Respuesta de ImgBB: "
+        private const val IMAGE_UPLOADED_SUCCESS = "Imagen subida exitosamente: "
+        private const val UNKNOWN_ERROR = "Error desconocido"
+        private const val IMGBB_ERROR_PREFIX = "Error de ImgBB: "
+        private const val JSON_PARSING_ERROR = "Error al parsear respuesta JSON"
+        private const val RESPONSE_PROCESSING_ERROR = "Error al procesar respuesta: "
+        private const val BITMAP_TO_BASE64_ERROR = "Error al convertir bitmap a base64"
+        private const val PROFILE_IMAGE_PREFIX = "profile_"
     }
 
     data class ImgBBResponse(
@@ -90,17 +105,16 @@ class ImgBBUploader {
         val base64Image = bitmapToBase64(bitmap)
 
         if (base64Image == null) {
-            callback.onError("Error al convertir imagen a base64")
+            callback.onError(ERROR_CONVERTING_IMAGE)
             return
         }
 
-        Log.d(TAG, "Iniciando subida a ImgBB...")
         callback.onProgress(10)
 
         val requestBody = FormBody.Builder()
             .add("key", API_KEY)
             .add("image", base64Image)
-            .add("name", "profile_${System.currentTimeMillis()}")
+            .add("name", PROFILE_IMAGE_PREFIX + System.currentTimeMillis())
             .build()
 
         val request = Request.Builder()
@@ -112,8 +126,8 @@ class ImgBBUploader {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "Error en la petición HTTP", e)
-                callback.onError("Error de conexión: ${e.message}")
+                Log.e(TAG, HTTP_REQUEST_ERROR, e)
+                callback.onError(CONNECTION_ERROR_PREFIX + e.message)
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -123,27 +137,22 @@ class ImgBBUploader {
                     val responseBody = resp.body?.string()
 
                     if (responseBody == null) {
-                        callback.onError("Respuesta vacía del servidor")
+                        callback.onError(EMPTY_SERVER_RESPONSE)
                         return
                     }
-
-                    Log.d(TAG, "Respuesta de ImgBB: $responseBody")
 
                     try {
                         val imgbbResponse = gson.fromJson(responseBody, ImgBBResponse::class.java)
 
                         if (imgbbResponse.success && imgbbResponse.data != null) {
-                            Log.d(TAG, "Imagen subida exitosamente: ${imgbbResponse.data.url}")
                             callback.onProgress(100)
                             callback.onSuccess(imgbbResponse.data.url, imgbbResponse.data.deleteUrl)
                         } else {
-                            val errorMessage = imgbbResponse.error?.message ?: "Error desconocido"
-                            Log.e(TAG, "Error de ImgBB: $errorMessage")
-                            callback.onError("Error de ImgBB: $errorMessage")
+                            val errorMessage = imgbbResponse.error?.message ?: UNKNOWN_ERROR
+                            callback.onError(IMGBB_ERROR_PREFIX + errorMessage)
                         }
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error al parsear respuesta JSON", e)
-                        callback.onError("Error al procesar respuesta: ${e.message}")
+                        callback.onError(RESPONSE_PROCESSING_ERROR + e.message)
                     }
                 }
             }
@@ -157,7 +166,7 @@ class ImgBBUploader {
             val byteArray = byteArrayOutputStream.toByteArray()
             Base64.encodeToString(byteArray, Base64.DEFAULT)
         } catch (e: Exception) {
-            Log.e(TAG, "Error al convertir bitmap a base64", e)
+            Log.e(TAG, BITMAP_TO_BASE64_ERROR, e)
             null
         }
     }

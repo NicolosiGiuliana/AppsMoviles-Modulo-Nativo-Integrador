@@ -1,4 +1,4 @@
-package com.example.trabajointegradornativo // Cambia por tu paquete
+package com.example.trabajointegradornativo
 
 import android.content.BroadcastReceiver
 import android.content.Context

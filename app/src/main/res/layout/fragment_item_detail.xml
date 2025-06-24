@@ -148,7 +148,7 @@
                             android:id="@+id/titulo_finalizacion"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="¡Desafío Finalizado!"
+                            android:text="@string/finish_ch"
                             android:textSize="28sp"
                             android:textStyle="bold"
                             android:textColor="#2E7D32"
@@ -169,7 +169,7 @@
                             android:id="@+id/mensaje_felicitacion"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="¡Felicitaciones! Has completado tu desafío con éxito. Tu dedicación y constancia han dado frutos."
+                            android:text="@string/congratulations_challenge_completed"
                             android:textSize="16sp"
                             android:textColor="#5A6C7D"
                             android:gravity="center"
@@ -181,7 +181,7 @@
                             android:id="@+id/estadisticas_finales"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Cargando estadísticas..."
+                            android:text="@string/loading_statistics"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="#2E3A59"
@@ -193,7 +193,7 @@
                             android:id="@+id/boton_finalizar_desafio"
                             android:layout_width="match_parent"
                             android:layout_height="56dp"
-                            android:text="Finalizar Desafío"
+                            android:text="@string/finish_challenge"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#FFFFFF"
@@ -489,7 +489,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Ubicación del Desafío"
+                            android:text="@string/challenge_location"
                             android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="#2E3A59" />
@@ -509,7 +509,7 @@
                         android:textSize="14sp"
                         android:textColor="#5A6C7D"
                         android:gravity="center"
-                        android:text="Cargando dirección..." />
+                        android:text="@string/loading_text" />
 
                 </LinearLayout>
 

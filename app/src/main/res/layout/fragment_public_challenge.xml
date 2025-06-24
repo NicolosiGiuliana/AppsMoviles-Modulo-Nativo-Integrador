@@ -32,7 +32,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="Desafíos Públicos"
+                    android:text="@string/public_challenges_title"
                     android:textColor="#1F2937"
                     android:textSize="28sp"
                     android:textStyle="bold" />
@@ -40,7 +40,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Descubre nuevos retos creados por la comunidad"
+                    android:text="@string/discover_community_challenges"
                     android:textColor="#6B7280"
                     android:textSize="16sp" />
 
@@ -75,7 +75,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@null"
-                        android:hint="Buscar desafíos por nombre o etiqueta"
+                        android:hint="@string/search_challenges_hint"
                         android:maxLines="1"
                         android:textColorHint="#9CA3AF"
                         android:textSize="16sp" />
@@ -89,7 +89,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:text="Lo Más Popular"
+                android:text="@string/most_popular"
                 android:textColor="#1F2937"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -125,7 +125,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No hay desafíos disponibles"
+                    android:text="@string/no_challenges_available"
                     android:textColor="#6B7280"
                     android:textSize="16sp" />
 
@@ -133,7 +133,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="¡Sé el primero en crear uno!"
+                    android:text="@string/be_first_to_create"
                     android:textColor="#9CA3AF"
                     android:textSize="14sp" />
 

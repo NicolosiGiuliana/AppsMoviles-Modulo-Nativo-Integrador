@@ -18,7 +18,6 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.widget.SwitchCompat
@@ -40,7 +39,6 @@ class ProfileFragment : Fragment() {
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 101
         private const val PICK_IMAGE_REQUEST = 102
         private const val CAMERA_REQUEST = 103
-        private const val TAG = "ProfileFragment"
         private const val MAX_IMAGE_SIZE = 1024
         private const val JPEG_QUALITY = 80
     }
@@ -143,7 +141,6 @@ class ProfileFragment : Fragment() {
         storage = FirebaseStorage.getInstance()
         sharedPreferences = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         imgBBUploader = ImgBBUploader()
-        Log.d(TAG, "Firebase inicializado - Usuario: ${auth.currentUser?.uid}")
     }
 
     private fun initViews(view: View) {
@@ -212,8 +209,6 @@ class ProfileFragment : Fragment() {
         }
 
         selectedLanguageText.text = languages[selectedLanguageIndex]
-
-        Log.d(TAG, "Configuración de idioma cargada - Índice: $selectedLanguageIndex, Texto: ${languages[selectedLanguageIndex]}")
     }
 
     private fun getCurrentLanguageIndex(): Int {
@@ -224,20 +219,16 @@ class ProfileFragment : Fragment() {
             resources.configuration.locale.language
         }
 
-        Log.d(TAG, "Idioma actual detectado: $currentLocale")
-
         val index = when (currentLocale) {
             "es" -> 0
             "en" -> 1
             "pt" -> 2
             else -> {
                 val savedLanguage = LanguageHelper.getAppLanguage(requireContext())
-                Log.d(TAG, "Idioma guardado en preferencias: $savedLanguage")
                 languageCodes.indexOf(savedLanguage).takeIf { it >= 0 } ?: 0
             }
         }
 
-        Log.d(TAG, "Índice de idioma seleccionado: $index (${languages[index]})")
         return index
     }
 
@@ -348,8 +339,6 @@ class ProfileFragment : Fragment() {
     private fun loadProfileImage() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            Log.d(TAG, "Cargando imagen de perfil para usuario: ${currentUser.uid}")
-
             val useDefaultImage = sharedPreferences.getBoolean("use_default_image", false)
 
             if (useDefaultImage) {
@@ -360,13 +349,11 @@ class ProfileFragment : Fragment() {
             val savedImageUrl = sharedPreferences.getString("profile_image_url", null)
 
             if (savedImageUrl != null) {
-                Log.d(TAG, "URL de imagen encontrada: $savedImageUrl")
                 loadImageFromUrl(savedImageUrl)
             } else {
                 loadImageUrlFromFirestore(currentUser.uid)
             }
         } else {
-            Log.w(TAG, getString(R.string.user_not_authenticated))
             setDefaultProfileImage()
         }
     }
@@ -386,7 +373,6 @@ class ProfileFragment : Fragment() {
 
                     val imageUrl = document.getString("profileImageUrl")
                     if (imageUrl != null) {
-                        Log.d(TAG, "URL de imagen encontrada en Firestore: $imageUrl")
                         loadImageFromUrl(imageUrl)
                         sharedPreferences.edit()
                             .putString("profile_image_url", imageUrl)
@@ -400,7 +386,6 @@ class ProfileFragment : Fragment() {
                 }
             }
             .addOnFailureListener { exception ->
-                Log.w(TAG, "Error al cargar datos del usuario", exception)
                 setDefaultProfileImage()
             }
     }
@@ -415,10 +400,8 @@ class ProfileFragment : Fragment() {
                     profileImage.setImageBitmap(bitmap)
                     profileImage.visibility = View.VISIBLE
                     profileInitials.visibility = View.GONE
-                    Log.d(TAG, "Imagen de perfil cargada desde URL")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error al cargar imagen desde URL", e)
                 Handler(Looper.getMainLooper()).post {
                     setDefaultProfileImage()
                 }
@@ -438,10 +421,7 @@ class ProfileFragment : Fragment() {
 
             profileInitials.setBackgroundResource(R.drawable.profile_circle_bg)
 
-            Log.d(TAG, "Imagen por defecto establecida para usuario: $userName con iniciales: $initials")
-
         } catch (e: Exception) {
-            Log.e(TAG, "Error al establecer imagen por defecto", e)
             profileImage.visibility = View.GONE
             profileInitials.text = "U"
             profileInitials.visibility = View.VISIBLE
@@ -486,15 +466,13 @@ class ProfileFragment : Fragment() {
                     mapOf(
                         "profileImageUrl" to null,
                         "profileImageDeleteUrl" to null,
-                        "useDefaultImage" to true, // Flag para indicar que usa imagen por defecto
+                        "useDefaultImage" to true,
                         "lastUpdated" to com.google.firebase.Timestamp.now()
                     )
                 )
                 .addOnSuccessListener {
-                    Log.d(TAG, "URLs de imagen limpiadas de Firestore")
                 }
                 .addOnFailureListener { e ->
-                    Log.w(TAG, "Error al limpiar URLs en Firestore", e)
                 }
         }
     }
@@ -596,7 +574,6 @@ class ProfileFragment : Fragment() {
             val resizedBitmap = resizeBitmap(bitmap, MAX_IMAGE_SIZE)
             uploadProfileImage(resizedBitmap)
         } catch (e: FileNotFoundException) {
-            Log.e(TAG, "Error al cargar imagen desde galería", e)
             Toast.makeText(requireContext(), getString(R.string.error_loading_image), Toast.LENGTH_SHORT).show()
         }
     }
@@ -610,10 +587,7 @@ class ProfileFragment : Fragment() {
         val width = bitmap.width
         val height = bitmap.height
 
-        Log.d(TAG, "Imagen original: ${width}x${height}")
-
         if (width <= maxSize && height <= maxSize) {
-            Log.d(TAG, "Imagen ya tiene tamaño adecuado")
             return bitmap
         }
 
@@ -626,22 +600,16 @@ class ProfileFragment : Fragment() {
         val newWidth = (width * ratio).toInt()
         val newHeight = (height * ratio).toInt()
 
-        Log.d(TAG, "Redimensionando a: ${newWidth}x${newHeight}")
-
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
     private fun uploadProfileImage(bitmap: Bitmap) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            Log.e(TAG, "Usuario no autenticado")
-            Toast.makeText(requireContext(), "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.user_not_authenticated), Toast.LENGTH_SHORT).show()
             return
         }
 
-        Log.d(TAG, "Iniciando subida de imagen a ImgBB para usuario: ${currentUser.uid}")
-
-        // Mostrar diálogo de progreso
         showUploadProgressDialog()
 
         imgBBUploader.uploadImage(bitmap, object : ImgBBUploader.UploadCallback {
@@ -656,24 +624,20 @@ class ProfileFragment : Fragment() {
                     sharedPreferences.edit()
                         .putString("profile_image_url", imageUrl)
                         .putString("profile_image_delete_url", deleteUrl)
-                        .putBoolean("use_default_image", false) // IMPORTANTE: Marcar que no usa imagen por defecto
+                        .putBoolean("use_default_image", false)
                         .apply()
 
-                    // Guardar en Firestore
                     saveImageUrlToFirestore(currentUser.uid, imageUrl, deleteUrl)
 
-                    Toast.makeText(requireContext(), "Foto de perfil actualizada", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "Imagen subida exitosamente a ImgBB: $imageUrl")
+                    Toast.makeText(requireContext(), getString(R.string.profile_photo_updated), Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onError(error: String) {
                 Handler(Looper.getMainLooper()).post {
                     hideUploadProgressDialog()
-                    Log.e(TAG, "Error al subir imagen a ImgBB: $error")
-                    Toast.makeText(requireContext(), "Error al subir imagen: $error", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), getString(R.string.error_uploading_image) + ": $error", Toast.LENGTH_LONG).show()
 
-                    // Mostrar diálogo de opciones de error
                     showUploadErrorDialog(bitmap)
                 }
             }
@@ -686,32 +650,29 @@ class ProfileFragment : Fragment() {
         })
     }
 
-    // MODIFICAR: Función para guardar en Firestore
     private fun saveImageUrlToFirestore(userId: String, imageUrl: String, deleteUrl: String) {
         val userRef = firestore.collection("usuarios").document(userId)
         val imageData = mapOf(
             "profileImageUrl" to imageUrl,
             "profileImageDeleteUrl" to deleteUrl,
-            "useDefaultImage" to false, // IMPORTANTE: Marcar que no usa imagen por defecto
+            "useDefaultImage" to false,
             "lastUpdated" to com.google.firebase.Timestamp.now()
         )
 
         userRef.update(imageData)
             .addOnSuccessListener {
-                Log.d(TAG, "URL de imagen guardada en Firestore")
             }
             .addOnFailureListener { e ->
-                Log.w(TAG, "Error al guardar URL en Firestore", e)
             }
     }
 
     private fun showUploadProgressDialog() {
         val dialogView = LayoutInflater.from(requireContext()).inflate(android.R.layout.simple_list_item_1, null)
         val textView = dialogView.findViewById<TextView>(android.R.id.text1)
-        textView.text = "Subiendo imagen... 0%"
+        textView.text = getString(R.string.uploading_image_progress, 0)
 
         uploadProgressDialog = AlertDialog.Builder(requireContext())
-            .setTitle("Subiendo imagen")
+            .setTitle(getString(R.string.uploading_image_title))
             .setView(dialogView)
             .setCancelable(false)
             .create()
@@ -722,7 +683,7 @@ class ProfileFragment : Fragment() {
     private fun updateUploadProgress(progress: Int) {
         uploadProgressDialog?.let { dialog ->
             val textView = dialog.findViewById<TextView>(android.R.id.text1)
-            textView?.text = "Subiendo imagen... $progress%"
+            textView?.text = getString(R.string.uploading_image_progress, progress)
         }
     }
 
@@ -733,16 +694,16 @@ class ProfileFragment : Fragment() {
 
     private fun showUploadErrorDialog(bitmap: Bitmap) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Error al subir imagen")
-            .setMessage("No se pudo subir la imagen a ImgBB. ¿Qué deseas hacer?")
-            .setPositiveButton("Reintentar") { _, _ -> uploadProfileImage(bitmap) }
-            .setNegativeButton("Usar localmente") { _, _ ->
+            .setTitle(getString(R.string.error_uploading_image_title))
+            .setMessage(getString(R.string.error_upload_imgbb_message))
+            .setPositiveButton(getString(R.string.retry)) { _, _ -> uploadProfileImage(bitmap) }
+            .setNegativeButton(getString(R.string.use_locally_upload)) { _, _ ->
                 profileImage.setImageBitmap(bitmap)
                 profileImage.visibility = View.VISIBLE
                 profileInitials.visibility = View.GONE
-                Toast.makeText(requireContext(), "Imagen establecida localmente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.image_set_locally_upload), Toast.LENGTH_SHORT).show()
             }
-            .setNeutralButton("Cancelar", null)
+            .setNeutralButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -776,14 +737,11 @@ class ProfileFragment : Fragment() {
         val hour = selectedNotificationHour
         val minute = selectedNotificationMinute
 
-        Log.d(TAG, "Programando notificaciones para $hour:$minute")
-
         try {
             val notificationHelper = NotificationHelper(context)
             notificationHelper.programarNotificacionDiaria(hour, minute)
             Toast.makeText(context, getString(R.string.reminders_scheduled, hour, String.format("%02d", minute)), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Log.e(TAG, "Error al programar notificaciones", e)
             Toast.makeText(context, getString(R.string.error_scheduling_reminders), Toast.LENGTH_SHORT).show()
         }
     }
@@ -847,16 +805,15 @@ class ProfileFragment : Fragment() {
     private fun mostrarImagenPerfilEnDialogo() {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            Toast.makeText(requireContext(), "Usuario no autenticado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.user_not_authenticated), Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Obtener la URL de la imagen guardada
         val savedImageUrl = sharedPreferences.getString("profile_image_url", null)
         val useDefaultImage = sharedPreferences.getBoolean("use_default_image", false)
 
         if (useDefaultImage || savedImageUrl == null) {
-            Toast.makeText(requireContext(), "No hay imagen de perfil para mostrar", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.no_profile_image_show), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -865,7 +822,6 @@ class ProfileFragment : Fragment() {
 
     private fun mostrarImagenEnDialogo(url: String) {
         try {
-            // Crear ImageView para mostrar la imagen
             val imageView = ImageView(requireContext()).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -875,24 +831,21 @@ class ProfileFragment : Fragment() {
                 scaleType = ImageView.ScaleType.CENTER_CROP
             }
 
-            // Crear el diálogo
             val dialog = AlertDialog.Builder(requireContext())
                 .setView(imageView)
-                .setPositiveButton("Cerrar") { dialog, _ -> dialog.dismiss() }
-                .setNeutralButton("Cambiar foto") { dialog, _ ->
+                .setPositiveButton(getString(R.string.close_dialog)) { dialog, _ -> dialog.dismiss() }
+                .setNeutralButton(getString(R.string.change_photo_dialog)) { dialog, _ ->
                     dialog.dismiss()
                     showImagePickerDialog()
                 }
                 .create()
 
-            // Mostrar loading mientras carga la imagen
             imageView.setImageDrawable(
                 ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_gallery)
             )
 
             dialog.show()
 
-            // Cargar la imagen de forma asíncrona
             Thread {
                 try {
                     val connection = URL(url).openConnection()
@@ -902,31 +855,27 @@ class ProfileFragment : Fragment() {
                     val bitmap = BitmapFactory.decodeStream(inputStream)
                     inputStream.close()
 
-                    // Actualizar la UI en el hilo principal
                     requireActivity().runOnUiThread {
                         if (bitmap != null) {
                             imageView.setImageBitmap(bitmap)
-                            Log.d(TAG, "Imagen de perfil cargada en diálogo")
                         } else {
                             imageView.setImageDrawable(
                                 ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete)
                             )
-                            Toast.makeText(context, "Error al cargar la imagen", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, getString(R.string.error_loading_image_dialog_message), Toast.LENGTH_SHORT).show()
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error al cargar imagen: ${e.message}")
                     requireActivity().runOnUiThread {
                         imageView.setImageDrawable(
                             ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete)
                         )
-                        Toast.makeText(context, "Error al cargar la imagen: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.error_loading_image_with_message, e.message), Toast.LENGTH_SHORT).show()
                     }
                 }
             }.start()
         } catch (e: Exception) {
-            Log.e(TAG, "Error al mostrar imagen: ${e.message}")
-            Toast.makeText(context, "Error al mostrar imagen", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_showing_image_message, e.message), Toast.LENGTH_SHORT).show()
         }
     }
 }

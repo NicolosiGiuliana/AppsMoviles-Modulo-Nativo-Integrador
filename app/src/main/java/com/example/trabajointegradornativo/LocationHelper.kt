@@ -21,14 +21,14 @@ class LocationHelper(private val context: Context) {
 
     fun getCurrentLocation(callback: LocationCallback) {
         if (!hasLocationPermission()) {
-            callback.onLocationError("Permisos de ubicación no concedidos")
+            callback.onLocationError(context.getString(R.string.location_permissions_denied))
             return
         }
 
         locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         if (!isGPSEnabled()) {
-            callback.onLocationError("GPS deshabilitado. Por favor, actívalo en configuración")
+            callback.onLocationError(context.getString(R.string.gps_disabled_enable_settings))
             return
         }
 
@@ -46,7 +46,7 @@ class LocationHelper(private val context: Context) {
 
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {
-                callback.onLocationError("Proveedor de ubicación deshabilitado")
+                callback.onLocationError(context.getString(R.string.location_provider_disabled))
             }
             override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
         }
@@ -67,7 +67,7 @@ class LocationHelper(private val context: Context) {
             )
 
         } catch (e: SecurityException) {
-            callback.onLocationError("Error de permisos: ${e.message}")
+            callback.onLocationError(context.getString(R.string.permission_error_format, e.message))
         }
     }
 
@@ -94,10 +94,10 @@ class LocationHelper(private val context: Context) {
                 val address = addresses[0]
                 "${address.getAddressLine(0)}"
             } else {
-                "Lat: ${"%.4f".format(latitude)}, Lng: ${"%.4f".format(longitude)}"
+                context.getString(R.string.lat_lng_format, latitude, longitude)
             }
         } catch (e: Exception) {
-            "Lat: ${"%.4f".format(latitude)}, Lng: ${"%.4f".format(longitude)}"
+            context.getString(R.string.lat_lng_format, latitude, longitude)
         }
     }
 

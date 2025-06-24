@@ -12,11 +12,11 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.android.flexbox.FlexboxLayout
 
 class PublicChallengeFragment: Fragment() {
 
@@ -47,10 +47,12 @@ class PublicChallengeFragment: Fragment() {
     }
 
     private fun initializeViews() {
-        challengesContainer = view?.findViewById(R.id.challenges_container) ?: return
-        loadingProgress = view?.findViewById(R.id.loading_progress) ?: return
-        emptyState = view?.findViewById(R.id.empty_state) ?: return
-        searchEditText = view?.findViewById(R.id.search_edit_text) ?: return
+        view?.let { v ->
+            challengesContainer = v.findViewById(R.id.challenges_container)
+            loadingProgress = v.findViewById(R.id.loading_progress)
+            emptyState = v.findViewById(R.id.empty_state)
+            searchEditText = v.findViewById(R.id.search_edit_text)
+        }
     }
 
     private fun setupFirestore() {
@@ -70,16 +72,22 @@ class PublicChallengeFragment: Fragment() {
     }
 
     private fun filterChallenges(query: String) {
+        filteredChallenges.clear()
+
         if (query.isBlank()) {
-            filteredChallenges.clear()
             filteredChallenges.addAll(allChallenges)
         } else {
-            filteredChallenges = allChallenges.filter { challenge ->
-                challenge.nombre.contains(query, ignoreCase = true) ||
-                        challenge.autorNombre.contains(query, ignoreCase = true) ||
-                        challenge.descripcion.contains(query, ignoreCase = true) ||
-                        challenge.etiquetas.any { it.contains(query, ignoreCase = true) }
-            }.toMutableList()
+            val searchQuery = query.trim().lowercase()
+            filteredChallenges.addAll(
+                allChallenges.filter { challenge ->
+                    challenge.nombre.lowercase().contains(searchQuery) ||
+                            challenge.autorNombre.lowercase().contains(searchQuery) ||
+                            challenge.descripcion.lowercase().contains(searchQuery) ||
+                            challenge.etiquetas.any { tag ->
+                                tag.lowercase().contains(searchQuery)
+                            }
+                }
+            )
         }
 
         displayChallenges()
@@ -149,7 +157,7 @@ class PublicChallengeFragment: Fragment() {
         val tvChallengeDescription = cardView.findViewById<TextView>(R.id.tv_challenge_description)
         val tvDuration = cardView.findViewById<TextView>(R.id.tv_duration)
         val cvDurationTag = cardView.findViewById<CardView>(R.id.cv_duration_badge)
-        val llTagsContainer = cardView.findViewById<com.google.android.flexbox.FlexboxLayout>(R.id.ll_tags_container)
+        val llTagsContainer = cardView.findViewById<FlexboxLayout>(R.id.ll_tags_container)
         val cvJoinButton = cardView.findViewById<CardView>(R.id.cv_join_button)
 
         tvChallengeName.text = challenge.nombre
@@ -187,11 +195,11 @@ class PublicChallengeFragment: Fragment() {
         val inflater = LayoutInflater.from(requireContext())
         val tagView = inflater.inflate(R.layout.item_tag_public, null, false)
 
-        tagView.layoutParams = com.google.android.flexbox.FlexboxLayout.LayoutParams(
-            com.google.android.flexbox.FlexboxLayout.LayoutParams.WRAP_CONTENT,
-            com.google.android.flexbox.FlexboxLayout.LayoutParams.WRAP_CONTENT
+        tagView.layoutParams = FlexboxLayout.LayoutParams(
+            FlexboxLayout.LayoutParams.WRAP_CONTENT,
+            FlexboxLayout.LayoutParams.WRAP_CONTENT
         ).apply {
-            setMargins(0, 0, 8.dpToPx(), 4.dpToPx()) // Margin derecho y abajo
+            setMargins(0, 0, 8.dpToPx(), 4.dpToPx())
         }
 
         val tvTagText = tagView.findViewById<TextView>(R.id.tag_text_public)
@@ -253,6 +261,7 @@ class PublicChallengeFragment: Fragment() {
 
         val exploreLayout = bottomNavigation?.getChildAt(2) as? LinearLayout
         exploreLayout?.setOnClickListener {
+            // Current fragment - no action needed
         }
 
         val profileLayout = bottomNavigation?.getChildAt(3) as? LinearLayout

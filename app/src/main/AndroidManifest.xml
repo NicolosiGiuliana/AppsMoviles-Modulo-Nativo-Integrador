@@ -47,7 +47,7 @@
         android:label="Desafio+"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TrabajoIntegradorNativo"
+        android:theme="@style/Theme.TrabajoIntegradorNativo.NoActionBar"
         tools:targetApi="31">
 
         <receiver android:name=".NotificationReceiver"
@@ -85,6 +85,7 @@
             android:name=".ItemDetailHostActivity"
             android:exported="true"
             android:label="@string/title_activity_item_detail_host"
+            android:theme="@style/Theme.TrabajoIntegradorNativo.NoActionBar"
             android:resizeableActivity="true"
             tools:targetApi="24" />
 

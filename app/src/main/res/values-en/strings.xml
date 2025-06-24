@@ -1,9 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Strings en inglés -->
     <string name="app_name">Challenge+</string>
     <string name="title_activity_item_detail_host">ItemDetailHostActivity</string>
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
+
+    <string name="edit">Edit</string>
+    <string name="tags_title">Tags</string>
+    <string name="challenge_description">Description</string>
+    <string name="challenge_description_hint">Add a description</string>
+    <string name="error_navigating_to_detail">Error navigating to challenge detail</string>
+
+    <string name="no_tags">No tags</string>
+    <string name="edit_habits">Edit habits</string>
+    <string name="save_changes">Save changes</string>
+    <string name="habit_name_hint">Habit name</string>
+
+    <string name="edit_challenge">Edit Challenge</string>
+    <string name="edit_description">Edit Description</string>
+    <string name="edit_duration">Edit Duration</string>
+    <string name="edit_tags">Edit Tags</string>
+    <string name="add_tag">Add Tag</string>
+    <string name="delete_tag">Delete Tag</string>
+    <string name="description_hint">Enter the challenge description</string>
+    <string name="days_hint">Days</string>
+    <string name="tag_hint">Tag</string>
+    <string name="challenge_updated">Challenge updated successfully</string>
+    <string name="error_saving_challenge">Error saving changes</string>
+    <string name="days_must_be_positive">Days must be greater than 0</string>
+    <string name="at_least_one_habit">Must have at least one habit</string>
 
     <!-- Profile strings -->
     <string name="profile_title">Profile</string>
@@ -51,65 +76,76 @@
     <string name="register">Sign Up</string>
     <string name="no_account">Don\'t have an account? Sign up</string>
     <string name="have_account">Already have an account? Sign in</string>
-    <!-- Validation messages -->
-    <string name="email_required">Email is required</string>
-    <string name="enter_valid_email">Please enter a valid email</string>
-    <string name="password_required">Password is required</string>
-    <string name="password_min_length">Password must be at least 6 characters long</string>
-    <string name="full_name_required">Full name is required</string>
-    <string name="name_min_length">Name must be at least 3 characters long</string>
-    <string name="birth_date_required">Birth date is required</string>
-    <string name="age_requirement">You must be over 10 years old to register</string>
-    <string name="objective_required">You must select a goal</string>
-    <string name="confirm_password_required">You must confirm the password</string>
-    <string name="passwords_dont_match">Passwords do not match</string>
-
-    <!-- Success messages -->
-    <string name="login_successful">Login successful</string>
-    <string name="registration_successful">Registration successful</string>
 
     <!-- Error messages -->
     <string name="error_format">Error: %s</string>
-    <string name="error_saving_data">Error saving data: %s</string>
 
     <!-- Additional objectives -->
     <string name="reading">Reading</string>
     <string name="hydration">Hydration</string>
+    <string name="mindfulness_objective">Mindfulness</string>
     <string name="other">Other</string>
 
-    <!-- Challenge names and descriptions -->
-    <string name="initial_fitness_challenge">Initial Fitness Challenge</string>
-    <string name="fitness_challenge_description">Start your journey to better physical fitness.</string>
-    <string name="initial_reading_challenge">Initial Reading Challenge</string>
-    <string name="reading_challenge_description">Develop the habit of reading.</string>
-    <string name="initial_mindfulness_challenge">Initial Mindfulness Challenge</string>
-    <string name="mindfulness_challenge_description">Practice mindfulness daily.</string>
-    <string name="initial_hydration_challenge">Initial Hydration Challenge</string>
-    <string name="hydration_challenge_description">Stay hydrated for better health.</string>
-    <string name="initial_generic_challenge">Initial Generic Challenge</string>
-    <string name="generic_challenge_description">A challenge to start building habits.</string>
+    <!-- Profile Fragment strings -->
+    <string name="profile_fragment_tag">ProfileFragment</string>
+    <string name="firebase_initialized_user">Firebase initialized - User: %s</string>
+    <string name="user_space">U</string>
+    <string name="language_settings_loaded">Language settings loaded - Index: %1$d, Text: %2$s</string>
+    <string name="current_language_detected">Current language detected: %s</string>
+    <string name="saved_language_preferences">Language saved in preferences: %s</string>
+    <string name="selected_language_index">Selected language index: %1$d (%2$s)</string>
+    <string name="loading_profile_image_user">Loading profile image for user: %s</string>
+    <string name="image_url_found">Image URL found: %s</string>
+    <string name="image_url_found_firestore">Image URL found in Firestore: %s</string>
+    <string name="error_loading_user_data">Error loading user data</string>
+    <string name="profile_image_loaded_url">Profile image loaded from URL</string>
+    <string name="error_loading_image_url">Error loading image from URL</string>
+    <string name="default_image_established_user">Default image established for user: %1$s with initials: %2$s</string>
+    <string name="error_setting_default_image">Error setting default image</string>
+    <string name="image_urls_cleared_firestore">Image URLs cleared from Firestore</string>
+    <string name="error_clearing_urls_firestore">Error clearing URLs in Firestore</string>
+    <string name="original_image_size">Original image: %1$dx%2$d</string>
+    <string name="image_adequate_size">Image already has adequate size</string>
+    <string name="resizing_to">Resizing to: %1$dx%2$d</string>
+    <string name="starting_imgbb_upload_user">Starting image upload to ImgBB for user: %s</string>
+    <string name="image_uploaded_successfully_imgbb">Image uploaded successfully to ImgBB: %s</string>
+    <string name="error_uploading_imgbb">Error uploading image to ImgBB: %s</string>
+    <string name="image_url_saved_firestore">Image URL saved in Firestore</string>
+    <string name="error_saving_url_firestore">Error saving URL in Firestore</string>
+    <string name="uploading_image_progress">Uploading image... %d%%</string>
+    <string name="uploading_image_title">Uploading image</string>
+    <string name="error_uploading_image_title">Error uploading image</string>
+    <string name="error_upload_imgbb_message">Could not upload image to ImgBB. What would you like to do?</string>
+    <string name="use_locally_upload">Use locally</string>
+    <string name="image_set_locally_upload">Image set locally</string>
+    <string name="scheduling_notifications_time">Scheduling notifications for %1$d:%2$d</string>
+    <string name="error_scheduling_notifications_log">Error scheduling notifications</string>
+    <string name="language_changed_recreate">Language changed to %s</string>
+    <string name="no_profile_image_show">No profile image to show</string>
+    <string name="close_dialog">Close</string>
+    <string name="change_photo_dialog">Change photo</string>
+    <string name="error_loading_image_dialog">Error loading image</string>
+    <string name="profile_image_loaded_dialog">Profile image loaded in dialog</string>
+    <string name="error_loading_image_message">Error loading image: %s</string>
+    <string name="error_showing_image">Error showing image</string>
 
-    <!-- Habit names -->
-    <string name="walk_30_minutes">Walk 30 minutes</string>
-    <string name="stretch_15_minutes">Do 15 minutes of stretching</string>
-    <string name="drink_2_liters_water">Drink 2 liters of water</string>
-    <string name="sleep_7_8_hours">Sleep 7–8 hours</string>
-    <string name="eat_vegetables_portion">Eat a portion of vegetables</string>
-    <string name="take_reading_notes">Take notes from reading</string>
-    <string name="reflect_on_reading">Reflect on the reading</string>
-    <string name="share_learned">Share what you’ve learned</string>
-    <string name="read_quiet_place">Read in a quiet place</string>
-    <string name="meditate_10_minutes">Meditate for 10 minutes</string>
-    <string name="practice_conscious_breathing">Practice conscious breathing</string>
-    <string name="write_gratitude_journal">Write in a gratitude journal</string>
-    <string name="take_conscious_pause">Take a conscious pause</string>
-    <string name="observe_environment">Observe your surroundings</string>
-    <string name="carry_water_bottle">Carry a water bottle</string>
-    <string name="drink_water_wake_up">Drink a glass of water upon waking</string>
-    <string name="drink_water_before_meals">Drink water before each meal</string>
-    <string name="avoid_sugary_drinks">Avoid sugary drinks</string>
-    <string name="habit_4">Habit 4</string>
-    <string name="habit_5">Habit 5</string>
+    <!-- SharedPreferences keys -->
+    <string name="pref_user_prefs">user_prefs</string>
+    <string name="pref_member_since">member_since</string>
+    <string name="pref_daily_notifications">daily_notifications</string>
+    <string name="pref_motivational_phrases">motivational_phrases</string>
+    <string name="pref_notification_hour">notification_hour</string>
+    <string name="pref_notification_minute">notification_minute</string>
+    <string name="pref_use_default_image">use_default_image</string>
+    <string name="pref_profile_image_url">profile_image_url</string>
+    <string name="pref_profile_image_delete_url">profile_image_delete_url</string>
+
+    <!-- Firestore fields -->
+    <string name="firestore_usuarios">users</string>
+    <string name="firestore_use_default_image">useDefaultImage</string>
+    <string name="firestore_profile_image_url">profileImageUrl</string>
+    <string name="firestore_profile_image_delete_url">profileImageDeleteUrl</string>
+    <string name="firestore_last_updated">lastUpdated</string>
 
     <!-- Home screen strings -->
     <string name="hello_user">Hello, User</string>
@@ -147,14 +183,14 @@
     <!-- Create challenge strings -->
     <string name="new_challenge">New Challenge</string>
     <string name="create_custom_routine">Create your custom routine</string>
-    <string name="challenge_name">Challenge name</string>
-    <string name="challenge_name_hint">E.g: My morning routine</string>
+    <string name="challenge_name_title">Challenge name</string>
+    <string name="challenge_name_hint">Ex: My morning routine</string>
     <string name="duration">Duration</string>
     <string name="daily_habits">Daily habits (3-5)</string>
     <string name="habit_1">Habit 1</string>
     <string name="habit_2">Habit 2</string>
     <string name="habit_3">Habit 3</string>
-    <string name="add_habit">+ Add habit</string>
+    <string name="add_habit_create">+ Add habit</string>
     <string name="add_location_optional">Add location (optional)</string>
     <string name="challenge_location">Challenge location</string>
     <string name="no_location_selected">No location selected</string>
@@ -179,13 +215,13 @@
     <string name="notifications_enabled">Notifications enabled</string>
     <string name="notifications_disabled">Notifications disabled</string>
     <string name="language_changed_to">Language changed to %s</string>
-    <string name="already_in_profile">You are already in Profile</string>
+    <string name="already_in_profile">Already in Profile</string>
     <string name="error_navigating_home">Error navigating to Home: %s</string>
     <string name="error_navigating_today">Error navigating to Today: %s</string>
 
     <!-- Today screen strings -->
     <string name="today_title">Today</string>
-    <string name="date_format_today">%1$s, %3$s %2$d</string>
+    <string name="date_format_today">%1$s, %2$d %3$s</string>
     <string name="progress_summary_format">%1$d/%2$d completed</string>
     <string name="exercise_30_days_day">30 Days of Exercise - Day %1$d</string>
     <string name="daily_reading_day">Daily Reading - Day %1$d</string>
@@ -196,6 +232,44 @@
     <string name="take_notes">Take notes</string>
     <string name="attached_photo">Attached\nphoto</string>
     <string name="great_cardio_comment">Great cardio session today!\nI feel very energetic.</string>
+
+    <!-- TodayFragment specific strings -->
+    <string name="challenge_without_name">Challenge without name</string>
+    <string name="no_active_challenges_message">You have no active challenges.\nGo to Home to create one!</string>
+    <string name="challenge_day_format">%1$s - Day %2$d</string>
+    <string name="day_already_completed">This day is already marked as completed</string>
+    <string name="add_photo_to_habit">Add photo to habit</string>
+    <string name="add_comment_optional">Add a comment (optional)</string>
+    <string name="add_comment">Add comment</string>
+    <string name="add_comment_message">You can add an optional comment for this photo</string>
+    <string name="save">Save</string>
+    <string name="photo_saved_successfully">Photo saved successfully</string>
+    <string name="error_getting_image_url">Error getting image URL</string>
+    <string name="error_upload_options_message">Could not upload image. What would you like to do?</string>
+    <string name="retry">Retry</string>
+    <string name="save_locally">Save locally</string>
+    <string name="comment_saved_without_image">Comment saved (without image)</string>
+    <string name="already_in_today">Already in Today</string>
+    <string name="error_navigating_profile">Error navigating to Profile: %s</string>
+
+    <!-- Error messages -->
+    <string name="error_user_not_authenticated">User not authenticated</string>
+    <string name="error_saving_progress">Error saving progress: %s</string>
+    <string name="error_accessing_camera">Error accessing camera: %s</string>
+    <string name="error_loading_image">Error loading image</string>
+    <string name="error_processing_image">Error processing image: %s</string>
+    <string name="error_uploading_image_detailed">Error uploading image: %s</string>
+    <string name="error_file_not_found">File not found</string>
+    <string name="error_bucket_not_found">Storage bucket not found</string>
+    <string name="error_project_not_found">Project not found</string>
+    <string name="error_quota_exceeded">Storage quota exceeded</string>
+    <string name="error_not_authenticated">User not authenticated</string>
+    <string name="error_not_authorized">No permissions to upload files</string>
+    <string name="error_retry_limit_exceeded">Retry limit exceeded</string>
+    <string name="error_invalid_checksum">Invalid checksum</string>
+    <string name="error_operation_canceled">Operation canceled</string>
+    <string name="error_storage_unknown">Storage error: %s</string>
+    <string name="error_unknown">Unknown error: %s</string>
 
     <!-- Content descriptions -->
     <string name="camera_icon">Camera</string>
@@ -223,47 +297,9 @@
     <string name="november">November</string>
     <string name="december">December</string>
 
-    <!-- TodayFragment specific strings -->
-    <string name="challenge_without_name">Challenge without name</string>
-    <string name="no_active_challenges_message">You have no active challenges.\nGo to Home to create one!</string>
-    <string name="challenge_day_format">%1$s - Day %2$d</string>
-    <string name="day_already_completed">This day is already marked as completed</string>
-    <string name="add_photo_to_habit">Add photo to habit</string>
-    <string name="add_comment_optional">Add a comment (optional)</string>
-    <string name="add_comment">Add comment</string>
-    <string name="add_comment_message">You can add an optional comment for this photo</string>
-    <string name="save">Save</string>
-    <string name="photo_saved_successfully">Photo saved successfully</string>
-    <string name="error_getting_image_url">Error getting image URL</string>
-    <string name="error_upload_options_message">Could not upload image. What do you want to do?</string>
-    <string name="retry">Retry</string>
-    <string name="save_locally">Save locally</string>
-    <string name="comment_saved_without_image">Comment saved (without image)</string>
-    <string name="already_in_today">You are already in Today</string>
-    <string name="error_navigating_profile">Error navigating to Profile: %s</string>
-
-    <!-- Error messages -->
-    <string name="error_user_not_authenticated">User not authenticated</string>
-    <string name="error_saving_progress">Error saving progress: %s</string>
-    <string name="error_accessing_camera">Error accessing camera: %s</string>
-    <string name="error_loading_image">Error loading image</string>
-    <string name="error_processing_image">Error processing image: %s</string>
-    <string name="error_uploading_image_detailed">Error uploading image: %s</string>
-    <string name="error_file_not_found">File not found</string>
-    <string name="error_bucket_not_found">Storage bucket not found</string>
-    <string name="error_project_not_found">Project not found</string>
-    <string name="error_quota_exceeded">Storage quota exceeded</string>
-    <string name="error_not_authenticated">User not authenticated</string>
-    <string name="error_not_authorized">No permissions to upload files</string>
-    <string name="error_retry_limit_exceeded">Retry limit exceeded</string>
-    <string name="error_invalid_checksum">Invalid checksum</string>
-    <string name="error_operation_canceled">Operation canceled</string>
-    <string name="error_storage_unknown">Storage error: %s</string>
-    <string name="error_unknown">Unknown error: %s</string>
-
-    <string name="notification_permissions_needed">Notification permissions are needed</string>
+    <string name="notification_permissions_needed">Notification permissions needed</string>
     <string name="notification_permissions_title">Notification permissions</string>
-    <string name="notification_permissions_message">To receive reminders, you need to enable notifications in the app settings.</string>
+    <string name="notification_permissions_message">To receive reminders, you need to enable notifications in app settings.</string>
     <string name="go_to_settings">Go to settings</string>
     <string name="alarm_permissions_title">Alarm permissions</string>
     <string name="alarm_permissions_message">To schedule precise reminders, you need to enable alarm permissions in settings.</string>
@@ -273,7 +309,7 @@
     <string name="storage_permission_denied">Storage permission denied</string>
     <string name="notification_permissions_denied">Notification permissions denied</string>
     <string name="user_not_authenticated">User not authenticated</string>
-    <string name="upload_error_options_message">Could not upload image. What do you want to do?</string>
+    <string name="upload_error_options_message">Could not upload image. What would you like to do?</string>
     <string name="use_locally">Use locally</string>
     <string name="image_set_locally">Image set locally</string>
     <string name="reminders_scheduled">Reminders scheduled for %1$d:%2$s</string>
@@ -289,10 +325,643 @@
     <string name="error_deleting_challenge">Error deleting challenge</string>
 
     <!-- Validation messages -->
+    <string name="email_required">Email is required</string>
+    <string name="enter_valid_email">Enter a valid email</string>
+    <string name="password_required">Password is required</string>
+    <string name="password_min_length">Password must be at least 6 characters</string>
+    <string name="full_name_required">Full name is required</string>
+    <string name="name_min_length">Name must be at least 3 characters</string>
+    <string name="birth_date_required">Birth date is required</string>
+    <string name="age_requirement">Must be over 10 years old to register</string>
+    <string name="objective_required">Must select an objective</string>
+    <string name="confirm_password_required">Must confirm password</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+
+    <!-- Toast messages -->
+    <string name="login_successful">Login successful</string>
+    <string name="registration_successful">Registration successful</string>
+    <string name="navigation_successful">Navigation successful</string>
+    <string name="login_error">Login error: %s</string>
+    <string name="registration_error">Registration error: %s</string>
+    <string name="error_saving_data">Error saving data: %s</string>
+
+    <!-- Objectives -->
+    <string name="reading_objective">Reading</string>
+    <string name="hydration_objective">Hydration</string>
+    <string name="other_objective">Other</string>
+
+    <string name="challenge_title">Challenge Title</string>
+    <string name="description_title">Description</string>
+    <string name="habits_title">Included habits</string>
+    <string name="duration_title">Duration</string>
+    <string name="day_status_title">Today\'s status</string>
+    <string name="duration_days_format">%d days</string>
+    <string name="day_completed">Completed</string>
+
+    <string name="all_habits_completed">All habits are completed. You cannot uncheck.</string>
+
+    <string name="day_pending">Pending</string>
+    <string name="default_challenge_description">This challenge will help you develop positive habits</string>
+    <string name="default_habit_1">Do daily exercise</string>
+    <string name="default_habit_2">Drink 8 glasses of water</string>
+    <string name="default_habit_3">Meditate 10 minutes</string>
+    <string name="good_progress">Good progress</string>
+    <string name="keep_going">Keep it up!</string>
+    <string name="just_started">Just getting started</string>
+
+    <!-- For tags -->
+    <string name="tags">Tags</string>
+    <string name="tags_description">Add tags to categorize your challenge</string>
+    <string name="add_tag_hint">Write tag...</string>
+    <string name="add">Add</string>
+
+    <!-- For visibility -->
+    <string name="challenge_visibility">Challenge visibility</string>
+    <string name="visibility_description">Choose who can see your challenge</string>
+    <string name="public_challenge">Public</string>
+    <string name="public_description">Other users will be able to see and join your challenge</string>
+    <string name="private_challenge">Private</string>
+    <string name="private_description">Only you will be able to see this challenge</string>
 
     <!-- Challenge data -->
+    <string name="initial_fitness_challenge">Initial Fitness Challenge</string>
+    <string name="fitness_challenge_description">Start your journey to better physical fitness.</string>
+    <string name="initial_reading_challenge">Initial Reading Challenge</string>
+    <string name="reading_challenge_description">Develop the habit of reading.</string>
+    <string name="initial_mindfulness_challenge">Initial Mindfulness Challenge</string>
+    <string name="mindfulness_challenge_description">Practice mindfulness daily.</string>
+    <string name="initial_hydration_challenge">Initial Hydration Challenge</string>
+    <string name="hydration_challenge_description">Stay hydrated for better health.</string>
+    <string name="initial_generic_challenge">Initial Generic Challenge</string>
+    <string name="generic_challenge_description">A challenge to start building habits.</string>
 
     <!-- Habit names -->
+    <string name="walk_30_minutes">Walk 30 minutes</string>
+    <string name="stretch_15_minutes">Stretch for 15 minutes</string>
+    <string name="drink_2_liters_water">Drink 2 liters of water</string>
+    <string name="sleep_7_8_hours">Sleep 7-8 hours</string>
+    <string name="eat_vegetables_portion">Eat a portion of vegetables</string>
+    <string name="take_reading_notes">Take reading notes</string>
+    <string name="reflect_on_reading">Reflect on reading</string>
+    <string name="share_learned">Share what you learned</string>
+    <string name="read_quiet_place">Read in a quiet place</string>
+    <string name="meditate_10_minutes">Meditate 10 minutes</string>
+    <string name="practice_conscious_breathing">Practice conscious breathing</string>
+    <string name="write_gratitude_journal">Write in gratitude journal</string>
+    <string name="take_conscious_pause">Take a conscious pause</string>
+    <string name="observe_environment">Observe the environment</string>
+    <string name="carry_water_bottle">Carry a water bottle</string>
+    <string name="drink_water_wake_up">Drink a glass of water upon waking</string>
+    <string name="drink_water_before_meals">Drink water before each meal</string>
+    <string name="avoid_sugary_drinks">Avoid sugary drinks</string>
+    <string name="habit_4">Habit 4</string>
+    <string name="habit_5">Habit 5</string>
 
+    <!-- ChallengePreviewFragment strings -->
+    <string name="error_loading_challenge">Error loading challenge</string>
+    <string name="error_loading_challenges_message">Error loading challenges: %s</string>
+    <string name="connection_error">Connection error</string>
+    <string name="no_specific_habits">This challenge has no specific habits defined</string>
+    <string name="author_prefix">By @%s</string>
+    <string name="days_suffix"> days</string>
+    <string name="must_login_to_use_challenge">You must log in to use this challenge</string>
+    <string name="already_have_challenge">You already have this challenge in your collection</string>
+    <string name="creating_challenge">Creating challenge...</string>
+    <string name="challenge_created_successfully">Challenge created successfully!</string>
+    <string name="error_creating_challenge_days">Error creating challenge days.</string>
+    <string name="error_creating_challenge">Error creating challenge.</string>
+    <string name="saving_challenge">Saving challenge...</string>
+    <string name="error_saving_challenge_retry">Error saving challenge. Try again.</string>
+    <string name="challenge_added_with_days">Challenge added to your challenges with %d days created!</string>
+    <string name="error_creating_days_retry">Error creating challenge days. Try again.</string>
+
+    <!-- Challenge names -->
+    <string name="initial_fitness_challenge_name">Initial Fitness Challenge</string>
+    <string name="fitness_challenge_description_text">Improve your physical condition with daily habits</string>
+    <string name="initial_reading_challenge_name">Initial Reading Challenge</string>
+    <string name="reading_challenge_description_text">Develop the habit of daily reading</string>
+    <string name="mindfulness_challenge_name">Mindfulness</string>
+    <string name="mindfulness_challenge_description_text">Cultivate mindfulness and reduce stress</string>
+    <string name="hydration_challenge_name">Hydration Challenge</string>
+    <string name="hydration_challenge_description_text">Stay hydrated for better health</string>
+    <string name="custom_challenge_name">Custom Challenge</string>
+    <string name="custom_challenge_description_text">A challenge adapted to your needs</string>
+
+    <!-- Habit names -->
+    <string name="walk_30_min_habit">Walk 30 minutes</string>
+    <string name="stretch_15_min_habit">Stretch 15 minutes</string>
+    <string name="drink_2l_water_habit">Drink 2 liters of water</string>
+    <string name="sleep_7_8_hours_habit">Sleep 7-8 hours</string>
+    <string name="eat_vegetables_habit">Eat a portion of vegetables</string>
+    <string name="read_20_pages_habit">Read 20 pages</string>
+    <string name="take_reading_notes_habit">Take reading notes</string>
+    <string name="reflect_on_reading_habit">Reflect on reading</string>
+    <string name="read_quiet_place_habit">Read in a quiet place</string>
+    <string name="meditate_10_min_habit">Meditate 10 minutes</string>
+    <string name="conscious_breathing_habit">Practice conscious breathing</string>
+    <string name="gratitude_journal_habit">Write gratitude journal</string>
+    <string name="conscious_pause_habit">Take a conscious pause</string>
+    <string name="mindful_observation_habit">Observe environment mindfully</string>
+    <string name="carry_water_bottle_habit">Carry water bottle</string>
+    <string name="drink_water_before_meals_habit">Drink water before meals</string>
+    <string name="avoid_sugary_drinks_habit">Avoid sugary drinks</string>
+    <string name="drink_water_on_wake_habit">Drink water upon waking</string>
+    <string name="custom_habit_1">Custom habit 1</string>
+    <string name="custom_habit_2">Custom habit 2</string>
+    <string name="custom_habit_3">Custom habit 3</string>
+
+    <!-- Challenge types -->
+    <string name="fitness_type">fitness</string>
+    <string name="reading_type">reading</string>
+    <string name="mindfulness_type">mindfulness</string>
+    <string name="hydration_type">hydration</string>
+    <string name="custom_type">custom</string>
+    <string name="general_type">general</string>
+    <string name="active_status">active</string>
+
+    <!-- Additional strings for CreateChallengeFragment.kt -->
+
+    <!-- Validation and error messages -->
+    <string name="write_tag">Write a tag</string>
+    <string name="tag_max_length">Tag cannot exceed 20 characters</string>
+    <string name="tag_already_added">This tag has already been added</string>
+    <string name="max_tags_limit">You cannot add more than 10 tags</string>
+    <string name="challenge_name_required">Challenge name is required</string>
+    <string name="challenge_description_required">Challenge description is required</string>
+    <string name="minimum_habits_required">You must add at least 3 habits</string>
+    <string name="maximum_habits_exceeded">You cannot add more than 5 habits</string>
+    <string name="public_challenges_no_location">Public challenges cannot have location for privacy</string>
+
+    <!-- Location messages -->
+    <string name="location_permissions_denied">Location permissions denied</string>
+    <string name="getting_location">Getting location...</string>
+    <string name="location_obtained_successfully">Location obtained successfully</string>
+    <string name="change_location">Change location</string>
+
+    <!-- Creation process -->
+    <string name="creating">Creating...</string>
+
+    <!-- Cancellation dialog -->
+    <string name="cancel_creation">Cancel creation</string>
+    <string name="cancel_creation_message">Are you sure you want to cancel? Entered data will be lost.</string>
+    <string name="yes_cancel">Yes, cancel</string>
+    <string name="continue_editing">Continue editing</string>
+
+    <!-- Remove tag button -->
+    <string name="remove_tag_symbol">×</string>
+
+    <!-- Enable states -->
+    <string name="personalizado">custom</string>
+    <string name="activo">active</string>
+    <string name="publico">public</string>
+    <string name="privado">private</string>
+
+    <!-- Additional fields that may be hardcoded -->
+    <string name="autor_nombre_default">User</string>
+    <string name="dia_prefix">day_</string>
+
+    <!-- Specific error messages -->
+    <string name="desafio_not_found_in_args">Challenge not found in arguments</string>
+    <string name="challenge_document_not_found">Challenge document not found</string>
+
+    <!-- Log and debug messages -->
+    <string name="day_created_with_base_habits">Day created with base habits</string>
+    <string name="day_not_exist_creating_base_habits">Day doesn\'t exist, creating base habits</string>
+
+    <!-- Completed day message with format -->
+    <string name="day_completed_exclamation">completed!</string>
+
+    <!-- Challenge states -->
+    <string name="default_challenge_state">active</string>
+    <string name="challenge_state_active">active</string>
+    <string name="challenge_state_completed">completed</string>
+    <string name="challenge_state_paused">paused</string>
+
+    <!-- EditDesafioFragment strings -->
+    <string name="habit_without_name">Habit without name</string>
+    <string name="new_habit_prefix">New habit</string>
+    <string name="must_have_at_least_3_habits">Must have at least 3 habits</string>
+    <string name="add_habit">Add Habit</string>
+    <string name="delete_habit">Delete Habit</string>
+    <string name="delete_habit_confirmation">Are you sure you want to delete %s?</string>
+    <string name="delete">Delete</string>
+    <string name="name_cannot_be_empty">Name cannot be empty</string>
+    <string name="tag_already_exists">This tag already exists</string>
+    <string name="description_required">Description is required</string>
+    <string name="habit_name_required">Habit name is required</string>
+    <string name="saving_changes">Saving changes...</string>
+    <string name="changes_saved_successfully">Changes saved successfully</string>
+    <string name="error_saving_changes">Error saving changes</string>
+    <string name="error_loading_data">Error loading data</string>
+
+    <!-- ImgBBUploader strings -->
+    <string name="error_converting_image_to_base64">Error converting image to base64</string>
+    <string name="starting_imgbb_upload">Starting upload to ImgBB...</string>
+    <string name="profile_image_prefix">profile_</string>
+    <string name="http_request_error">HTTP request error</string>
+    <string name="connection_error_message">Connection error: %s</string>
+    <string name="empty_server_response">Empty server response</string>
+    <string name="imgbb_response_log">ImgBB response: %s</string>
+    <string name="image_uploaded_successfully">Image uploaded successfully: %s</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="imgbb_error_message">ImgBB error: %s</string>
+    <string name="json_parsing_error">Error parsing JSON response</string>
+    <string name="response_processing_error">Error processing response: %s</string>
+    <string name="bitmap_to_base64_error">Error converting bitmap to base64</string>
+
+    <string name="challenge_not_found">Challenge not found</string>
+    <string name="invalid_challenge_id">Invalid challenge ID</string>
+    <string name="your_progress">Your progress</string>
+    <string name="challenge_completed_view">Completed challenge view</string>
+    <string name="challenge_active_content">Active challenge content</string>
+    <string name="undefined_status">Undefined</string>
+    <string name="no_name">No name</string>
+    <string name="no_description">No description</string>
+    <string name="error_getting_current_day">Error getting current day</string>
+    <string name="error_getting_challenge_data">Error getting challenge data</string>
+    <string name="loading_challenge_data">Loading challenge data...</string>
+    <string name="updating_content">Updating content...</string>
+    <string name="challenge_finalized_detected">Finalized challenge detected</string>
+    <string name="active_challenge_content">Active challenge - Showing normal content</string>
+    <string name="content_already_updating">Content is already updating</string>
+    <string name="lat_lng_format">Lat: %.4f, Lng: %.4f</string>
+
+    <!-- Missing strings for ItemDetailFragment -->
+
+    <!-- Finalization view -->
+    <string name="challenge_finished">Challenge Finished!</string>
+    <string name="congratulations_challenge_completed">Congratulations! You have completed your %d-day challenge.</string>
+    <string name="challenge_summary">Challenge Summary</string>
+    <string name="loading_statistics">Loading statistics...</string>
+    <string name="finish_challenge">Finish Challenge</string>
+
+    <!-- Final statistics -->
+    <string name="perfect_stats">Perfect! 🎉\n%d of %d days completed\n(100%% success)</string>
+    <string name="excellent_stats">Excellent! 👏\n%d of %d days completed\n(%d%% success)</string>
+    <string name="good_work_stats">Good work! 👍\n%d of %d days completed\n(%d%% success)</string>
+    <string name="keep_trying_stats">Keep trying! 💪\n%d of %d days completed\n(%d%% success)</string>
+
+    <!-- Finalization process -->
+    <string name="finalizing_challenge">Finalizing challenge...</string>
+    <string name="challenge_finalized_successfully">Challenge finalized successfully!</string>
+    <string name="error_finalizing_challenge">Error finalizing challenge</string>
+
+    <!-- Deletion dialog -->
+    <string name="delete_challenge_title">Delete Challenge</string>
+    <string name="delete_challenge_message">Are you sure you want to delete this challenge? This action cannot be undone.</string>
+
+    <!-- Log and debug messages (optional, but for completeness) -->
+    <string name="showing_finalized_challenge_view">Showing finalized challenge view</string>
+    <string name="finalization_view_created">Finalization view created</string>
+    <string name="statistics_updated">Statistics updated: %d/%d (%d%%)</string>
+    <string name="challenge_completely_deleted">Challenge completely deleted</string>
+    <string name="error_deleting_challenge_detailed">Error deleting challenge: %s</string>
+    <string name="error_getting_days_to_delete">Error getting days to delete: %s</string>
+    <string name="error_general_delete_complete">General error in deleteCompleteChallenge: %s</string>
+    <string name="last_day_limit_info">Last day: %d, Limit: %d, Can create: %b</string>
+    <string name="onresume_map_resumed">onResume - Map resumed</string>
+    <string name="onresume_reloading_data">onResume: Reloading data</string>
+    <string name="onpause_map_paused">onPause - Map paused</string>
+    <string name="error_calculating_statistics">Error calculating statistics: %s</string>
+
+    <!-- Challenge completion verification -->
+    <string name="verifying_challenge_completion">Verifying completion - Last day: %1$d of %2$d</string>
+    <string name="last_day_completion_date">Last day completion date: %s</string>
+    <string name="days_since_last_completion">Days since last completion: %d</string>
+    <string name="challenge_finalized_question">Challenge finalized? %s</string>
+    <string name="error_parsing_date">Error parsing date: %s</string>
+    <string name="challenge_not_at_end">Challenge hasn\'t reached the end or no date</string>
+    <string name="no_registered_days">No registered days</string>
+
+    <!-- Content hiding messages -->
+    <string name="hiding_normal_content">Hiding normal content</string>
+
+    <!-- Finalization view -->
+    <string name="creating_finalization_view">Finalization view created</string>
+
+    <!-- Colors and styles (hardcoded values) -->
+    <string name="color_success_green">#4CAF50</string>
+    <string name="color_text_gray">#666666</string>
+    <string name="color_dark_gray">#333333</string>
+    <string name="color_light_gray">#F5F5F5</string>
+    <string name="color_orange">#FF5722</string>
+
+    <!-- Check icon -->
+    <string name="check_icon_description">Check icon</string>
+
+    <!-- Finish button -->
+    <string name="finish_challenge_button">Finish Challenge</string>
+
+    <!-- Progress dialog -->
+    <string name="finalizing_challenge_progress">Finalizing challenge...</string>
+
+    <!-- Navigation and error messages -->
+    <string name="error_navigating_back">Error navigating: %s</string>
+    <string name="navigation_fallback">Using alternative navigation</string>
+
+    <!-- PublicChallengeFragment strings -->
+    <string name="public_challenge_fragment_tag">PublicChallengeFragment</string>
+    <string name="author_prefix_at">By @%s</string>
+    <string name="days_suffix_format">%d days</string>
+    <string name="error_opening_preview">Error opening preview</string>
+    <string name="tag_prefix">#%s</string>
+
+    <!-- Firestore collections -->
+    <string name="firestore_collection_public_challenges">publicChallenges</string>
+
+    <!-- Firestore fields for public challenges -->
+    <string name="firestore_field_nombre">name</string>
+    <string name="firestore_field_autor_nombre">authorName</string>
+    <string name="firestore_field_descripcion">description</string>
+    <string name="firestore_field_dias">days</string>
+    <string name="firestore_field_etiquetas">tags</string>
+    <string name="firestore_field_fecha_creacion">creationDate</string>
+
+    <!-- Bundle keys -->
+    <string name="bundle_key_challenge_id">challengeId</string>
+
+    <!-- Navigation actions -->
+    <string name="action_public_to_item_list">action_publicChallengeFragment_to_itemListFragment</string>
+    <string name="action_public_to_today">action_publicChallengeFragment_to_todayFragment</string>
+    <string name="action_public_to_profile">action_publicChallengeFragment_to_profileFragment</string>
+    <string name="action_public_to_preview">action_publicChallengeFragment_to_challengePreviewFragment</string>
+
+    <!-- Default values -->
+    <string name="default_empty_string"></string>
+    <string name="default_challenge_days">30</string>
+
+    <!-- Margins and spacing -->
+    <string name="margin_right_dp">8</string>
+    <string name="margin_bottom_dp">4</string>
+
+    <!-- TodayFragment strings -->
+    <string name="today_fragment_tag">TodayFragment</string>
+    <string name="pref_last_date">last_date_checked</string>
+    <string name="shared_prefs_today_fragment">today_fragment</string>
+    <string name="onresume_checking_date_change">onResume: Checking date change</string>
+    <string name="onresume_date_changed_reloading">onResume: Date changed, reloading data</string>
+    <string name="onresume_same_date_reloading">onResume: Same date, reloading data normally</string>
+    <string name="date_changed_to_reloading">Date changed to: %s - Reloading data</string>
+    <string name="loading_challenges_for_date">Loading challenges for date: %s</string>
+    <string name="challenge_has_day_for_today">Challenge %1$s has day %2$d for today</string>
+    <string name="challenge_no_day_for_today">Challenge %s has no day for today</string>
+    <string name="error_searching_days_for_challenge">Error searching days for challenge %1$s: %2$s</string>
+    <string name="error_loading_challenges">Error loading challenges: %s</string>
+    <string name="setting_listener_for_challenge">Setting listener for challenge: %1$s, day: %2$d</string>
+    <string name="error_listening_day_changes">Error listening to day changes: %s</string>
+    <string name="day_realization_date_info">Day %1$d - Completion date: %2$s, Completed: %3$s, Today\'s date: %4$s</string>
+    <string name="day_document_not_exist">Day %d document doesn\'t exist</string>
+    <string name="challenge_removed_from_interface">Challenge removed from interface: %s</string>
+    <string name="date_change_detected">Date change detected: %1$s -> %2$s</string>
+    <string name="excellent_work_message">🎉\n\nExcellent work!\n\nYou have completed all your challenges for today.\nKeep it up tomorrow!</string>
+    <string name="all_challenges_completed">All challenges completed!</string>
+    <string name="day_marked_completed">Day marked as completed</string>
+    <string name="day_completed_celebration">Day completed! 🎉</string>
+    <string name="error_marking_day_completed">Error marking day as completed: %s</string>
+    <string name="day_unmarked_completed">Day unmarked as completed</string>
+    <string name="error_unmarking_day">Error unmarking day: %s</string>
+    <string name="loading_text">Loading...</string>
+    <string name="delete_image_content_description">Delete image</string>
+    <string name="image_loaded_thumbnail">Image loaded in thumbnail from: %s</string>
+    <string name="error_text">Error</string>
+    <string name="error_loading_text">Error loading</string>
+    <string name="error_loading_thumbnail">Error loading thumbnail image: %s</string>
+    <string name="delete_image_title">Delete image</string>
+    <string name="delete_image_message">Are you sure you want to delete this image from habit \'%s\'?</string>
+    <string name="deleting_image">Deleting image...</string>
+    <string name="image_deleted">Image deleted</string>
+    <string name="image_deleted_from_habit">Image deleted from habit: %s</string>
+    <string name="close_button">Close</string>
+    <string name="error_loading_image_dialog_message">Error loading image</string>
+    <string name="error_loading_image_with_message">Error loading image: %s</string>
+    <string name="error_showing_image_dialog">Error showing image: %s</string>
+    <string name="uploading_image_text">Uploading image...</string>
+    <string name="starting_imgbb_upload_habit">Starting image upload for habit: %1$s using ImgBB</string>
+    <string name="photo_saved_successfully_celebration">Photo saved successfully! 📷</string>
+    <string name="error_uploading_image_habit">Error uploading image: %s</string>
+    <string name="upload_progress_imgbb">ImgBB upload progress: %d%%</string>
+    <string name="upload_completed_processing">Upload completed, processing response...</string>
+    <string name="error_uploading_imgbb_message">Error uploading image to ImgBB. What would you like to do?</string>
+    <string name="save_comment_only">Save comment only</string>
+    <string name="comment_saved_without_image_habit">Comment saved without image</string>
+    <string name="habit_updated_with_photo_comment">Habit updated: %1$s with photo: %2$s, comment: %3$s</string>
+    <string name="original_image_size_habit">Original image: %1$dx%2$d</string>
+    <string name="image_adequate_size_habit">Image already has adequate size</string>
+    <string name="resizing_to_habit">Resizing to: %1$dx%2$d</string>
+    <string name="error_opening_camera">Error opening camera: %s</string>
+    <string name="error_loading_gallery_image">Error loading image from gallery</string>
+    <string name="error_unexpected_processing_image">Unexpected error processing image</string>
+    <string name="comment_emoji">💬 %s</string>
+
+    <!-- Firestore collections and fields for TodayFragment -->
+    <string name="firestore_collection_usuarios_today">users</string>
+    <string name="firestore_collection_desafios_today">challenges</string>
+    <string name="firestore_collection_dias_today">days</string>
+    <string name="firestore_collection_dias_completados">completed_days</string>
+    <string name="firestore_field_estado_today">status</string>
+    <string name="firestore_field_activo_today">active</string>
+    <string name="firestore_field_nombre_today">name</string>
+    <string name="firestore_field_fecha_realizacion_today">completionDate</string>
+    <string name="firestore_field_completado_today">completed</string>
+    <string name="firestore_field_habitos_today">habits</string>
+    <string name="firestore_field_fecha_completado">completion_date</string>
+    <string name="firestore_field_dia_today">day</string>
+    <string name="firestore_field_foto_url">photoUrl</string>
+    <string name="firestore_field_comentario_today">comment</string>
+
+    <!-- Document prefixes -->
+    <string name="document_prefix_dia">day_</string>
+
+    <!-- Bundle keys for TodayFragment -->
+    <string name="bundle_key_desafio_id">challenge_id</string>
+
+    <!-- Navigation tab names -->
+    <string name="nav_tab_home">home</string>
+    <string name="nav_tab_today">today</string>
+    <string name="nav_tab_profile">profile</string>
+
+    <!-- Date formats -->
+    <string name="date_format_display">EEEE, MMMM d</string>
+    <string name="date_format_storage">yyyy-MM-dd</string>
+
+    <!-- Default values for TodayFragment -->
+    <string name="default_challenge_days_today">30</string>
+    <string name="default_day_number">1</string>
+    <string name="default_empty_habit_name"></string>
+
+    <!-- Image type for gallery -->
+    <string name="image_type_filter">image/*</string>
+
+    <!-- Margins and sizes -->
+    <string name="margin_bottom_card">32</string>
+    <string name="card_radius">24</string>
+    <string name="card_elevation">4</string>
+    <string name="padding_card">32</string>
+    <string name="padding_habit_bottom">24</string>
+    <string name="checkbox_size">48</string>
+    <string name="checkbox_margin_end">24</string>
+    <string name="camera_icon_size">32</string>
+    <string name="image_container_size">240</string>
+    <string name="image_container_margin_bottom">24</string>
+    <string name="delete_button_size">52</string>
+    <string name="delete_button_margin">8</string>
+    <string name="delete_button_padding">10</string>
+    <string name="extra_layout_padding_start">72</string>
+    <string name="extra_layout_padding_top">24</string>
+    <string name="comment_layout_padding">24</string>
+    <string name="message_layout_padding_horizontal">32</string>
+    <string name="message_layout_padding_vertical">64</string>
+    <string name="edit_text_padding">32</string>
+
+    <!-- Text sizes -->
+    <string name="text_size_title">16</string>
+    <string name="text_size_habit">14</string>
+    <string name="text_size_loading">14</string>
+    <string name="text_size_comment">13</string>
+    <string name="text_size_message">16</string>
+
+    <!-- Max lines -->
+    <string name="edit_text_max_lines">3</string>
+
+    <!-- Time intervals -->
+    <string name="date_check_interval">30000</string>
+
+    <!-- Missing strings identified in compilation errors -->
+    <string name="error_verifying_finalization">Error verifying finalization</string>
+    <string name="user_prefs">user_prefs</string>
+    <string name="desafio_id">challenge_id</string>
+    <string name="item_id">item_id</string>
+    <string name="navigate_to">navigate_to</string>
+    <string name="today_fragment">today_fragment</string>
+    <string name="is_logged_in">is_logged_in</string>
+    <string name="from_notification">from_notification</string>
+    <string name="user_name">user_name</string>
+    <string name="hello_user_fallback">Hello %1$s</string>
+    <string name="usuarios">users</string>
+    <string name="desafios">challenges</string>
+    <string name="dias">days</string>
+    <string name="total_habitos">total_habits</string>
+    <string name="fecha_inicio">start_date</string>
+    <string name="fecha_creacion">creation_date</string>
+    <string name="habitos">habits</string>
+    <string name="completado">completed</string>
+    <string name="nombre">name</string>
+    <string name="descripcion">description</string>
+    <string name="etiquetas">tags</string>
+    <string name="visibilidad">visibility</string>
+    <string name="desafio">challenge</string>
+    <string name="tipo">type</string>
+    <string name="fechaCreacion">creationDate</string>
+    <string name="fechaInicio">startDate</string>
+    <string name="diaActual">currentDay</string>
+    <string name="completados">completed</string>
+    <string name="totalHabitos">totalHabits</string>
+    <string name="estado">status</string>
+    <string name="challenge_author">challenge_author</string>
+    <string name="challenge_duration">challenge_duration</string>
+    <string name="challenge_tags">challenge_tags</string>
+    <string name="challenge_habits">challenge_habits</string>
+    <string name="is_default_challenge">is_default_challenge</string>
+    <string name="default_challenge_type">default_challenge_type</string>
+    <string name="share_challenge">share_challenge</string>
+    <string name="home_navigation">home_navigation</string>
+    <string name="profile_navigation">profile_navigation</string>
+    <string name="gps_disabled_enable_settings">GPS disabled. Enable in settings</string>
+    <string name="location_provider_disabled">Location provider disabled</string>
+    <string name="permission_error_format">Permission error: %1$s</string>
+    <string name="frase_motivacional_1">Every day is a new opportunity!</string>
+    <string name="frase_motivacional_2">You can achieve anything you set your mind to!</string>
+    <string name="frase_motivacional_3">Success lies in consistency!</string>
+    <string name="frase_motivacional_4">Today is a great day to grow!</string>
+    <string name="frase_motivacional_5">Small steps lead to great achievements!</string>
+    <string name="frase_motivacional_6">Your effort today is your success tomorrow!</string>
+    <string name="frase_motivacional_7">Every habit brings you closer to your best version!</string>
+    <string name="frase_motivacional_8">Discipline is the bridge between goals and achievements!</string>
+    <string name="frase_motivacional_9">Today is the perfect day to be better!</string>
+    <string name="frase_motivacional_10">Your consistency is your superpower!</string>
+    <string name="pref_key_desafio_prefs">challenge_prefs</string>
+    <string name="channel_id_desafio_recordatorios">challenge_reminders</string>
+    <string name="channel_name_desafio_recordatorios">Challenge Reminders</string>
+    <string name="channel_description_desafio_recordatorios">Notifications to remind completing habits</string>
+    <string name="pref_key_notificaciones_habilitadas">notifications_enabled</string>
+    <string name="pref_key_hora_notificacion">notification_hour</string>
+    <string name="pref_key_minuto_notificacion">notification_minute</string>
+    <string name="action_recordatorio_habitos">habit_reminder</string>
+    <string name="log_notification_helper">NotificationHelper</string>
+    <string name="log_notification_scheduled">Notification scheduled: %s</string>
+    <string name="log_notification_error">Notification error</string>
+    <string name="date_format_yyyy_mm_dd">yyyy-MM-dd</string>
+    <string name="tag_notification_receiver">NotificationReceiver</string>
+    <string name="firestore_collection_usuarios">users</string>
+    <string name="firestore_collection_desafios">challenges</string>
+    <string name="firestore_field_estado">status</string>
+    <string name="firestore_value_activo">active</string>
+    <string name="log_no_desafios_activos">No active challenges</string>
+    <string name="log_desafios_activos_encontrados">Active challenges found: %1$d</string>
+    <string name="firestore_collection_dias">days</string>
+    <string name="firestore_field_fecha_realizacion">completion_date</string>
+    <string name="firestore_field_habitos">habits</string>
+    <string name="firestore_field_completado">completed</string>
+    <string name="log_desafio_progreso_dia">Day progress</string>
+    <string name="log_resumen_final">Final summary</string>
+    <string name="log_error_obtener_dias_desafio">Error getting challenge days</string>
+    <string name="log_resumen_final_con_errores">Final summary with errors</string>
+    <string name="log_error_obtener_desafios">Error getting challenges</string>
+    <string name="notificacion_titulo_un_habito">One habit pending!</string>
+    <string name="notificacion_mensaje_un_habito">You have one habit to complete. %1$s</string>
+    <string name="notificacion_titulo_pocos_habitos">%1$d habits pending!</string>
+    <string name="notificacion_mensaje_buen_camino">You\'re on the right track. %1$s</string>
+    <string name="notificacion_mensaje_retomar_ritmo">Time to get back on track. %1$s</string>
+    <string name="notificacion_mensaje_decision_intentar">It\'s your choice to try. %1$s</string>
+    <string name="extra_navigate_to">navigate_to</string>
+    <string name="value_today_fragment">today_fragment</string>
+    <string name="extra_from_notification">from_notification</string>
+    <string name="prefs_desafio">challenge_prefs</string>
+    <string name="prefs_notificaciones_habilitadas">notifications_enabled</string>
+    <string name="prefs_hora_notificacion">notification_hour</string>
+    <string name="prefs_minuto_notificacion">notification_minute</string>
+    <string name="log_notificacion_reprogramada">Notification rescheduled</string>
+    <string name="log_error_reprogramar_notificacion">Error rescheduling notification</string>
+    <string name="user_email">user_email</string>
+    <string name="homeText">Home</string>
+
+    <!-- For TodayFragment.kt -->
+    <string name="challenge_name">challenge_name</string>
+
+    <string name="notificacion_titulo_generica">Don\'t forget your habits!</string>
+
+    <!-- For NotificationReceiver.kt -->
+    <string name="log_desafio_sin_progreso">Challenge without progress</string>
+    <string name="log_desafio_sin_progreso_number">Challenge %1$s without progress, %2$d habits</string>
+    <string name="log_resumen_final_number">Total: %1$d habits, %2$d completed</string>
+    <string name="log_resumen_final_con_errores_number">Total with errors: %1$d habits, %2$d completed</string>
+
+    <string name="explore">Explore</string>
+    <string name="error_navigating_explore">Error navigating to Explore: %s</string>
+    <string name="explore_navigation">explore_navigation</string>
+    <string name="error_showing_image_message">Error showing image: %s</string>
+
+    <string name="days_format">%1$d days</string>
+    <string name="day_completed_format">Day %1$d completed!</string>
+    <string name="challenge_state_cancelled">Cancelled</string>
+    <string name="challenge_state_unknown">Unknown status</string>
+
+    <string name="use_boton">Use Challenge</string>
+    <!-- Add these strings to your English strings.xml file -->
+    <string name="public_challenges_title">Public Challenges</string>
+    <string name="discover_community_challenges">Discover new challenges created by the community</string>
+    <string name="search_challenges_hint">Search challenges by name or tag</string>
+    <string name="most_popular">Most Popular</string>
+    <string name="no_challenges_available">No challenges available</string>
+    <string name="be_first_to_create">Be the first to create one!</string>
+
+    <string name="boton_ver">See details</string>
+    <string name="min_hab">"Habits (min 3)"</string>
+    <string name="finish_ch">Challenge finished!</string>
+
+    <string name="day_label">Day</string>
+    <string name="days_label">Days</string>
+    <string name="of_label">of</string>
+    <string name="search_name">Search by name...</string>
 
 </resources>

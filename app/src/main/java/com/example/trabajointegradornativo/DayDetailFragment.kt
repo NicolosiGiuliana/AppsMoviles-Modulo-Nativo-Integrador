@@ -22,6 +22,18 @@ class DayDetailFragment : Fragment() {
 
     companion object {
         const val ARG_DAY_NUMBER = "day_number"
+        private const val TAG = "DayDetailFragment"
+        private const val HABIT_STATES_PREFS = "habit_states"
+        private const val HABITO_ITEM_TAG = "habito_item"
+        private const val COLLECTION_USUARIOS = "usuarios"
+        private const val COLLECTION_DESAFIOS = "desafios"
+        private const val COLLECTION_DIAS = "dias"
+        private const val COLLECTION_DIAS_COMPLETADOS = "dias_completados"
+        private const val FIELD_HABITOS = "habitos"
+        private const val FIELD_COMPLETADO = "completado"
+        private const val FIELD_NOMBRE = "nombre"
+        private const val FIELD_DIA = "dia"
+        private const val FIELD_COMPLETADOS = "completados"
     }
 
     private var dayNumber = 1
@@ -41,10 +53,10 @@ class DayDetailFragment : Fragment() {
         arguments?.let {
             dayNumber = it.getInt(ARG_DAY_NUMBER, 1)
             desafio = it.getParcelable("desafio")
-                ?: throw IllegalStateException(getString(R.string.error_unknown, "Desafio no encontrado en los argumentos"))
+                ?: throw IllegalStateException(getString(R.string.desafio_not_found_in_args))
         }
 
-        sharedPrefs = requireContext().getSharedPreferences("habit_states", Context.MODE_PRIVATE)
+        sharedPrefs = requireContext().getSharedPreferences(HABIT_STATES_PREFS, Context.MODE_PRIVATE)
 
         (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = "${desafio.nombre}"
 
@@ -67,29 +79,25 @@ class DayDetailFragment : Fragment() {
     private fun cargarHabitosDesafio(view: View) {
         val uid = auth.currentUser?.uid ?: return
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
-            .collection("dias")
+            .collection(COLLECTION_DIAS)
             .document("dia_$dayNumber")
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val habitos = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                    val habitos = document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
                     habitosDesafio.clear()
                     habitosDesafio.addAll(habitos)
 
-                    Log.d("DayDetailFragment", "Hábitos cargados desde día específico: ${habitosDesafio.size}")
-
                     cargarEstadoHabitos(view)
                 } else {
-                    Log.d("DayDetailFragment", "Día no existe, creando hábitos base")
                     crearHabitosBaseDia(view)
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("DayDetailFragment", "Error al cargar hábitos del día: ${e.message}")
                 crearHabitosBaseDia(view)
             }
     }
@@ -97,48 +105,46 @@ class DayDetailFragment : Fragment() {
     private fun crearHabitosBaseDia(view: View) {
         val uid = auth.currentUser?.uid ?: return
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val habitosBase = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                    val habitosBase = document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
 
                     val habitosParaGuardar = habitosBase.map { habito ->
                         hashMapOf(
-                            "nombre" to (habito["nombre"] as? String ?: ""),
-                            "completado" to false
+                            FIELD_NOMBRE to (habito[FIELD_NOMBRE] as? String ?: ""),
+                            FIELD_COMPLETADO to false
                         )
                     }
 
-                    firestore.collection("usuarios")
+                    firestore.collection(COLLECTION_USUARIOS)
                         .document(uid)
-                        .collection("desafios")
+                        .collection(COLLECTION_DESAFIOS)
                         .document(desafio.id)
-                        .collection("dias")
+                        .collection(COLLECTION_DIAS)
                         .document("dia_$dayNumber")
                         .set(hashMapOf(
-                            "dia" to dayNumber,
-                            "habitos" to habitosParaGuardar,
+                            FIELD_DIA to dayNumber,
+                            FIELD_HABITOS to habitosParaGuardar,
                             "fecha_creacion" to com.google.firebase.Timestamp.now()
                         ))
                         .addOnSuccessListener {
-                            Log.d("DayDetailFragment", "Día creado con hábitos base")
                             cargarHabitosDesafio(view)
                         }
                         .addOnFailureListener { e ->
-                            Log.e("DayDetailFragment", "Error al crear día: ${e.message}")
                             Toast.makeText(context, getString(R.string.error_saving_data, e.message ?: ""), Toast.LENGTH_SHORT).show()
                         }
                 } else {
-                    Log.e("DayDetailFragment", "Documento del desafío no encontrado")
+                    Log.e(TAG, "Documento del desafío no encontrado")
                     Toast.makeText(context, getString(R.string.challenge_without_name), Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("DayDetailFragment", "Error al cargar desafío base: ${e.message}")
+                Log.e(TAG, "Error al cargar desafío base: ${e.message}")
                 Toast.makeText(context, getString(R.string.error_saving_data, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
     }
@@ -147,11 +153,9 @@ class DayDetailFragment : Fragment() {
         habitosCompletados.clear()
 
         habitosDesafio.forEachIndexed { index, habito ->
-            val completado = habito["completado"] as? Boolean ?: false
+            val completado = habito[FIELD_COMPLETADO] as? Boolean ?: false
             habitosCompletados[index] = completado
         }
-
-        Log.d("DayDetailFragment", "Estados de hábitos cargados: $habitosCompletados")
 
         mostrarHabitos(view)
     }
@@ -162,7 +166,7 @@ class DayDetailFragment : Fragment() {
         val childrenToRemove = mutableListOf<View>()
         for (i in 0 until rootLayout.childCount) {
             val child = rootLayout.getChildAt(i)
-            if (child.tag == "habito_item") {
+            if (child.tag == HABITO_ITEM_TAG) {
                 childrenToRemove.add(child)
             }
         }
@@ -172,12 +176,12 @@ class DayDetailFragment : Fragment() {
 
         habitosDesafio.forEachIndexed { index, habito ->
             val habitoView = inflater.inflate(R.layout.habito_item, rootLayout, false)
-            habitoView.tag = "habito_item"
+            habitoView.tag = HABITO_ITEM_TAG
 
             val nombreHabito = habitoView.findViewById<TextView>(R.id.habito_nombre)
             val iconoHabito = habitoView.findViewById<ImageView>(R.id.habito_icono)
 
-            nombreHabito.text = habito["nombre"] as? String ?: getString(R.string.habit_name_default)
+            nombreHabito.text = habito[FIELD_NOMBRE] as? String ?: getString(R.string.habit_name_default)
 
             val completado = habitosCompletados[index] ?: false
             iconoHabito.setImageResource(
@@ -207,23 +211,23 @@ class DayDetailFragment : Fragment() {
 
         val habitosParaGuardar = habitosDesafio.mapIndexed { i, habito ->
             hashMapOf(
-                "nombre" to (habito["nombre"] as? String ?: ""),
-                "completado" to habitosCompletados.getOrDefault(i, false)
+                FIELD_NOMBRE to (habito[FIELD_NOMBRE] as? String ?: ""),
+                FIELD_COMPLETADO to habitosCompletados.getOrDefault(i, false)
             )
         }
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
-            .collection("dias")
+            .collection(COLLECTION_DIAS)
             .document("dia_$dayNumber")
             .update(
-                "habitos", habitosParaGuardar,
+                FIELD_HABITOS, habitosParaGuardar,
                 "fecha_actualizacion", com.google.firebase.Timestamp.now()
             )
             .addOnFailureListener { e ->
-                Log.e("DayDetailFragment", "Error al guardar hábito: ${e.message}")
+                Log.e(TAG, "Error al guardar hábito: ${e.message}")
                 Toast.makeText(context, getString(R.string.error_saving_progress, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
     }
@@ -240,19 +244,19 @@ class DayDetailFragment : Fragment() {
             return
         }
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
-            .collection("dias_completados")
+            .collection(COLLECTION_DIAS_COMPLETADOS)
             .document("dia_$dayNumber")
             .set(hashMapOf(
-                "dia" to dayNumber,
-                "completado" to true,
+                FIELD_DIA to dayNumber,
+                FIELD_COMPLETADO to true,
                 "fecha_completado" to com.google.firebase.Timestamp.now()
             ))
             .addOnSuccessListener {
-                val dayCompletedMessage = "${getString(R.string.day_number, dayNumber)} ${getString(R.string.completed)}!"
+                val dayCompletedMessage = getString(R.string.day_completed_format, dayNumber)
                 Toast.makeText(context, dayCompletedMessage, Toast.LENGTH_SHORT).show()
 
                 actualizarContadorDiasCompletados()
@@ -260,7 +264,7 @@ class DayDetailFragment : Fragment() {
                 findNavController().popBackStack()
             }
             .addOnFailureListener { e ->
-                Log.e("DayDetailFragment", "Error al completar día: ${e.message}")
+                Log.e(TAG, "Error al completar día: ${e.message}")
                 Toast.makeText(context, getString(R.string.error_saving_progress, e.message ?: ""), Toast.LENGTH_SHORT).show()
             }
     }
@@ -268,22 +272,22 @@ class DayDetailFragment : Fragment() {
     private fun actualizarContadorDiasCompletados() {
         val uid = auth.currentUser?.uid ?: return
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
-            .collection("dias_completados")
+            .collection(COLLECTION_DIAS_COMPLETADOS)
             .get()
             .addOnSuccessListener { result ->
                 val totalCompletados = result.size()
 
-                firestore.collection("usuarios")
+                firestore.collection(COLLECTION_USUARIOS)
                     .document(uid)
-                    .collection("desafios")
+                    .collection(COLLECTION_DESAFIOS)
                     .document(desafio.id)
-                    .update("completados", totalCompletados)
+                    .update(FIELD_COMPLETADOS, totalCompletados)
                     .addOnFailureListener { e ->
-                        Log.e("DayDetailFragment", "Error al actualizar contador: ${e.message}")
+                        Log.e(TAG, "Error al actualizar contador: ${e.message}")
                     }
             }
     }

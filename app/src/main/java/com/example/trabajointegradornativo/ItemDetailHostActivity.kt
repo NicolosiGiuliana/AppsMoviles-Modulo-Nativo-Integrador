@@ -16,6 +16,26 @@ import com.google.firebase.auth.FirebaseAuth
 
 class ItemDetailHostActivity : AppCompatActivity() {
 
+    companion object {
+        private const val TAG = "ItemDetailHostActivity"
+
+        // Constantes para claves técnicas (NO localizadas)
+        private const val PREF_USER_PREFS = "user_prefs"
+        private const val KEY_DESAFIO_ID = "desafio_id"
+        private const val KEY_ITEM_ID = "item_id"
+        private const val KEY_NAVIGATE_TO = "navigate_to"
+        private const val KEY_FROM_NOTIFICATION = "from_notification"
+        private const val KEY_IS_LOGGED_IN = "is_logged_in"
+
+        // Constantes para valores de navegación
+        private const val VALUE_TODAY_FRAGMENT = "today_fragment"
+
+        // Delays para navegación
+        private const val NAVIGATION_DELAY_LONG = 300L
+        private const val NAVIGATION_DELAY_SHORT = 100L
+        private const val NAVIGATION_DELAY_RETRY = 200L
+    }
+
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -24,20 +44,20 @@ class ItemDetailHostActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_item_detail)
 
-        sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        // CORREGIDO: Usar constante para SharedPreferences
+        sharedPreferences = getSharedPreferences(PREF_USER_PREFS, Context.MODE_PRIVATE)
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_item_detail) as NavHostFragment
         val navController = navHostFragment.navController
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
 
-        val desafioId = intent.getStringExtra("desafio_id")
-        Log.d("ItemDetailHostActivity", "ID recibido del Intent: $desafioId")
+        // CORREGIDO: Usar constante para Intent extra
+        val desafioId = intent.getStringExtra(KEY_DESAFIO_ID)
 
         if (desafioId != null) {
             val bundle = Bundle().apply {
-                putString("desafio_id", desafioId)
-                putString("item_id", desafioId)
+                // CORREGIDO: Usar constantes para Bundle keys
+                putString(KEY_DESAFIO_ID, desafioId)
+                putString(KEY_ITEM_ID, desafioId)
             }
             navController.setGraph(R.navigation.primary_details_nav_graph, bundle)
         } else {
@@ -45,49 +65,55 @@ class ItemDetailHostActivity : AppCompatActivity() {
         }
 
         checkAuthentication()
-
         handleNotificationNavigation(navController)
     }
 
     private fun handleNotificationNavigation(navController: androidx.navigation.NavController) {
-        if (intent.hasExtra("navigate_to") && intent.getStringExtra("navigate_to") == "today_fragment") {
+        if (intent.hasExtra(KEY_NAVIGATE_TO) &&
+            intent.getStringExtra(KEY_NAVIGATE_TO) == VALUE_TODAY_FRAGMENT) {
+
             findViewById<View>(android.R.id.content).postDelayed({
                 try {
                     if (navController.graph.id != 0) {
                         navController.navigate(R.id.todayFragment)
-                        Log.d("Navigation", "Navegando a Today Fragment desde notificación")
                     } else {
                         findViewById<View>(android.R.id.content).postDelayed({
                             navController.navigate(R.id.todayFragment)
-                        }, 200)
+                        }, NAVIGATION_DELAY_RETRY)
                     }
                 } catch (e: Exception) {
-                    Log.e("Navigation", "Error navegando a Today Fragment", e)
+                    Log.e(TAG, "Error navegando a Today Fragment", e)
                 }
-            }, 300)
+            }, NAVIGATION_DELAY_LONG)
         }
     }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        if (intent?.hasExtra("navigate_to") == true && intent.getStringExtra("navigate_to") == "today_fragment") {
+        // CORREGIDO: Usar constantes para comparaciones
+        if (intent?.hasExtra(KEY_NAVIGATE_TO) == true &&
+            intent.getStringExtra(KEY_NAVIGATE_TO) == VALUE_TODAY_FRAGMENT) {
+
             val navController = findNavController(R.id.nav_host_fragment_item_detail)
             findViewById<View>(android.R.id.content).postDelayed({
                 try {
                     navController.navigate(R.id.todayFragment)
                 } catch (e: Exception) {
-                    Log.e("Navigation", "Error en onNewIntent navegando a Today Fragment", e)
+                    Log.e(TAG, "Error en onNewIntent navegando a Today Fragment", e)
                 }
-            }, 100)
+            }, NAVIGATION_DELAY_SHORT)
         }
     }
 
     private fun checkAuthentication() {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
+        // CORREGIDO: Usar constante para SharedPreferences key
+        val isLoggedIn = sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
 
-        val fromNotification = intent.getBooleanExtra("from_notification", false)
+        // CORREGIDO: Usar constante para Intent extra
+        val fromNotification = intent.getBooleanExtra(KEY_FROM_NOTIFICATION, false)
 
         if ((currentUser == null || !isLoggedIn) && !fromNotification) {
             val intent = Intent(this, MainActivity::class.java)
@@ -98,7 +124,6 @@ class ItemDetailHostActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_item_detail)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

@@ -69,7 +69,6 @@ class ItemListFragment : Fragment() {
         }
     }
 
-
     private fun safeUpdateUI(action: () -> Unit) {
         if (isAdded && _binding != null && !isDetached) {
             try {
@@ -92,7 +91,7 @@ class ItemListFragment : Fragment() {
             .document(uid)
             .get()
             .addOnSuccessListener { document ->
-                if (!isAdded || _binding == null) return@addOnSuccessListener
+                if (!isAdded || binding == null) return@addOnSuccessListener
 
                 if (document.exists()) {
                     val userName = document.getString("nombre") ?:
@@ -112,7 +111,7 @@ class ItemListFragment : Fragment() {
                 }
             }
             .addOnFailureListener {
-                if (!isAdded || _binding == null) return@addOnFailureListener
+                if (!isAdded || binding == null) return@addOnFailureListener
 
                 val userName = auth.currentUser?.displayName ?: getString(R.string.default_name)
                 updateWelcomeText(userName)
@@ -126,7 +125,7 @@ class ItemListFragment : Fragment() {
                 helloText.contains("Usuario") -> helloText.replace("Usuario", userName)
                 helloText.contains("User") -> helloText.replace("User", userName)
                 helloText.contains("Usuário") -> helloText.replace("Usuário", userName)
-                else -> "Hola, $userName" // Fallback
+                else -> getString(R.string.hello_user_fallback, userName)
             }
             binding.welcomeText?.text = personalizedText
         }
@@ -174,11 +173,11 @@ class ItemListFragment : Fragment() {
         val dateFormat = SimpleDateFormat("EEEE d MMM", Locale.getDefault())
         val currentDate = dateFormat.format(Date())
 
-
         binding.currentDayCard?.setOnClickListener {
             findNavController().navigate(R.id.action_itemListFragment_to_todayFragment)
         }
     }
+
     @Parcelize
     data class Desafio(
         val nombre: String = "",
@@ -361,10 +360,10 @@ class ItemListFragment : Fragment() {
     private fun cargarDesafiosPorDefecto() {
         defaultChallenges.clear()
         defaultChallenges.addAll(listOf(
-            DefaultChallenge(getString(R.string.fitness), "💪", getString(R.string.days_30), "fitness"),
-            DefaultChallenge(getString(R.string.reading), "📚", "21 ${getString(R.string.days_30).split(" ")[1]}", "lectura"),
-            DefaultChallenge("Mindfulness", "🧘", getString(R.string.days_30), "mindfulness"),
-            DefaultChallenge(getString(R.string.hydration), "💧", "15 ${getString(R.string.days_30).split(" ")[1]}", "hidratacion")
+            DefaultChallenge(getString(R.string.fitness), "💪", getString(R.string.days_30), getString(R.string.fitness_type)),
+            DefaultChallenge(getString(R.string.reading), "📚", "21 ${getString(R.string.days_30).split(" ")[1]}", getString(R.string.reading_type)),
+            DefaultChallenge(getString(R.string.mindfulness_challenge_name), "🧘", getString(R.string.days_30), getString(R.string.mindfulness_type)),
+            DefaultChallenge(getString(R.string.hydration), "💧", "15 ${getString(R.string.days_30).split(" ")[1]}", getString(R.string.hydration_type))
         ))
 
         safeUpdateUI {
@@ -402,9 +401,10 @@ class ItemListFragment : Fragment() {
             val safeProgress = maxOf(0, minOf(progressDias, 100))
             holder.progressBar.progress = safeProgress
 
-            holder.progressText.text = "${challenge.diasCompletados} de ${challenge.dias} días completados"
+            holder.progressText.text = getString(R.string.completed_format, challenge.diasCompletados, challenge.dias)
 
-            holder.visibilityTag.text = if (challenge.visibilidad == "publico") "Público" else "Privado"
+            holder.visibilityTag.text = if (challenge.visibilidad == getString(R.string.publico))
+                getString(R.string.public_challenge) else getString(R.string.private_challenge)
 
             val tagsLayoutManager = LinearLayoutManager(holder.itemView.context, LinearLayoutManager.HORIZONTAL, false)
             holder.tagsRecycler.layoutManager = tagsLayoutManager
@@ -424,10 +424,10 @@ class ItemListFragment : Fragment() {
     private fun getInitialChallengeForObjective(objective: String): HashMap<String, Any> {
         val currentTime = com.google.firebase.Timestamp.now()
         return when (objective) {
-            "fitness" -> hashMapOf(
+            getString(R.string.fitness_type) -> hashMapOf(
                 "nombre" to getString(R.string.initial_fitness_challenge),
                 "descripcion" to getString(R.string.fitness_challenge_description),
-                "tipo" to "fitness",
+                "tipo" to getString(R.string.fitness_type),
                 "completado" to false,
                 "fechaCreacion" to currentTime,
                 "fechaInicio" to currentTime,
@@ -435,7 +435,7 @@ class ItemListFragment : Fragment() {
                 "diaActual" to 1,
                 "completados" to 0,
                 "totalHabitos" to 5,
-                "estado" to "activo",
+                "estado" to getString(R.string.active_status),
                 "habitos" to listOf(
                     mapOf("nombre" to getString(R.string.walk_30_minutes), "completado" to false),
                     mapOf("nombre" to getString(R.string.stretch_15_minutes), "completado" to false),
@@ -444,10 +444,10 @@ class ItemListFragment : Fragment() {
                     mapOf("nombre" to getString(R.string.eat_vegetables_portion), "completado" to false)
                 )
             )
-            "lectura" -> hashMapOf(
+            getString(R.string.reading_type) -> hashMapOf(
                 "nombre" to getString(R.string.initial_reading_challenge),
                 "descripcion" to getString(R.string.reading_challenge_description),
-                "tipo" to "lectura",
+                "tipo" to getString(R.string.reading_type),
                 "completado" to false,
                 "fechaCreacion" to currentTime,
                 "fechaInicio" to currentTime,
@@ -455,7 +455,7 @@ class ItemListFragment : Fragment() {
                 "diaActual" to 1,
                 "completados" to 0,
                 "totalHabitos" to 5,
-                "estado" to "activo",
+                "estado" to getString(R.string.active_status),
                 "habitos" to listOf(
                     mapOf("nombre" to getString(R.string.take_reading_notes), "completado" to false),
                     mapOf("nombre" to getString(R.string.reflect_on_reading), "completado" to false),
@@ -464,10 +464,10 @@ class ItemListFragment : Fragment() {
                     mapOf("nombre" to getString(R.string.habit_5), "completado" to false)
                 )
             )
-            "mindfulness" -> hashMapOf(
+            getString(R.string.mindfulness_type) -> hashMapOf(
                 "nombre" to getString(R.string.initial_mindfulness_challenge),
                 "descripcion" to getString(R.string.mindfulness_challenge_description),
-                "tipo" to "mindfulness",
+                "tipo" to getString(R.string.mindfulness_type),
                 "completado" to false,
                 "fechaCreacion" to currentTime,
                 "fechaInicio" to currentTime,
@@ -475,7 +475,7 @@ class ItemListFragment : Fragment() {
                 "diaActual" to 1,
                 "completados" to 0,
                 "totalHabitos" to 5,
-                "estado" to "activo",
+                "estado" to getString(R.string.active_status),
                 "habitos" to listOf(
                     mapOf("nombre" to getString(R.string.meditate_10_minutes), "completado" to false),
                     mapOf("nombre" to getString(R.string.practice_conscious_breathing), "completado" to false),
@@ -484,10 +484,10 @@ class ItemListFragment : Fragment() {
                     mapOf("nombre" to getString(R.string.observe_environment), "completado" to false)
                 )
             )
-            "hidratacion" -> hashMapOf(
+            getString(R.string.hydration_type) -> hashMapOf(
                 "nombre" to getString(R.string.initial_hydration_challenge),
                 "descripcion" to getString(R.string.hydration_challenge_description),
-                "tipo" to "hidratacion",
+                "tipo" to getString(R.string.hydration_type),
                 "completado" to false,
                 "fechaCreacion" to currentTime,
                 "fechaInicio" to currentTime,
@@ -495,7 +495,7 @@ class ItemListFragment : Fragment() {
                 "diaActual" to 1,
                 "completados" to 0,
                 "totalHabitos" to 5,
-                "estado" to "activo",
+                "estado" to getString(R.string.active_status),
                 "habitos" to listOf(
                     mapOf("nombre" to getString(R.string.drink_2_liters_water), "completado" to false),
                     mapOf("nombre" to getString(R.string.carry_water_bottle), "completado" to false),
@@ -507,7 +507,7 @@ class ItemListFragment : Fragment() {
             else -> hashMapOf(
                 "nombre" to getString(R.string.initial_generic_challenge),
                 "descripcion" to getString(R.string.generic_challenge_description),
-                "tipo" to "personalizado",
+                "tipo" to getString(R.string.custom_type),
                 "completado" to false,
                 "fechaCreacion" to currentTime,
                 "fechaInicio" to currentTime,
@@ -515,7 +515,7 @@ class ItemListFragment : Fragment() {
                 "diaActual" to 1,
                 "completados" to 0,
                 "totalHabitos" to 5,
-                "estado" to "activo",
+                "estado" to getString(R.string.active_status),
                 "habitos" to listOf(
                     mapOf("nombre" to getString(R.string.habit_1), "completado" to false),
                     mapOf("nombre" to getString(R.string.habit_2), "completado" to false),
@@ -562,10 +562,10 @@ class ItemListFragment : Fragment() {
         val previewChallenge = DesafioPublico(
             id = "",
             nombre = challengeData["nombre"] as? String ?: "",
-            autorNombre = "Sistema",
+            autorNombre = getString(R.string.autor_nombre_default),
             descripcion = challengeData["descripcion"] as? String ?: "",
             dias = challengeData["dias"] as? Int ?: 30,
-            etiquetas = listOf(challengeData["tipo"] as? String ?: "general"),
+            etiquetas = listOf(challengeData["tipo"] as? String ?: getString(R.string.general_type)),
             habitos = (challengeData["habitos"] as? List<Map<String, Any>>)?.map { habitMap ->
                 Habito(
                     nombre = habitMap["nombre"] as? String ?: "",
@@ -609,7 +609,7 @@ class ItemListFragment : Fragment() {
                 true
             }
             R.id.action_share -> {
-                Toast.makeText(context, "Compartir desafío", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.share_challenge), Toast.LENGTH_SHORT).show()
                 true
             }
             else -> super.onContextItemSelected(item)
@@ -620,7 +620,7 @@ class ItemListFragment : Fragment() {
         val homeLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(0) as? LinearLayout
         homeLayout?.setOnClickListener {
-            updateBottomNavigationColors("home")
+            updateBottomNavigationColors(getString(R.string.home))
         }
 
         val todayLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
@@ -633,17 +633,17 @@ class ItemListFragment : Fragment() {
             ?.getChildAt(2) as? LinearLayout
         exploreLayout?.setOnClickListener {
             findNavController().navigate(R.id.action_itemListFragment_to_publicChallengeFragment)
-            updateBottomNavigationColors("explore")
+            updateBottomNavigationColors(getString(R.string.explore))
         }
 
         val profileLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(3) as? LinearLayout
         profileLayout?.setOnClickListener {
             findNavController().navigate(R.id.profileFragment)
-            updateBottomNavigationColors("profile")
+            updateBottomNavigationColors(getString(R.string.profile))
         }
 
-        updateBottomNavigationColors("home")
+        updateBottomNavigationColors(getString(R.string.home))
     }
 
     private fun navigateToToday() {
@@ -684,7 +684,7 @@ class ItemListFragment : Fragment() {
         val inactiveColor = ContextCompat.getColor(requireContext(), android.R.color.darker_gray)
 
         when (activeTab) {
-            "home" -> {
+            getString(R.string.home_navigation) -> {
                 homeIcon?.setColorFilter(activeColor)
                 homeText?.setTextColor(activeColor)
                 todayIcon?.setColorFilter(inactiveColor)
@@ -692,7 +692,7 @@ class ItemListFragment : Fragment() {
                 profileIcon?.setColorFilter(inactiveColor)
                 profileText?.setTextColor(inactiveColor)
             }
-            "today" -> {
+            getString(R.string.today) -> {
                 homeIcon?.setColorFilter(inactiveColor)
                 homeText?.setTextColor(inactiveColor)
                 todayIcon?.setColorFilter(activeColor)
@@ -700,7 +700,7 @@ class ItemListFragment : Fragment() {
                 profileIcon?.setColorFilter(inactiveColor)
                 profileText?.setTextColor(inactiveColor)
             }
-            "profile" -> {
+            getString(R.string.profile_navigation) -> {
                 homeIcon?.setColorFilter(inactiveColor)
                 homeText?.setTextColor(inactiveColor)
                 todayIcon?.setColorFilter(inactiveColor)

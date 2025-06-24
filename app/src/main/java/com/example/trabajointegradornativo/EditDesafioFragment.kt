@@ -23,6 +23,24 @@ import java.util.Locale
 
 class EditDesafioFragment : Fragment() {
 
+    companion object {
+        private const val TAG = "EditDesafio"
+        private const val COLLECTION_USUARIOS = "usuarios"
+        private const val COLLECTION_DESAFIOS = "desafios"
+        private const val COLLECTION_DIAS = "dias"
+        private const val FIELD_DESCRIPCION = "descripcion"
+        private const val FIELD_HABITOS = "habitos"
+        private const val FIELD_ETIQUETAS = "etiquetas"
+        private const val FIELD_NOMBRE = "nombre"
+        private const val FIELD_COMPLETADO = "completado"
+        private const val FIELD_FECHA_REALIZACION = "fechaRealizacion"
+
+        // Constantes para valores por defecto (NO localizados)
+        private const val DEFAULT_HABIT_NAME = "Hábito sin nombre"
+        private const val NEW_HABIT_PREFIX = "Nuevo hábito"
+        private const val MIN_HABITS_REQUIRED = 3
+    }
+
     private lateinit var desafio: ItemListFragment.Desafio
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -53,7 +71,7 @@ class EditDesafioFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            desafio = it.getParcelable("desafio") ?: throw IllegalStateException("Desafio no encontrado")
+            desafio = it.getParcelable("desafio") ?: throw IllegalStateException(getString(R.string.desafio_not_found_in_args))
         }
     }
 
@@ -118,30 +136,32 @@ class EditDesafioFragment : Fragment() {
     private fun cargarDatosDesafio() {
         val uid = auth.currentUser?.uid ?: return
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val descripcion = document.getString("descripcion") ?: ""
+                    val descripcion = document.getString(FIELD_DESCRIPCION) ?: ""
                     etDescripcion.setText(descripcion)
 
-                    val habitosBase = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                    val habitosBase = document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
                     habitos.clear()
 
                     for (habitoMap in habitosBase) {
-                        val nombre = habitoMap["nombre"] as? String ?: "Hábito sin nombre"
-                        val completado = habitoMap["completado"] as? Boolean ?: false
+                        // CORREGIDO: Usar constante no localizada para fallback
+                        val nombre = habitoMap[FIELD_NOMBRE] as? String ?: DEFAULT_HABIT_NAME
+                        val completado = habitoMap[FIELD_COMPLETADO] as? Boolean ?: false
                         habitos.add(HabitoItem(nombre, completado))
                     }
 
-                    while (habitos.size < 3) {
-                        habitos.add(HabitoItem("Nuevo hábito ${habitos.size + 1}", false, true))
+                    // CORREGIDO: Usar constante no localizada para nuevos hábitos
+                    while (habitos.size < MIN_HABITS_REQUIRED) {
+                        habitos.add(HabitoItem("$NEW_HABIT_PREFIX ${habitos.size + 1}", false, true))
                     }
 
-                    val etiquetasBase = document.get("etiquetas") as? List<String> ?: emptyList()
+                    val etiquetasBase = document.get(FIELD_ETIQUETAS) as? List<String> ?: emptyList()
                     etiquetas.clear()
                     etiquetas.addAll(etiquetasBase)
 
@@ -151,8 +171,8 @@ class EditDesafioFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("EditDesafio", "Error al cargar datos: ${e.message}")
-                Toast.makeText(context, "Error al cargar los datos", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "Error al cargar datos: ${e.message}")
+                Toast.makeText(context, getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -160,21 +180,21 @@ class EditDesafioFragment : Fragment() {
         val uid = auth.currentUser?.uid ?: return
         val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
-            .collection("dias")
-            .whereEqualTo("fechaRealizacion", fechaHoy)
+            .collection(COLLECTION_DIAS)
+            .whereEqualTo(FIELD_FECHA_REALIZACION, fechaHoy)
             .get()
             .addOnSuccessListener { diasSnapshot ->
                 if (!diasSnapshot.isEmpty) {
                     val diaDoc = diasSnapshot.documents[0]
-                    val habitosDelDia = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                    val habitosDelDia = diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
 
                     for ((index, habitoDelDia) in habitosDelDia.withIndex()) {
                         if (index < habitos.size) {
-                            val completado = habitoDelDia["completado"] as? Boolean ?: false
+                            val completado = habitoDelDia[FIELD_COMPLETADO] as? Boolean ?: false
                             habitos[index].completado = completado
                         }
                     }
@@ -187,7 +207,7 @@ class EditDesafioFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("EditDesafio", "Error al cargar estado de hábitos del día: ${e.message}")
+                Log.e(TAG, "Error al cargar estado de hábitos del día: ${e.message}")
             }
     }
 
@@ -217,20 +237,19 @@ class EditDesafioFragment : Fragment() {
             }
 
             btnEliminar.setOnClickListener {
-                if (habitos.size > 3) {
+                if (habitos.size > MIN_HABITS_REQUIRED) {
                     mostrarDialogoEliminarHabito(index)
                 } else {
-                    Toast.makeText(context, "Debe haber al menos 3 hábitos", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.must_have_at_least_3_habits), Toast.LENGTH_SHORT).show()
                 }
             }
 
-            btnEliminar.isEnabled = habitos.size > 3
-            btnEliminar.alpha = if (habitos.size > 3) 1.0f else 0.5f
+            btnEliminar.isEnabled = habitos.size > MIN_HABITS_REQUIRED
+            btnEliminar.alpha = if (habitos.size > MIN_HABITS_REQUIRED) 1.0f else 0.5f
 
             habitosContainer.addView(habitoView)
         }
     }
-
 
     private fun actualizarUIEtiquetas() {
         chipGroupEtiquetas.removeAllViews()
@@ -259,18 +278,18 @@ class EditDesafioFragment : Fragment() {
         val inputLayout = dialogView.findViewById<TextInputLayout>(R.id.til_habito)
         val input = dialogView.findViewById<TextInputEditText>(R.id.et_habito)
 
-        builder.setTitle("Agregar Hábito")
+        builder.setTitle(getString(R.string.add_habit_create))
             .setView(dialogView)
-            .setPositiveButton("Agregar") { _, _ ->
+            .setPositiveButton(getString(R.string.add)) { _, _ ->
                 val nombre = input.text.toString().trim()
                 if (nombre.isNotEmpty()) {
                     habitos.add(HabitoItem(nombre, false, true))
                     actualizarUIHabitos()
                 } else {
-                    Toast.makeText(context, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.name_cannot_be_empty), Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -280,46 +299,46 @@ class EditDesafioFragment : Fragment() {
         val inputLayout = dialogView.findViewById<TextInputLayout>(R.id.til_etiqueta)
         val input = dialogView.findViewById<TextInputEditText>(R.id.et_etiqueta)
 
-        builder.setTitle("Agregar Etiqueta")
+        builder.setTitle(getString(R.string.add_tag))
             .setView(dialogView)
-            .setPositiveButton("Agregar") { _, _ ->
+            .setPositiveButton(getString(R.string.add)) { _, _ ->
                 val etiqueta = input.text.toString().trim()
                 if (etiqueta.isNotEmpty()) {
                     if (!etiquetas.contains(etiqueta)) {
                         etiquetas.add(etiqueta)
                         actualizarUIEtiquetas()
                     } else {
-                        Toast.makeText(context, "Esta etiqueta ya existe", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.tag_already_exists), Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(context, "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.name_cannot_be_empty), Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun mostrarDialogoEliminarHabito(index: Int) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Eliminar Hábito")
-            .setMessage("¿Estás seguro de que quieres eliminar '${habitos[index].nombre}'?")
-            .setPositiveButton("Eliminar") { _, _ ->
+            .setTitle(getString(R.string.delete_habit))
+            .setMessage(getString(R.string.delete_habit_confirmation, habitos[index].nombre))
+            .setPositiveButton(getString(R.string.delete)) { _, _ ->
                 habitos.removeAt(index)
                 actualizarUIHabitos()
             }
-            .setNegativeButton("Cancelar", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun validarDatos(): Boolean {
         val descripcion = etDescripcion.text.toString().trim()
         if (descripcion.isEmpty()) {
-            etDescripcion.error = "La descripción es obligatoria"
+            etDescripcion.error = getString(R.string.description_required)
             return false
         }
 
-        if (habitos.size < 3) {
-            Toast.makeText(context, "Debe haber al menos 3 hábitos", Toast.LENGTH_SHORT).show()
+        if (habitos.size < MIN_HABITS_REQUIRED) {
+            Toast.makeText(context, getString(R.string.must_have_at_least_3_habits), Toast.LENGTH_SHORT).show()
             return false
         }
 
@@ -329,7 +348,7 @@ class EditDesafioFragment : Fragment() {
             val nombre = etNombre.text.toString().trim()
 
             if (nombre.isEmpty()) {
-                etNombre.error = "El nombre del hábito es obligatorio"
+                etNombre.error = getString(R.string.habit_name_required)
                 return false
             }
 
@@ -345,26 +364,26 @@ class EditDesafioFragment : Fragment() {
 
         val habitosMap = habitos.map { habito ->
             mapOf(
-                "nombre" to habito.nombre,
-                "completado" to habito.completado
+                FIELD_NOMBRE to habito.nombre,
+                FIELD_COMPLETADO to habito.completado
             )
         }
 
         val updates = mapOf(
-            "descripcion" to descripcion,
-            "habitos" to habitosMap,
-            "etiquetas" to etiquetas
+            FIELD_DESCRIPCION to descripcion,
+            FIELD_HABITOS to habitosMap,
+            FIELD_ETIQUETAS to etiquetas
         )
 
         val progressDialog = android.app.ProgressDialog(requireContext()).apply {
-            setMessage("Guardando cambios...")
+            setMessage(getString(R.string.saving_changes))
             setCancelable(false)
             show()
         }
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
             .update(updates)
             .addOnSuccessListener {
@@ -378,15 +397,14 @@ class EditDesafioFragment : Fragment() {
                         }
                         setFragmentResult("desafio_editado", bundle)
 
-                        Toast.makeText(context, "Cambios guardados exitosamente", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.changes_saved_successfully), Toast.LENGTH_SHORT).show()
                         findNavController().navigateUp()
                     }
                 }
             }
             .addOnFailureListener { e ->
                 progressDialog.dismiss()
-                Log.e("EditDesafio", "Error al guardar: ${e.message}")
-                Toast.makeText(context, "Error al guardar los cambios", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_saving_changes), Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -399,41 +417,40 @@ class EditDesafioFragment : Fragment() {
         val uid = auth.currentUser?.uid ?: return
         val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
-            .collection("dias")
-            .whereEqualTo("fechaRealizacion", fechaHoy)
+            .collection(COLLECTION_DIAS)
+            .whereEqualTo(FIELD_FECHA_REALIZACION, fechaHoy)
             .get()
             .addOnSuccessListener { diasSnapshot ->
                 if (!diasSnapshot.isEmpty) {
                     val diaDoc = diasSnapshot.documents[0]
-                    val habitosDelDia = (diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()).toMutableList()
+                    val habitosDelDia = (diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()).toMutableList()
 
                     for ((index, nuevoEstado) in cambiosPendientes) {
                         if (index < habitosDelDia.size) {
                             val habitoActualizado = habitosDelDia[index].toMutableMap()
-                            habitoActualizado["completado"] = nuevoEstado
+                            habitoActualizado[FIELD_COMPLETADO] = nuevoEstado
                             habitosDelDia[index] = habitoActualizado
                         }
                     }
 
-                    val todosCompletados = habitosDelDia.all { (it["completado"] as? Boolean) == true }
+                    val todosCompletados = habitosDelDia.all { (it[FIELD_COMPLETADO] as? Boolean) == true }
 
                     val updatesDelDia = mapOf(
-                        "habitos" to habitosDelDia,
-                        "completado" to todosCompletados
+                        FIELD_HABITOS to habitosDelDia,
+                        FIELD_COMPLETADO to todosCompletados
                     )
 
                     diaDoc.reference.update(updatesDelDia)
                         .addOnSuccessListener {
-                            Log.d("EditDesafio", "Día actualizado: completado = $todosCompletados")
                             cambiosPendientes.clear()
                             callback()
                         }
                         .addOnFailureListener { e ->
-                            Log.e("EditDesafio", "Error al guardar cambios de hábitos: ${e.message}")
+                            Log.e(TAG, "Error al guardar cambios de hábitos: ${e.message}")
                             callback()
                         }
                 } else {
@@ -441,23 +458,23 @@ class EditDesafioFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("EditDesafio", "Error al buscar día actual: ${e.message}")
+                Log.e(TAG, "Error al buscar día actual: ${e.message}")
                 callback()
             }
     }
 
     private fun actualizarDiasConNuevosHabitos(uid: String, callback: () -> Unit) {
-        firestore.collection("usuarios")
+        firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
-            .collection("desafios")
+            .collection(COLLECTION_DESAFIOS)
             .document(desafio.id)
-            .collection("dias")
+            .collection(COLLECTION_DIAS)
             .get()
             .addOnSuccessListener { diasSnapshot ->
                 val batch = firestore.batch()
 
                 for (diaDoc in diasSnapshot.documents) {
-                    val habitosActuales = diaDoc.get("habitos") as? List<Map<String, Any>> ?: emptyList()
+                    val habitosActuales = diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
                     val nuevosHabitos = mutableListOf<Map<String, Any>>()
 
                     for ((index, nuevoHabito) in habitos.withIndex()) {
@@ -465,25 +482,25 @@ class EditDesafioFragment : Fragment() {
 
                         if (habitoExistente != null) {
                             nuevosHabitos.add(mapOf(
-                                "nombre" to nuevoHabito.nombre,
-                                "completado" to (habitoExistente["completado"] as? Boolean ?: false)
+                                FIELD_NOMBRE to nuevoHabito.nombre,
+                                FIELD_COMPLETADO to (habitoExistente[FIELD_COMPLETADO] as? Boolean ?: false)
                             ))
                         } else {
                             nuevosHabitos.add(mapOf(
-                                "nombre" to nuevoHabito.nombre,
-                                "completado" to nuevoHabito.completado
+                                FIELD_NOMBRE to nuevoHabito.nombre,
+                                FIELD_COMPLETADO to nuevoHabito.completado
                             ))
                         }
                     }
 
-                    val diaRef = firestore.collection("usuarios")
+                    val diaRef = firestore.collection(COLLECTION_USUARIOS)
                         .document(uid)
-                        .collection("desafios")
+                        .collection(COLLECTION_DESAFIOS)
                         .document(desafio.id)
-                        .collection("dias")
+                        .collection(COLLECTION_DIAS)
                         .document(diaDoc.id)
 
-                    batch.update(diaRef, "habitos", nuevosHabitos)
+                    batch.update(diaRef, FIELD_HABITOS, nuevosHabitos)
                 }
 
                 batch.commit()
@@ -491,12 +508,12 @@ class EditDesafioFragment : Fragment() {
                         callback()
                     }
                     .addOnFailureListener { e ->
-                        Log.e("EditDesafio", "Error al actualizar días: ${e.message}")
+                        Log.e(TAG, "Error al actualizar días: ${e.message}")
                         callback()
                     }
             }
             .addOnFailureListener { e ->
-                Log.e("EditDesafio", "Error al obtener días: ${e.message}")
+                Log.e(TAG, "Error al obtener días: ${e.message}")
                 callback()
             }
     }

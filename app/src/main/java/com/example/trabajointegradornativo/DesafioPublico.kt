@@ -1,5 +1,7 @@
 package com.example.trabajointegradornativo
 
+import android.content.Context
+
 data class DesafioPublico(
     var id: String = "",
     val activo: Boolean = true,
@@ -14,13 +16,25 @@ data class DesafioPublico(
     val diaActual: Int = 1,
     val dias: Int = 30,
     val esPublico: Boolean = true,
-    val estado: String = "activo",
+    val estado: String = ESTADO_ACTIVO,
     val etiquetas: List<String> = emptyList(),
     val habitos: List<Habito> = emptyList(),
     val fechaCreacion: com.google.firebase.Timestamp? = null
-)
+) {
+    companion object {
+        // Constantes para estados (para Firebase)
+        const val ESTADO_ACTIVO = "activo"
+        const val ESTADO_PAUSADO = "pausado"
+        const val ESTADO_COMPLETADO = "completado"
+        const val ESTADO_CANCELADO = "cancelado"
 
-{
+        // Constantes para validación
+        const val DIAS_MINIMOS = 1
+        const val DIAS_MAXIMOS = 365
+        const val DIA_INICIAL = 1
+        const val DIAS_DEFAULT = 30
+    }
+
     constructor() : this(
         id = "",
         activo = true,
@@ -32,12 +46,67 @@ data class DesafioPublico(
         desafioOriginalId = "",
         nombre = "",
         descripcion = "",
-        diaActual = 1,
-        dias = 30,
+        diaActual = DIA_INICIAL,
+        dias = DIAS_DEFAULT,
         esPublico = true,
-        estado = "activo",
+        estado = ESTADO_ACTIVO,
         etiquetas = emptyList(),
         habitos = emptyList(),
         fechaCreacion = null
     )
+
+    // Métodos de utilidad para UI (sin Context en el data class)
+    fun getEstadoDisplayName(context: Context): String {
+        return when (estado) {
+            ESTADO_ACTIVO -> context.getString(R.string.challenge_state_active)
+            ESTADO_PAUSADO -> context.getString(R.string.challenge_state_paused)
+            ESTADO_COMPLETADO -> context.getString(R.string.challenge_state_completed)
+            ESTADO_CANCELADO -> context.getString(R.string.challenge_state_cancelled)
+            else -> context.getString(R.string.challenge_state_unknown)
+        }
+    }
+
+    // Validaciones
+    fun isValid(): Boolean {
+        return nombre.isNotBlank() &&
+                descripcion.isNotBlank() &&
+                dias in DIAS_MINIMOS..DIAS_MAXIMOS &&
+                diaActual in DIA_INICIAL..dias &&
+                habitos.isNotEmpty()
+    }
+
+    // Métodos de estado
+    fun isActivo(): Boolean = estado == ESTADO_ACTIVO
+    fun isCompletado(): Boolean = estado == ESTADO_COMPLETADO
+    fun isPausado(): Boolean = estado == ESTADO_PAUSADO
+    fun isCancelado(): Boolean = estado == ESTADO_CANCELADO
+
+    // Progreso
+    fun getProgreso(): Float {
+        return if (dias > 0) (diaActual.toFloat() / dias.toFloat()) else 0f
+    }
+
+    fun getProgresoPercentage(): Int {
+        return (getProgreso() * 100).toInt()
+    }
+
+    // Métodos para cambiar estado (retornan nueva instancia)
+    fun activar(): DesafioPublico = copy(estado = ESTADO_ACTIVO, activo = true)
+    fun pausar(): DesafioPublico = copy(estado = ESTADO_PAUSADO, activo = false)
+    fun completar(): DesafioPublico = copy(estado = ESTADO_COMPLETADO, completado = true, activo = false)
+    fun cancelar(): DesafioPublico = copy(estado = ESTADO_CANCELADO, activo = false)
+
+    // Avanzar día
+    fun avanzarDia(): DesafioPublico {
+        val nuevoDia = if (diaActual < dias) diaActual + 1 else diaActual
+        val nuevoEstado = if (nuevoDia >= dias) ESTADO_COMPLETADO else estado
+        val nuevoCompletado = nuevoDia >= dias
+
+        return copy(
+            diaActual = nuevoDia,
+            estado = nuevoEstado,
+            completado = nuevoCompletado,
+            activo = !nuevoCompletado
+        )
+    }
 }

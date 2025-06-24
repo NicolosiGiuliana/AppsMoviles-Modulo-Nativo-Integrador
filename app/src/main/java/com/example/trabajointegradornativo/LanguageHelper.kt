@@ -3,8 +3,7 @@ package com.example.trabajointegradornativo
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
-import android.widget.*
-import java.util.*
+import java.util.Locale
 
 object LanguageHelper {
 
@@ -61,5 +60,11 @@ object LanguageHelper {
             "pt" -> context.getString(R.string.language_portuguese)
             else -> context.getString(R.string.language_spanish)
         }
+    }
+
+    // Nuevo método para cambiar idioma sin recrear inmediatamente
+    fun changeLanguageWithoutRecreate(context: Context, languageCode: String) {
+        saveLanguagePreference(context, languageCode)
+        setAppLanguage(context, languageCode)
     }
 }

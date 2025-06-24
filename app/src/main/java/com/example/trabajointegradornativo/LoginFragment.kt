@@ -95,19 +95,6 @@ class LoginFragment : Fragment() {
         updateUIMode()
     }
 
-    private fun setupObjectiveSpinner() {
-        val localizedObjectives = arrayOf(
-            getString(R.string.fitness),
-            getString(R.string.reading_objective),
-            "Mindfulness",
-            getString(R.string.hydration_objective),
-            getString(R.string.other_objective)
-        )
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, localizedObjectives)
-        objectiveSpinner.setAdapter(adapter)
-        objectiveSpinner.setOnClickListener { objectiveSpinner.showDropDown() }
-    }
-
     private fun setupDatePicker() {
         dateInput.setOnClickListener {
             showDatePicker()
@@ -127,27 +114,17 @@ class LoginFragment : Fragment() {
         }
     }
 
-    private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-        val datePickerDialog = DatePickerDialog(
-            requireContext(),
-            { _, selectedYear, selectedMonth, selectedDay ->
-                val selectedCalendar = Calendar.getInstance()
-                selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
-
-                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                selectedDate = dateFormat.format(selectedCalendar.time)
-                dateInput.setText(selectedDate)
-            },
-            year, month, day
+    private fun setupObjectiveSpinner() {
+        val localizedObjectives = arrayOf(
+            getString(R.string.fitness),
+            getString(R.string.reading_objective),
+            getString(R.string.mindfulness_objective),
+            getString(R.string.hydration_objective),
+            getString(R.string.other_objective)
         )
-
-        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
-        datePickerDialog.show()
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, localizedObjectives)
+        objectiveSpinner.setAdapter(adapter)
+        objectiveSpinner.setOnClickListener { objectiveSpinner.showDropDown() }
     }
 
     private fun setupClickListeners() {
@@ -172,6 +149,29 @@ class LoginFragment : Fragment() {
             clearInputs()
             updateUIMode()
         }
+    }
+
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                val selectedCalendar = Calendar.getInstance()
+                selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+
+                val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                selectedDate = dateFormat.format(selectedCalendar.time)
+                dateInput.setText(selectedDate)
+            },
+            year, month, day
+        )
+
+        datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
+        datePickerDialog.show()
     }
 
     private fun updateUIMode() {
@@ -508,7 +508,7 @@ class LoginFragment : Fragment() {
                 "estado" to "activo",
                 "progreso" to 0
             )
-            "Mindfulness" -> mapOf(
+            getString(R.string.mindfulness_objective) -> mapOf(
                 "nombre" to getString(R.string.initial_mindfulness_challenge),
                 "descripcion" to getString(R.string.mindfulness_challenge_description),
                 "dias" to 30,
