@@ -11,7 +11,8 @@ class BootReceiver : BroadcastReceiver() {
 
         if (Intent.ACTION_BOOT_COMPLETED == action ||
             Intent.ACTION_MY_PACKAGE_REPLACED == action ||
-            Intent.ACTION_PACKAGE_REPLACED == action) {
+            Intent.ACTION_PACKAGE_REPLACED == action
+        ) {
 
             reprogramarNotificaciones(context)
         }

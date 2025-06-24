@@ -15,7 +15,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header with title, visibility tag and menu -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,7 +22,6 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="8dp">
 
-            <!-- Challenge Name -->
             <TextView
                 android:id="@+id/challenge_name"
                 android:layout_width="wrap_content"
@@ -34,7 +32,6 @@
                 android:textColor="@color/text_dark"
                 android:layout_marginEnd="8dp" />
 
-            <!-- Visibility Tag -->
             <TextView
                 android:id="@+id/visibility_tag"
                 android:layout_width="wrap_content"
@@ -48,14 +45,12 @@
 
         </LinearLayout>
 
-        <!-- Progress Bar Container -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- Progress Bar -->
             <ProgressBar
                 android:id="@+id/progress_bar"
                 style="?android:attr/progressBarStyleHorizontal"
@@ -67,7 +62,6 @@
                 android:progress="60"
                 android:progressDrawable="@drawable/progress_bar_drawable" />
 
-            <!-- Progress Text -->
             <TextView
                 android:id="@+id/progress_text"
                 android:layout_width="wrap_content"
@@ -77,7 +71,6 @@
                 android:textColor="@color/text_secondary" />
         </LinearLayout>
 
-        <!-- Tags Container (now only for additional tags) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -85,7 +78,6 @@
             android:layout_marginTop="8dp"
             android:gravity="center_vertical">
 
-            <!-- Tags RecyclerView or FlexboxLayout for dynamic tags -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tags_recycler"
                 android:layout_width="match_parent"

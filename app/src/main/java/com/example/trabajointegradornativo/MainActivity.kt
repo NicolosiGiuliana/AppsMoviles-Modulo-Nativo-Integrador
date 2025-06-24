@@ -22,7 +22,8 @@ class MainActivity : AppCompatActivity() {
 
         sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
         checkUserStatus()
@@ -59,7 +60,8 @@ class MainActivity : AppCompatActivity() {
         companion object {
             private var instance: App? = null
             val context: Context
-                get() = instance?.applicationContext ?: throw IllegalStateException("Application is not initialized.")
+                get() = instance?.applicationContext
+                    ?: throw IllegalStateException("Application is not initialized.")
         }
     }
 }

@@ -23,7 +23,6 @@ object LanguageHelper {
 
         context.resources.updateConfiguration(config, context.resources.displayMetrics)
 
-        // Guardar preferencia
         saveLanguagePreference(context, languageCode)
     }
 
@@ -62,7 +61,7 @@ object LanguageHelper {
         }
     }
 
-    // Nuevo método para cambiar idioma sin recrear inmediatamente
+
     fun changeLanguageWithoutRecreate(context: Context, languageCode: String) {
         saveLanguagePreference(context, languageCode)
         setAppLanguage(context, languageCode)

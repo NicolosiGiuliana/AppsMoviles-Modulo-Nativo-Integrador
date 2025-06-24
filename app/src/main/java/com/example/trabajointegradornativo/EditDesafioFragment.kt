@@ -35,7 +35,7 @@ class EditDesafioFragment : Fragment() {
         private const val FIELD_COMPLETADO = "completado"
         private const val FIELD_FECHA_REALIZACION = "fechaRealizacion"
 
-        // Constantes para valores por defecto (NO localizados)
+
         private const val DEFAULT_HABIT_NAME = "Hábito sin nombre"
         private const val NEW_HABIT_PREFIX = "Nuevo hábito"
         private const val MIN_HABITS_REQUIRED = 3
@@ -71,7 +71,8 @@ class EditDesafioFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            desafio = it.getParcelable("desafio") ?: throw IllegalStateException(getString(R.string.desafio_not_found_in_args))
+            desafio = it.getParcelable("desafio")
+                ?: throw IllegalStateException(getString(R.string.desafio_not_found_in_args))
         }
     }
 
@@ -146,22 +147,28 @@ class EditDesafioFragment : Fragment() {
                     val descripcion = document.getString(FIELD_DESCRIPCION) ?: ""
                     etDescripcion.setText(descripcion)
 
-                    val habitosBase = document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
+                    val habitosBase =
+                        document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
                     habitos.clear()
 
                     for (habitoMap in habitosBase) {
-                        // CORREGIDO: Usar constante no localizada para fallback
+
                         val nombre = habitoMap[FIELD_NOMBRE] as? String ?: DEFAULT_HABIT_NAME
                         val completado = habitoMap[FIELD_COMPLETADO] as? Boolean ?: false
                         habitos.add(HabitoItem(nombre, completado))
                     }
 
-                    // CORREGIDO: Usar constante no localizada para nuevos hábitos
                     while (habitos.size < MIN_HABITS_REQUIRED) {
-                        habitos.add(HabitoItem("$NEW_HABIT_PREFIX ${habitos.size + 1}", false, true))
+                        habitos.add(
+                            HabitoItem(
+                                "$NEW_HABIT_PREFIX ${habitos.size + 1}",
+                                false,
+                                true
+                            )
+                        )
                     }
-
-                    val etiquetasBase = document.get(FIELD_ETIQUETAS) as? List<String> ?: emptyList()
+                    val etiquetasBase =
+                        document.get(FIELD_ETIQUETAS) as? List<String> ?: emptyList()
                     etiquetas.clear()
                     etiquetas.addAll(etiquetasBase)
 
@@ -172,7 +179,8 @@ class EditDesafioFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error al cargar datos: ${e.message}")
-                Toast.makeText(context, getString(R.string.error_loading_data), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.error_loading_data), Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 
@@ -190,7 +198,8 @@ class EditDesafioFragment : Fragment() {
             .addOnSuccessListener { diasSnapshot ->
                 if (!diasSnapshot.isEmpty) {
                     val diaDoc = diasSnapshot.documents[0]
-                    val habitosDelDia = diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
+                    val habitosDelDia =
+                        diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
 
                     for ((index, habitoDelDia) in habitosDelDia.withIndex()) {
                         if (index < habitos.size) {
@@ -240,10 +249,13 @@ class EditDesafioFragment : Fragment() {
                 if (habitos.size > MIN_HABITS_REQUIRED) {
                     mostrarDialogoEliminarHabito(index)
                 } else {
-                    Toast.makeText(context, getString(R.string.must_have_at_least_3_habits), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        getString(R.string.must_have_at_least_3_habits),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-
             btnEliminar.isEnabled = habitos.size > MIN_HABITS_REQUIRED
             btnEliminar.alpha = if (habitos.size > MIN_HABITS_REQUIRED) 1.0f else 0.5f
 
@@ -274,7 +286,8 @@ class EditDesafioFragment : Fragment() {
 
     private fun mostrarDialogoAgregarHabito() {
         val builder = AlertDialog.Builder(requireContext())
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_agregar_habito, null)
+        val dialogView =
+            LayoutInflater.from(requireContext()).inflate(R.layout.dialog_agregar_habito, null)
         val inputLayout = dialogView.findViewById<TextInputLayout>(R.id.til_habito)
         val input = dialogView.findViewById<TextInputEditText>(R.id.et_habito)
 
@@ -286,7 +299,11 @@ class EditDesafioFragment : Fragment() {
                     habitos.add(HabitoItem(nombre, false, true))
                     actualizarUIHabitos()
                 } else {
-                    Toast.makeText(context, getString(R.string.name_cannot_be_empty), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        getString(R.string.name_cannot_be_empty),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .setNegativeButton(getString(R.string.cancel), null)
@@ -295,7 +312,8 @@ class EditDesafioFragment : Fragment() {
 
     private fun mostrarDialogoAgregarEtiqueta() {
         val builder = AlertDialog.Builder(requireContext())
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_agregar_etiqueta, null)
+        val dialogView =
+            LayoutInflater.from(requireContext()).inflate(R.layout.dialog_agregar_etiqueta, null)
         val inputLayout = dialogView.findViewById<TextInputLayout>(R.id.til_etiqueta)
         val input = dialogView.findViewById<TextInputEditText>(R.id.et_etiqueta)
 
@@ -308,10 +326,18 @@ class EditDesafioFragment : Fragment() {
                         etiquetas.add(etiqueta)
                         actualizarUIEtiquetas()
                     } else {
-                        Toast.makeText(context, getString(R.string.tag_already_exists), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            getString(R.string.tag_already_exists),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } else {
-                    Toast.makeText(context, getString(R.string.name_cannot_be_empty), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        getString(R.string.name_cannot_be_empty),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .setNegativeButton(getString(R.string.cancel), null)
@@ -338,7 +364,11 @@ class EditDesafioFragment : Fragment() {
         }
 
         if (habitos.size < MIN_HABITS_REQUIRED) {
-            Toast.makeText(context, getString(R.string.must_have_at_least_3_habits), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                getString(R.string.must_have_at_least_3_habits),
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
 
@@ -351,10 +381,8 @@ class EditDesafioFragment : Fragment() {
                 etNombre.error = getString(R.string.habit_name_required)
                 return false
             }
-
             habitos[i].nombre = nombre
         }
-
         return true
     }
 
@@ -397,14 +425,22 @@ class EditDesafioFragment : Fragment() {
                         }
                         setFragmentResult("desafio_editado", bundle)
 
-                        Toast.makeText(context, getString(R.string.changes_saved_successfully), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            getString(R.string.changes_saved_successfully),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         findNavController().navigateUp()
                     }
                 }
             }
             .addOnFailureListener { e ->
                 progressDialog.dismiss()
-                Toast.makeText(context, getString(R.string.error_saving_changes), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_saving_changes),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -427,7 +463,8 @@ class EditDesafioFragment : Fragment() {
             .addOnSuccessListener { diasSnapshot ->
                 if (!diasSnapshot.isEmpty) {
                     val diaDoc = diasSnapshot.documents[0]
-                    val habitosDelDia = (diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()).toMutableList()
+                    val habitosDelDia = (diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>>
+                        ?: emptyList()).toMutableList()
 
                     for ((index, nuevoEstado) in cambiosPendientes) {
                         if (index < habitosDelDia.size) {
@@ -437,7 +474,8 @@ class EditDesafioFragment : Fragment() {
                         }
                     }
 
-                    val todosCompletados = habitosDelDia.all { (it[FIELD_COMPLETADO] as? Boolean) == true }
+                    val todosCompletados =
+                        habitosDelDia.all { (it[FIELD_COMPLETADO] as? Boolean) == true }
 
                     val updatesDelDia = mapOf(
                         FIELD_HABITOS to habitosDelDia,
@@ -474,22 +512,28 @@ class EditDesafioFragment : Fragment() {
                 val batch = firestore.batch()
 
                 for (diaDoc in diasSnapshot.documents) {
-                    val habitosActuales = diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
+                    val habitosActuales =
+                        diaDoc.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
                     val nuevosHabitos = mutableListOf<Map<String, Any>>()
 
                     for ((index, nuevoHabito) in habitos.withIndex()) {
                         val habitoExistente = habitosActuales.getOrNull(index)
 
                         if (habitoExistente != null) {
-                            nuevosHabitos.add(mapOf(
-                                FIELD_NOMBRE to nuevoHabito.nombre,
-                                FIELD_COMPLETADO to (habitoExistente[FIELD_COMPLETADO] as? Boolean ?: false)
-                            ))
+                            nuevosHabitos.add(
+                                mapOf(
+                                    FIELD_NOMBRE to nuevoHabito.nombre,
+                                    FIELD_COMPLETADO to (habitoExistente[FIELD_COMPLETADO] as? Boolean
+                                        ?: false)
+                                )
+                            )
                         } else {
-                            nuevosHabitos.add(mapOf(
-                                FIELD_NOMBRE to nuevoHabito.nombre,
-                                FIELD_COMPLETADO to nuevoHabito.completado
-                            ))
+                            nuevosHabitos.add(
+                                mapOf(
+                                    FIELD_NOMBRE to nuevoHabito.nombre,
+                                    FIELD_COMPLETADO to nuevoHabito.completado
+                                )
+                            )
                         }
                     }
 

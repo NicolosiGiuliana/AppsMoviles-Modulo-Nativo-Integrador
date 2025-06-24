@@ -31,7 +31,7 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-     override fun onPostCreate(savedInstanceState: Bundle?) {
+    override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         supportActionBar?.hide()
     }

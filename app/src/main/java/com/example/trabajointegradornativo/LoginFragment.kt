@@ -54,7 +54,8 @@ class LoginFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
 
-        sharedPreferences = requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        sharedPreferences =
+            requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
         initViews(view)
         setupUI()
@@ -106,12 +107,25 @@ class LoginFragment : Fragment() {
     private fun setupPasswordConfirmation() {
         confirmPasswordInput.setOnLongClickListener { true }
         confirmPasswordInput.setTextIsSelectable(false)
-        confirmPasswordInput.customSelectionActionModeCallback = object : android.view.ActionMode.Callback {
-            override fun onCreateActionMode(mode: android.view.ActionMode?, menu: android.view.Menu?): Boolean = false
-            override fun onPrepareActionMode(mode: android.view.ActionMode?, menu: android.view.Menu?): Boolean = false
-            override fun onActionItemClicked(mode: android.view.ActionMode?, item: android.view.MenuItem?): Boolean = false
-            override fun onDestroyActionMode(mode: android.view.ActionMode?) {}
-        }
+        confirmPasswordInput.customSelectionActionModeCallback =
+            object : android.view.ActionMode.Callback {
+                override fun onCreateActionMode(
+                    mode: android.view.ActionMode?,
+                    menu: android.view.Menu?
+                ): Boolean = false
+
+                override fun onPrepareActionMode(
+                    mode: android.view.ActionMode?,
+                    menu: android.view.Menu?
+                ): Boolean = false
+
+                override fun onActionItemClicked(
+                    mode: android.view.ActionMode?,
+                    item: android.view.MenuItem?
+                ): Boolean = false
+
+                override fun onDestroyActionMode(mode: android.view.ActionMode?) {}
+            }
     }
 
     private fun setupObjectiveSpinner() {
@@ -122,7 +136,11 @@ class LoginFragment : Fragment() {
             getString(R.string.hydration_objective),
             getString(R.string.other_objective)
         )
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, localizedObjectives)
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            localizedObjectives
+        )
         objectiveSpinner.setAdapter(adapter)
         objectiveSpinner.setOnClickListener { objectiveSpinner.showDropDown() }
     }
@@ -135,7 +153,15 @@ class LoginFragment : Fragment() {
             val confirmPassword = confirmPasswordInput.text.toString().trim()
             val objective = objectiveSpinner.text.toString().trim()
 
-            if (validateInputs(email, password, username, confirmPassword, objective, selectedDate)) {
+            if (validateInputs(
+                    email,
+                    password,
+                    username,
+                    confirmPassword,
+                    objective,
+                    selectedDate
+                )
+            ) {
                 if (isLoginMode) {
                     loginUser(email, password)
                 } else {
@@ -324,16 +350,30 @@ class LoginFragment : Fragment() {
                         isLoggedIn = true
                     )
 
-                    Toast.makeText(context, getString(R.string.login_successful), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        getString(R.string.login_successful),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     navigateToMainApp()
                 } else {
-                    Toast.makeText(context, getString(R.string.login_error, task.exception?.message ?: ""), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        getString(R.string.login_error, task.exception?.message ?: ""),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
 
     }
 
-    private fun registerUser(email: String, password: String, username: String, birthDate: String, objective: String) {
+    private fun registerUser(
+        email: String,
+        password: String,
+        username: String,
+        birthDate: String,
+        objective: String
+    ) {
         actionButton.isEnabled = false
 
         auth.createUserWithEmailAndPassword(email, password)
@@ -355,17 +395,29 @@ class LoginFragment : Fragment() {
                                 birthDate = birthDate,
                                 objective = objective,
                                 onSuccess = {
-                                    Toast.makeText(context, getString(R.string.registration_successful), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        getString(R.string.registration_successful),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     navigateToMainApp()
                                 },
                                 onError = { e ->
-                                    Toast.makeText(context, getString(R.string.error_saving_data, e.message ?: ""), Toast.LENGTH_LONG).show()
+                                    Toast.makeText(
+                                        context,
+                                        getString(R.string.error_saving_data, e.message ?: ""),
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                             )
                         }
                     }
                 } else {
-                    Toast.makeText(context, getString(R.string.registration_error, task.exception?.message ?: ""), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        getString(R.string.registration_error, task.exception?.message ?: ""),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
     }
@@ -393,7 +445,8 @@ class LoginFragment : Fragment() {
             startActivity(intent)
             activity?.finish()
         } catch (e: Exception) {
-            Toast.makeText(context, getString(R.string.navigation_successful), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.navigation_successful), Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -493,6 +546,7 @@ class LoginFragment : Fragment() {
                 "estado" to "activo",
                 "progreso" to 0
             )
+
             getString(R.string.reading_objective) -> mapOf(
                 "nombre" to getString(R.string.initial_reading_challenge),
                 "descripcion" to getString(R.string.reading_challenge_description),
@@ -508,6 +562,7 @@ class LoginFragment : Fragment() {
                 "estado" to "activo",
                 "progreso" to 0
             )
+
             getString(R.string.mindfulness_objective) -> mapOf(
                 "nombre" to getString(R.string.initial_mindfulness_challenge),
                 "descripcion" to getString(R.string.mindfulness_challenge_description),
@@ -523,6 +578,7 @@ class LoginFragment : Fragment() {
                 "estado" to "activo",
                 "progreso" to 0
             )
+
             getString(R.string.hydration_objective) -> mapOf(
                 "nombre" to getString(R.string.initial_hydration_challenge),
                 "descripcion" to getString(R.string.hydration_challenge_description),
@@ -538,6 +594,7 @@ class LoginFragment : Fragment() {
                 "estado" to "activo",
                 "progreso" to 0
             )
+
             else -> mapOf(
                 "nombre" to getString(R.string.initial_generic_challenge),
                 "descripcion" to getString(R.string.generic_challenge_description),

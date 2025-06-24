@@ -14,7 +14,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Challenge Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,7 +46,6 @@
 
             </LinearLayout>
 
-            <!-- Duration - moved to header as badge -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_duration_badge"
                 android:layout_width="wrap_content"
@@ -72,7 +70,6 @@
 
         </LinearLayout>
 
-        <!-- Description -->
         <TextView
             android:id="@+id/tv_challenge_description"
             android:layout_width="match_parent"
@@ -83,7 +80,6 @@
             android:textColor="#4B5563"
             android:textSize="15sp" />
 
-        <!-- Tags Container (sin duración) -->
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/ll_tags_container"
             android:layout_width="match_parent"
@@ -93,18 +89,14 @@
             app:alignItems="flex_start"
             app:justifyContent="flex_start">
 
-            <!-- Las etiquetas se crearán dinámicamente en el código Kotlin -->
-
         </com.google.android.flexbox.FlexboxLayout>
 
-        <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- Join Button -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cv_join_button"
                 android:layout_width="0dp"

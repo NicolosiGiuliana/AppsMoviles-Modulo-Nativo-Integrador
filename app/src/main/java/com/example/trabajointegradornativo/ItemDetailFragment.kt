@@ -30,7 +30,7 @@ import java.util.*
 class ItemDetailFragment : Fragment() {
 
     private var _binding: FragmentItemDetailBinding? = null
-    // SOLUCIÓN: Mantener el getter original pero con verificación
+     
     private val binding get() = _binding!!
 
     data class Desafio(
@@ -186,7 +186,7 @@ class ItemDetailFragment : Fragment() {
     }
 
     private fun setupFloatingButtons() {
-        // Botón de editar
+         
         binding.btnEditChallenge?.setOnClickListener {
             if (::desafio.isInitialized) {
                 val desafioParaEditar = ItemListFragment.Desafio(
@@ -217,14 +217,14 @@ class ItemDetailFragment : Fragment() {
             }
         }
 
-        // Botón de eliminar
+         
         binding.btnDeleteChallenge?.setOnClickListener {
             if (::desafio.isInitialized) {
                 eliminarDesafio(desafio.id)
             }
         }
 
-        // Botón de finalizar (si existe en el layout de finalización)
+         
         binding.root.findViewById<View>(R.id.boton_finalizar_desafio)?.setOnClickListener {
             finalizarDesafio()
         }
@@ -256,7 +256,7 @@ class ItemDetailFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // Cargar información de ubicación
+                     
                     val latitude = document.getDouble("ubicacion_latitude")
                     val longitude = document.getDouble("ubicacion_longitude")
                     val locationName = document.getString("ubicacion_nombre")
@@ -272,7 +272,7 @@ class ItemDetailFragment : Fragment() {
 
                     updateBasicInfo()
 
-                    // Cargar días completados
+                     
                     firestore.collection("usuarios")
                         .document(uid)
                         .collection("desafios")
@@ -402,7 +402,7 @@ class ItemDetailFragment : Fragment() {
                                     val totalHabitos = habitosBase.size
 
                                     obtenerHabitosDiaActual(uid, desafio.id) { habitosDelDia ->
-                                        // SOLUCIÓN: Verificar que el fragment sigue activo antes de actualizar UI
+                                         
                                         if (isAdded && _binding != null) {
                                             actualizarUI(
                                                 nombre = nombre,
@@ -1104,14 +1104,12 @@ class ItemDetailFragment : Fragment() {
         const val ARG_ITEM_ID = "item_id"
         private const val TAG = "ItemDetailFragment"
 
-        // Constantes para valores por defecto
         private const val DEFAULT_NAME = "Sin nombre"
         private const val DEFAULT_DESCRIPTION = "Sin descripción"
         private const val DEFAULT_STATUS = "Indefinido"
         private const val DEFAULT_HABIT_NAME = "Hábito sin nombre"
         private const val DEFAULT_VISIBILITY = "privado"
-
-        // Constantes para Firebase
+         
         private const val COLLECTION_USUARIOS = "usuarios"
         private const val COLLECTION_DESAFIOS = "desafios"
         private const val COLLECTION_DIAS = "dias"

@@ -52,7 +52,7 @@ class NotificationReceiver : BroadcastReceiver() {
     ) {
         val db = FirebaseFirestore.getInstance()
 
-        // Obtener desafíos activos
+
         db.collection("usuarios")
             .document(userId)
             .collection("desafios")
@@ -73,7 +73,7 @@ class NotificationReceiver : BroadcastReceiver() {
                 for (desafioDoc in desafiosSnapshot) {
                     val desafioId = desafioDoc.id
 
-                    // Obtener el progreso del día específico en la subcolección 'dias'
+
                     db.collection("usuarios")
                         .document(userId)
                         .collection("desafios")
@@ -84,13 +84,15 @@ class NotificationReceiver : BroadcastReceiver() {
                         .addOnSuccessListener { diasSnapshot ->
 
                             if (diasSnapshot.isEmpty) {
-                                // Si no hay progreso para hoy, contar todos los hábitos como pendientes
-                                val habitosDelDesafio = (desafioDoc.get("habitos") as? List<*>)?.size ?: 0
+
+                                val habitosDelDesafio =
+                                    (desafioDoc.get("habitos") as? List<*>)?.size ?: 0
                                 totalHabitos += habitosDelDesafio
                             } else {
-                                // Procesar el progreso del día
+
                                 for (diaDoc in diasSnapshot) {
-                                    val habitosArray = diaDoc.get("habitos") as? List<Map<String, Any>>
+                                    val habitosArray =
+                                        diaDoc.get("habitos") as? List<Map<String, Any>>
 
                                     if (habitosArray != null) {
                                         totalHabitos += habitosArray.size
@@ -106,7 +108,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
                             desafiosProcesados++
 
-                            // Cuando hayamos procesado todos los desafíos, ejecutar callback
+
                             if (desafiosProcesados == totalDesafios) {
                                 callback(totalHabitos, habitosCompletados)
                             }
@@ -132,19 +134,43 @@ class NotificationReceiver : BroadcastReceiver() {
         return when (habitosFaltantes) {
             1 -> NotificacionData(
                 titulo = context.getString(R.string.notificacion_titulo_un_habito),
-                mensaje = context.getString(R.string.notificacion_mensaje_un_habito, fraseMotivacional)
+                mensaje = context.getString(
+                    R.string.notificacion_mensaje_un_habito,
+                    fraseMotivacional
+                )
             )
+
             in 2..3 -> NotificacionData(
-                titulo = context.getString(R.string.notificacion_titulo_pocos_habitos, habitosFaltantes),
-                mensaje = context.getString(R.string.notificacion_mensaje_buen_camino, fraseMotivacional)
+                titulo = context.getString(
+                    R.string.notificacion_titulo_pocos_habitos,
+                    habitosFaltantes
+                ),
+                mensaje = context.getString(
+                    R.string.notificacion_mensaje_buen_camino,
+                    fraseMotivacional
+                )
             )
+
             in 4..6 -> NotificacionData(
-                titulo = context.getString(R.string.notificacion_titulo_pocos_habitos, habitosFaltantes),
-                mensaje = context.getString(R.string.notificacion_mensaje_retomar_ritmo, fraseMotivacional)
+                titulo = context.getString(
+                    R.string.notificacion_titulo_pocos_habitos,
+                    habitosFaltantes
+                ),
+                mensaje = context.getString(
+                    R.string.notificacion_mensaje_retomar_ritmo,
+                    fraseMotivacional
+                )
             )
+
             else -> NotificacionData(
-                titulo = context.getString(R.string.notificacion_titulo_pocos_habitos, habitosFaltantes),
-                mensaje = context.getString(R.string.notificacion_mensaje_decision_intentar, fraseMotivacional)
+                titulo = context.getString(
+                    R.string.notificacion_titulo_pocos_habitos,
+                    habitosFaltantes
+                ),
+                mensaje = context.getString(
+                    R.string.notificacion_mensaje_decision_intentar,
+                    fraseMotivacional
+                )
             )
         }
     }
@@ -158,7 +184,8 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     private fun enviarNotificacion(context: Context, titulo: String, mensaje: String) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val intent = Intent(context, ItemDetailHostActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -173,7 +200,10 @@ class NotificationReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, context.getString(R.string.channel_id_desafio_recordatorios))
+        val builder = NotificationCompat.Builder(
+            context,
+            context.getString(R.string.channel_id_desafio_recordatorios)
+        )
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(titulo)
             .setContentText(mensaje)

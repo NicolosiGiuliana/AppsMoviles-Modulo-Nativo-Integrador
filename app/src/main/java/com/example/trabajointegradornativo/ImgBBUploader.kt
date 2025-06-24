@@ -11,14 +11,13 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 class ImgBBUploader {
-
+    
     companion object {
         private const val TAG = "ImgBBUploader"
         private const val IMGBB_API_URL = "https://api.imgbb.com/1/upload"
         private const val API_KEY = "3fc24a14a9488f101644740df249948a"
         private const val JPEG_QUALITY = 80
-
-        // Constantes para mensajes (NO localizados - para logs y errores técnicos)
+ 
         private const val ERROR_CONVERTING_IMAGE = "Error al convertir imagen a base64"
         private const val STARTING_UPLOAD = "Iniciando subida a ImgBB..."
         private const val HTTP_REQUEST_ERROR = "Error en la petición HTTP"
@@ -108,7 +107,6 @@ class ImgBBUploader {
             callback.onError(ERROR_CONVERTING_IMAGE)
             return
         }
-
         callback.onProgress(10)
 
         val requestBody = FormBody.Builder()

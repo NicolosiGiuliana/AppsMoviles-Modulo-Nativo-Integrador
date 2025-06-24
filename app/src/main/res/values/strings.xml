@@ -85,7 +85,7 @@
     <string name="mindfulness_objective">Mindfulness</string>
     <string name="other">Otro</string>
 
-    <!-- Nuevos strings agregados para ProfileFragment -->
+    <!-- ProfileFragment -->
     <string name="profile_fragment_tag">ProfileFragment</string>
     <string name="firebase_initialized_user">Firebase inicializado - Usuario: %s</string>
     <string name="user_space">U</string>
@@ -145,9 +145,6 @@
     <string name="firestore_profile_image_url">profileImageUrl</string>
     <string name="firestore_profile_image_delete_url">profileImageDeleteUrl</string>
     <string name="firestore_last_updated">lastUpdated</string>
-
-    <!-- Resto de strings existentes... -->
-    <!-- (mantengo todos los strings que ya tenías) -->
 
     <!-- Home screen strings -->
     <string name="hello_user">Hola, Usuario</string>
@@ -481,8 +478,6 @@
     <string name="general_type">general</string>
     <string name="active_status">activo</string>
 
-    <!-- Strings adicionales para CreateChallengeFragment.kt -->
-
     <!-- Mensajes de validación y errores -->
     <string name="write_tag">Escribe una etiqueta</string>
     <string name="tag_max_length">La etiqueta no puede superar 20 caracteres</string>
@@ -518,11 +513,8 @@
     <string name="publico">publico</string>
     <string name="privado">privado</string>
 
-    <!-- Campos adicionales que pueden estar hardcodeados -->
     <string name="autor_nombre_default">Usuario</string>
     <string name="dia_prefix">dia_</string>
-
-    <!-- Agregar estos strings al archivo strings.xml existente -->
 
     <!-- Mensajes de error específicos -->
     <string name="desafio_not_found_in_args">Desafio no encontrado en los argumentos</string>
@@ -535,15 +527,11 @@
     <!-- Mensaje de día completado con formato -->
     <string name="day_completed_exclamation">completado!</string>
 
-    <!-- Agregar estos strings al archivo strings.xml existente -->
-
     <!-- Estados de desafío -->
     <string name="default_challenge_state">activo</string>
     <string name="challenge_state_active">activo</string>
     <string name="challenge_state_completed">completado</string>
     <string name="challenge_state_paused">pausado</string>
-
-    <!-- Agregar estos strings al archivo strings.xml existente -->
 
     <!-- EditDesafioFragment strings -->
     <string name="habit_without_name">Hábito sin nombre</string>
@@ -594,8 +582,6 @@
     <string name="content_already_updating">Ya se está actualizando el contenido</string>
     <string name="lat_lng_format">Lat: %.4f, Lng: %.4f</string>
 
-    <!-- Strings faltantes para ItemDetailFragment -->
-
     <!-- Vista de finalización -->
     <string name="challenge_finished">¡Desafío Terminado!</string>
     <string name="congratulations_challenge_completed">¡Felicitaciones! Has completado tu desafío de %d días.</string>
@@ -631,8 +617,6 @@
     <string name="onresume_reloading_data">onResume: Recargando datos</string>
     <string name="onpause_map_paused">onPause - Mapa pausado</string>
     <string name="error_calculating_statistics">Error calculando estadísticas: %s</string>
-
-    <!-- Agregar estos strings adicionales al archivo strings.xml existentes -->
 
     <!-- Verificación y finalización de desafío -->
     <string name="verifying_challenge_completion">Verificando finalización - Último día: %1$d de %2$d</string>
@@ -836,7 +820,6 @@
     <!-- Time intervals -->
     <string name="date_check_interval">30000</string>
 
-    <!-- Strings faltantes identificados en los errores de compilación -->
     <string name="error_verifying_finalization">Error verificando finalización</string>
     <string name="user_prefs">user_prefs</string>
     <string name="desafio_id">desafio_id</string>
@@ -936,9 +919,7 @@
     <string name="homeText">Inicio</string>
 
     <!-- Para TodayFragment.kt -->
-
     <string name="challenge_name">challenge_name</string>
-
     <string name="notificacion_titulo_generica">¡No olvides tus hábitos!</string>
 
     <!-- Para NotificationReceiver.kt -->
@@ -957,9 +938,7 @@
     <string name="challenge_state_cancelled">Cancelado</string>
     <string name="challenge_state_unknown">Estado desconocido</string>
 
-    <!-- Fixes -->
     <string name="use_boton">Usar Desafio</string>
-    <!-- Add these strings to your Spanish strings.xml file -->
     <string name="public_challenges_title">Desafíos Públicos</string>
     <string name="discover_community_challenges">Descubre nuevos retos creados por la comunidad</string>
     <string name="search_challenges_hint">Buscar desafíos por nombre o etiqueta</string>

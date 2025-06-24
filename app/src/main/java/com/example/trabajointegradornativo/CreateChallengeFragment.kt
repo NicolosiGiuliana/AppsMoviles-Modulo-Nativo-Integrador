@@ -79,7 +79,11 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             }
 
             else -> {
-                Toast.makeText(context, getString(R.string.location_permissions_denied), Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    context,
+                    getString(R.string.location_permissions_denied),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
         }
@@ -184,16 +188,22 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 Toast.makeText(context, getString(R.string.write_tag), Toast.LENGTH_SHORT).show()
                 return
             }
+
             nuevaEtiqueta.length > 20 -> {
-                Toast.makeText(context, getString(R.string.tag_max_length), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.tag_max_length), Toast.LENGTH_SHORT)
+                    .show()
                 return
             }
+
             etiquetasAgregadas.contains(nuevaEtiqueta.lowercase()) -> {
-                Toast.makeText(context, getString(R.string.tag_already_added), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.tag_already_added), Toast.LENGTH_SHORT)
+                    .show()
                 return
             }
+
             etiquetasAgregadas.size >= 10 -> {
-                Toast.makeText(context, getString(R.string.max_tags_limit), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.max_tags_limit), Toast.LENGTH_SHORT)
+                    .show()
                 return
             }
         }
@@ -346,7 +356,11 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         buttonObtenerUbicacion.text = getString(R.string.get_my_location)
         buttonObtenerUbicacion.isEnabled = true
 
-        Toast.makeText(context, getString(R.string.location_obtained_successfully), Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context,
+            getString(R.string.location_obtained_successfully),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun onLocationError(error: String) {
@@ -399,35 +413,59 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
 
         when {
             nombre.isEmpty() -> {
-                Toast.makeText(context, getString(R.string.challenge_name_required), Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    context,
+                    getString(R.string.challenge_name_required),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
                 return false
             }
 
             descripcion.isEmpty() -> {
-                Toast.makeText(context, getString(R.string.challenge_description_required), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.challenge_description_required),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return false
             }
 
             habitos.size < 3 -> {
-                Toast.makeText(context, getString(R.string.minimum_habits_required), Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    context,
+                    getString(R.string.minimum_habits_required),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
                 return false
             }
 
             habitos.size > 5 -> {
-                Toast.makeText(context, getString(R.string.maximum_habits_exceeded), Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    context,
+                    getString(R.string.maximum_habits_exceeded),
+                    Toast.LENGTH_SHORT
+                )
                     .show()
                 return false
             }
 
             esPublico && ubicacionSeleccionada != null -> {
-                Toast.makeText(context, getString(R.string.public_challenges_no_location), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.public_challenges_no_location),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return false
             }
 
             auth.currentUser?.uid == null -> {
-                Toast.makeText(context, getString(R.string.user_not_authenticated), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.user_not_authenticated),
+                    Toast.LENGTH_SHORT
+                ).show()
                 return false
             }
         }
@@ -444,15 +482,16 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         val uid = auth.currentUser?.uid!!
         val currentTime = com.google.firebase.Timestamp.now()
 
-        val ubicacionData = if (ubicacionSeleccionada != null && latitudSeleccionada != null && longitudSeleccionada != null) {
-            mapOf(
-                "ubicacion_latitude" to latitudSeleccionada!!,
-                "ubicacion_longitude" to longitudSeleccionada!!,
-                "ubicacion_nombre" to ubicacionSeleccionada!!
-            )
-        } else {
-            emptyMap<String, Any>()
-        }
+        val ubicacionData =
+            if (ubicacionSeleccionada != null && latitudSeleccionada != null && longitudSeleccionada != null) {
+                mapOf(
+                    "ubicacion_latitude" to latitudSeleccionada!!,
+                    "ubicacion_longitude" to longitudSeleccionada!!,
+                    "ubicacion_nombre" to ubicacionSeleccionada!!
+                )
+            } else {
+                emptyMap<String, Any>()
+            }
 
         val desafioBase = hashMapOf(
             "nombre" to nombre,
@@ -538,7 +577,11 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 }
 
                 batch.commit().addOnSuccessListener {
-                    Toast.makeText(context, getString(R.string.challenge_created_successfully), Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        getString(R.string.challenge_created_successfully),
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
 
                     val intent = Intent(requireContext(), ItemDetailHostActivity::class.java)
@@ -556,7 +599,11 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 }
 
             }.addOnFailureListener { e ->
-                Toast.makeText(context, getString(R.string.error_format, e.message), Toast.LENGTH_LONG)
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_format, e.message),
+                    Toast.LENGTH_LONG
+                )
                     .show()
                 crearButton.isEnabled = true
                 crearButton.text = getString(R.string.create_challenge)

@@ -18,7 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.android.flexbox.FlexboxLayout
 
-class PublicChallengeFragment: Fragment() {
+class PublicChallengeFragment : Fragment() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var challengesContainer: LinearLayout
@@ -224,7 +224,11 @@ class PublicChallengeFragment: Fragment() {
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(requireContext(), "Error al abrir la previsualización", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Error al abrir la previsualización",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -261,7 +265,7 @@ class PublicChallengeFragment: Fragment() {
 
         val exploreLayout = bottomNavigation?.getChildAt(2) as? LinearLayout
         exploreLayout?.setOnClickListener {
-            // Current fragment - no action needed
+
         }
 
         val profileLayout = bottomNavigation?.getChildAt(3) as? LinearLayout

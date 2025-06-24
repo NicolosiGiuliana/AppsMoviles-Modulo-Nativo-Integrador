@@ -56,9 +56,11 @@ class DayDetailFragment : Fragment() {
                 ?: throw IllegalStateException(getString(R.string.desafio_not_found_in_args))
         }
 
-        sharedPrefs = requireContext().getSharedPreferences(HABIT_STATES_PREFS, Context.MODE_PRIVATE)
+        sharedPrefs =
+            requireContext().getSharedPreferences(HABIT_STATES_PREFS, Context.MODE_PRIVATE)
 
-        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title = "${desafio.nombre}"
+        (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.title =
+            "${desafio.nombre}"
 
         val dayTextView = view.findViewById<TextView>(R.id.day_detail_text)
         dayTextView.text = getString(R.string.day_number, dayNumber)
@@ -88,7 +90,8 @@ class DayDetailFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val habitos = document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
+                    val habitos =
+                        document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
                     habitosDesafio.clear()
                     habitosDesafio.addAll(habitos)
 
@@ -112,7 +115,8 @@ class DayDetailFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val habitosBase = document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
+                    val habitosBase =
+                        document.get(FIELD_HABITOS) as? List<Map<String, Any>> ?: emptyList()
 
                     val habitosParaGuardar = habitosBase.map { habito ->
                         hashMapOf(
@@ -127,25 +131,39 @@ class DayDetailFragment : Fragment() {
                         .document(desafio.id)
                         .collection(COLLECTION_DIAS)
                         .document("dia_$dayNumber")
-                        .set(hashMapOf(
-                            FIELD_DIA to dayNumber,
-                            FIELD_HABITOS to habitosParaGuardar,
-                            "fecha_creacion" to com.google.firebase.Timestamp.now()
-                        ))
+                        .set(
+                            hashMapOf(
+                                FIELD_DIA to dayNumber,
+                                FIELD_HABITOS to habitosParaGuardar,
+                                "fecha_creacion" to com.google.firebase.Timestamp.now()
+                            )
+                        )
                         .addOnSuccessListener {
                             cargarHabitosDesafio(view)
                         }
                         .addOnFailureListener { e ->
-                            Toast.makeText(context, getString(R.string.error_saving_data, e.message ?: ""), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                getString(R.string.error_saving_data, e.message ?: ""),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                 } else {
                     Log.e(TAG, "Documento del desafío no encontrado")
-                    Toast.makeText(context, getString(R.string.challenge_without_name), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        getString(R.string.challenge_without_name),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error al cargar desafío base: ${e.message}")
-                Toast.makeText(context, getString(R.string.error_saving_data, e.message ?: ""), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_saving_data, e.message ?: ""),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -181,7 +199,8 @@ class DayDetailFragment : Fragment() {
             val nombreHabito = habitoView.findViewById<TextView>(R.id.habito_nombre)
             val iconoHabito = habitoView.findViewById<ImageView>(R.id.habito_icono)
 
-            nombreHabito.text = habito[FIELD_NOMBRE] as? String ?: getString(R.string.habit_name_default)
+            nombreHabito.text =
+                habito[FIELD_NOMBRE] as? String ?: getString(R.string.habit_name_default)
 
             val completado = habitosCompletados[index] ?: false
             iconoHabito.setImageResource(
@@ -228,7 +247,11 @@ class DayDetailFragment : Fragment() {
             )
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error al guardar hábito: ${e.message}")
-                Toast.makeText(context, getString(R.string.error_saving_progress, e.message ?: ""), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_saving_progress, e.message ?: ""),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -240,7 +263,8 @@ class DayDetailFragment : Fragment() {
         }
 
         if (!todosCompletados) {
-            Toast.makeText(context, getString(R.string.mark_completed_habits), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, getString(R.string.mark_completed_habits), Toast.LENGTH_LONG)
+                .show()
             return
         }
 
@@ -250,11 +274,13 @@ class DayDetailFragment : Fragment() {
             .document(desafio.id)
             .collection(COLLECTION_DIAS_COMPLETADOS)
             .document("dia_$dayNumber")
-            .set(hashMapOf(
-                FIELD_DIA to dayNumber,
-                FIELD_COMPLETADO to true,
-                "fecha_completado" to com.google.firebase.Timestamp.now()
-            ))
+            .set(
+                hashMapOf(
+                    FIELD_DIA to dayNumber,
+                    FIELD_COMPLETADO to true,
+                    "fecha_completado" to com.google.firebase.Timestamp.now()
+                )
+            )
             .addOnSuccessListener {
                 val dayCompletedMessage = getString(R.string.day_completed_format, dayNumber)
                 Toast.makeText(context, dayCompletedMessage, Toast.LENGTH_SHORT).show()
@@ -265,7 +291,11 @@ class DayDetailFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error al completar día: ${e.message}")
-                Toast.makeText(context, getString(R.string.error_saving_progress, e.message ?: ""), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_saving_progress, e.message ?: ""),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -310,7 +340,8 @@ class DayDetailFragment : Fragment() {
         val settingsLayout = view.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(2) as? LinearLayout
         settingsLayout?.setOnClickListener {
-            Toast.makeText(context, getString(R.string.settings_coming_soon), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.settings_coming_soon), Toast.LENGTH_SHORT)
+                .show()
         }
 
         updateBottomNavigationColors("today")
@@ -324,7 +355,11 @@ class DayDetailFragment : Fragment() {
                 findNavController().popBackStack(R.id.itemListFragment, false)
             } catch (ex: Exception) {
                 Log.e("Navigation", "Error al navegar: ${ex.message}", ex)
-                Toast.makeText(context, getString(R.string.error_navigating_home, ex.message ?: ""), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_navigating_home, ex.message ?: ""),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -356,6 +391,7 @@ class DayDetailFragment : Fragment() {
                 todayIcon?.setColorFilter(inactiveColor)
                 todayText?.setTextColor(inactiveColor)
             }
+
             "today" -> {
                 homeIcon?.setColorFilter(inactiveColor)
                 homeText?.setTextColor(inactiveColor)

@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Título principal -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -20,7 +19,6 @@
             android:textColor="#333333"
             android:layout_marginBottom="8dp" />
 
-        <!-- Subtítulo -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,7 +27,6 @@
             android:textColor="#999999"
             android:layout_marginBottom="24dp" />
 
-        <!-- Nombre del desafío -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,7 +47,7 @@
             android:textColorHint="#CCCCCC"
             android:layout_marginBottom="24dp" />
 
-        <!-- Descripción del desafío -->
+          Descripción del desafío -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -73,7 +70,6 @@
             android:maxLength="250"
             android:layout_marginBottom="24dp" />
 
-        <!-- Duración -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,7 +79,6 @@
             android:textStyle="bold"
             android:layout_marginBottom="12dp" />
 
-        <!-- Opciones de duración -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -136,7 +131,6 @@
 
         </LinearLayout>
 
-        <!-- Hábitos diarios -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -146,14 +140,12 @@
             android:textStyle="bold"
             android:layout_marginBottom="12dp" />
 
-        <!-- Contenedor de hábitos -->
         <LinearLayout
             android:id="@+id/habitosContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Hábito 1 -->
             <EditText
                 android:id="@+id/inputHabit1"
                 android:layout_width="match_parent"
@@ -165,7 +157,6 @@
                 android:textColorHint="#CCCCCC"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Hábito 2 -->
             <EditText
                 android:id="@+id/inputHabit2"
                 android:layout_width="match_parent"
@@ -177,7 +168,6 @@
                 android:textColorHint="#CCCCCC"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Hábito 3 -->
             <EditText
                 android:id="@+id/inputHabit3"
                 android:layout_width="match_parent"
@@ -189,7 +179,6 @@
                 android:textColorHint="#CCCCCC"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Botón agregar hábito -->
             <TextView
                 android:id="@+id/buttonAddHabit"
                 android:layout_width="wrap_content"
@@ -203,7 +192,6 @@
 
         </LinearLayout>
 
-        <!-- Sección de Etiquetas -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -221,7 +209,6 @@
             android:textColor="#999999"
             android:layout_marginBottom="12dp" />
 
-        <!-- Input para agregar etiquetas -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -255,7 +242,6 @@
 
         </LinearLayout>
 
-        <!-- Contenedor de etiquetas agregadas -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -271,7 +257,6 @@
 
         </HorizontalScrollView>
 
-        <!-- Visibilidad del desafío -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -289,7 +274,6 @@
             android:textColor="#999999"
             android:layout_marginBottom="12dp" />
 
-        <!-- RadioGroup para visibilidad -->
         <RadioGroup
             android:id="@+id/radioGroupVisibility"
             android:layout_width="match_parent"
@@ -336,7 +320,6 @@
 
         </RadioGroup>
 
-        <!-- Sección de Ubicación Opcional -->
         <CheckBox
             android:id="@+id/checkboxUbicacionOpcional"
             android:layout_width="wrap_content"
@@ -416,7 +399,6 @@
 
         </LinearLayout>
 
-        <!-- Botón crear desafío -->
         <Button
             android:id="@+id/buttonCreateChallenge"
             android:layout_width="match_parent"
@@ -428,7 +410,6 @@
             android:textSize="16sp"
             android:layout_marginBottom="16dp" />
 
-        <!-- Botón cancelar -->
         <TextView
             android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"

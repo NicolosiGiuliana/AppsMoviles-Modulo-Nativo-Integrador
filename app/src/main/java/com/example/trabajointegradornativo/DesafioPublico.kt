@@ -22,13 +22,13 @@ data class DesafioPublico(
     val fechaCreacion: com.google.firebase.Timestamp? = null
 ) {
     companion object {
-        // Constantes para estados (para Firebase)
+
         const val ESTADO_ACTIVO = "activo"
         const val ESTADO_PAUSADO = "pausado"
         const val ESTADO_COMPLETADO = "completado"
         const val ESTADO_CANCELADO = "cancelado"
 
-        // Constantes para validación
+
         const val DIAS_MINIMOS = 1
         const val DIAS_MAXIMOS = 365
         const val DIA_INICIAL = 1
@@ -55,7 +55,6 @@ data class DesafioPublico(
         fechaCreacion = null
     )
 
-    // Métodos de utilidad para UI (sin Context en el data class)
     fun getEstadoDisplayName(context: Context): String {
         return when (estado) {
             ESTADO_ACTIVO -> context.getString(R.string.challenge_state_active)
@@ -66,7 +65,6 @@ data class DesafioPublico(
         }
     }
 
-    // Validaciones
     fun isValid(): Boolean {
         return nombre.isNotBlank() &&
                 descripcion.isNotBlank() &&
@@ -75,13 +73,12 @@ data class DesafioPublico(
                 habitos.isNotEmpty()
     }
 
-    // Métodos de estado
     fun isActivo(): Boolean = estado == ESTADO_ACTIVO
     fun isCompletado(): Boolean = estado == ESTADO_COMPLETADO
     fun isPausado(): Boolean = estado == ESTADO_PAUSADO
     fun isCancelado(): Boolean = estado == ESTADO_CANCELADO
 
-    // Progreso
+
     fun getProgreso(): Float {
         return if (dias > 0) (diaActual.toFloat() / dias.toFloat()) else 0f
     }
@@ -90,13 +87,13 @@ data class DesafioPublico(
         return (getProgreso() * 100).toInt()
     }
 
-    // Métodos para cambiar estado (retornan nueva instancia)
     fun activar(): DesafioPublico = copy(estado = ESTADO_ACTIVO, activo = true)
     fun pausar(): DesafioPublico = copy(estado = ESTADO_PAUSADO, activo = false)
-    fun completar(): DesafioPublico = copy(estado = ESTADO_COMPLETADO, completado = true, activo = false)
+    fun completar(): DesafioPublico =
+        copy(estado = ESTADO_COMPLETADO, completado = true, activo = false)
+
     fun cancelar(): DesafioPublico = copy(estado = ESTADO_CANCELADO, activo = false)
 
-    // Avanzar día
     fun avanzarDia(): DesafioPublico {
         val nuevoDia = if (diaActual < dias) diaActual + 1 else diaActual
         val nuevoEstado = if (nuevoDia >= dias) ESTADO_COMPLETADO else estado

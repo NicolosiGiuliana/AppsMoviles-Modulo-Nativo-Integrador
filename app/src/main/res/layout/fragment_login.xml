@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerContainer"
         android:layout_width="match_parent"
@@ -36,7 +35,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Scrollable Content -->
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
@@ -52,8 +50,6 @@
             android:paddingTop="50dp"
             android:paddingBottom="24dp">
 
-            <!-- Logo Icon -->
-            <!-- Logo Icon - CardView transparente -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/logoIcon"
                 android:layout_width="100dp"
@@ -76,7 +72,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Welcome Title -->
             <TextView
                 android:id="@+id/welcomeTitle"
                 android:layout_width="wrap_content"
@@ -92,7 +87,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/logoIcon" />
 
-            <!-- Subtitle -->
             <TextView
                 android:id="@+id/subtitle"
                 android:layout_width="wrap_content"
@@ -106,7 +100,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/welcomeTitle" />
 
-            <!-- Name Title -->
             <TextView
                 android:id="@+id/nameTitle"
                 android:layout_width="wrap_content"
@@ -119,7 +112,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/subtitle" />
 
-            <!-- Name Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/nameInputLayout"
                 android:layout_width="match_parent"
@@ -150,7 +142,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Date of Birth Title (Only for Register) -->
             <TextView
                 android:id="@+id/dateTitle"
                 android:layout_width="wrap_content"
@@ -164,7 +155,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/nameInputLayout" />
 
-            <!-- Date of Birth Input (Only for Register) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/dateInputLayout"
                 android:layout_width="match_parent"
@@ -198,7 +188,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Objective Title (Only for Register) -->
             <TextView
                 android:id="@+id/objectiveTitle"
                 android:layout_width="wrap_content"
@@ -212,7 +201,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/dateInputLayout" />
 
-            <!-- Objective Spinner (Only for Register) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/objectiveInputLayout"
                 android:layout_width="match_parent"
@@ -246,7 +234,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Email Title -->
             <TextView
                 android:id="@+id/emailTitle"
                 android:layout_width="wrap_content"
@@ -259,7 +246,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/objectiveInputLayout" />
 
-            <!-- Email Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/emailInputLayout"
                 android:layout_width="match_parent"
@@ -290,7 +276,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Password Title -->
             <TextView
                 android:id="@+id/passwordTitle"
                 android:layout_width="wrap_content"
@@ -303,7 +288,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/emailInputLayout" />
 
-            <!-- Password Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/passwordInputLayout"
                 android:layout_width="match_parent"
@@ -334,7 +318,6 @@
                     android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Confirm Password Title (Only for Register) -->
             <TextView
                 android:id="@+id/confirmPasswordTitle"
                 android:layout_width="wrap_content"
@@ -348,7 +331,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/passwordInputLayout" />
 
-            <!-- Confirm Password Input (Only for Register) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/confirmPasswordInputLayout"
                 android:layout_width="match_parent"
@@ -382,7 +364,6 @@
                     android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Continue Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/actionButton"
                 style="@style/Widget.MaterialComponents.Button"
@@ -402,7 +383,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/confirmPasswordInputLayout" />
 
-            <!-- Toggle Mode Button -->
             <Button
                 android:id="@+id/toggleModeButton"
                 android:layout_width="340dp"

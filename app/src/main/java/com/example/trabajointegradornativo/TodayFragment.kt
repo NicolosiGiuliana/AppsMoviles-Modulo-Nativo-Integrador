@@ -88,25 +88,35 @@ class TodayFragment : Fragment() {
         }
     }
 
-    private val requestCameraPermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            abrirCamara()
-        } else {
-            Toast.makeText(context, getString(R.string.camera_permission_denied), Toast.LENGTH_SHORT).show()
+    private val requestCameraPermissionLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                abrirCamara()
+            } else {
+                Toast.makeText(
+                    context,
+                    getString(R.string.camera_permission_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-    }
 
-    private val requestStoragePermissionLauncher: ActivityResultLauncher<String> = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            abrirGaleria()
-        } else {
-            Toast.makeText(context, getString(R.string.storage_permission_denied), Toast.LENGTH_SHORT).show()
+    private val requestStoragePermissionLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                abrirGaleria()
+            } else {
+                Toast.makeText(
+                    context,
+                    getString(R.string.storage_permission_denied),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -166,7 +176,10 @@ class TodayFragment : Fragment() {
         }
 
         val fechaActual = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
-        val sharedPrefs = requireActivity().getSharedPreferences("today_fragment", android.content.Context.MODE_PRIVATE)
+        val sharedPrefs = requireActivity().getSharedPreferences(
+            "today_fragment",
+            android.content.Context.MODE_PRIVATE
+        )
 
         if (ultimaFechaVerificada == null) {
             ultimaFechaVerificada = sharedPrefs.getString(PREF_LAST_DATE, null)
@@ -182,7 +195,11 @@ class TodayFragment : Fragment() {
     private fun cargarDesafiosDelUsuario() {
         val uid = auth.currentUser?.uid
         if (uid == null) {
-            Toast.makeText(context, getString(R.string.error_user_not_authenticated), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                getString(R.string.error_user_not_authenticated),
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -207,7 +224,8 @@ class TodayFragment : Fragment() {
 
                 for (desafioDoc in desafiosSnapshot) {
                     val desafioId = desafioDoc.id
-                    val nombreDesafio = desafioDoc.getString("nombre") ?: getString(R.string.challenge_without_name)
+                    val nombreDesafio =
+                        desafioDoc.getString("nombre") ?: getString(R.string.challenge_without_name)
                     val totalDias = desafioDoc.getLong("dias")?.toInt() ?: 30
 
                     firestore.collection("usuarios")
@@ -226,7 +244,12 @@ class TodayFragment : Fragment() {
                                 val nombreDia = diaDoc.id
                                 val numeroDia = nombreDia.removePrefix("dia_").toIntOrNull() ?: 1
 
-                                cargarHabitosDelDiaConListener(desafioId, nombreDesafio, numeroDia, totalDias)
+                                cargarHabitosDelDiaConListener(
+                                    desafioId,
+                                    nombreDesafio,
+                                    numeroDia,
+                                    totalDias
+                                )
                             }
 
                             if (desafiosEncontrados == totalDesafios && desafiosActivos.isEmpty()) {
@@ -242,11 +265,20 @@ class TodayFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(context, getString(R.string.error_loading_challenges, e.message), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_loading_challenges, e.message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
-    private fun cargarHabitosDelDiaConListener(desafioId: String, nombreDesafio: String, diaActual: Int, totalDias: Int) {
+    private fun cargarHabitosDelDiaConListener(
+        desafioId: String,
+        nombreDesafio: String,
+        diaActual: Int,
+        totalDias: Int
+    ) {
         val uid = auth.currentUser?.uid ?: return
         val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
@@ -266,7 +298,13 @@ class TodayFragment : Fragment() {
                     val diaCompletado = document.getBoolean("completado") ?: false
 
                     if (fechaRealizacion == fechaHoy && !diaCompletado) {
-                        cargarHabitosDelDia(desafioId, nombreDesafio, diaActual, totalDias, document)
+                        cargarHabitosDelDia(
+                            desafioId,
+                            nombreDesafio,
+                            diaActual,
+                            totalDias,
+                            document
+                        )
                     } else if (fechaRealizacion == fechaHoy && diaCompletado) {
                         removerDesafioDeInterfaz(desafioId)
                     } else if (fechaRealizacion != fechaHoy) {
@@ -280,7 +318,13 @@ class TodayFragment : Fragment() {
         firestoreListeners.add(diaListener)
     }
 
-    private fun cargarHabitosDelDia(desafioId: String, nombreDesafio: String, diaActual: Int, totalDias: Int, document: DocumentSnapshot) {
+    private fun cargarHabitosDelDia(
+        desafioId: String,
+        nombreDesafio: String,
+        diaActual: Int,
+        totalDias: Int,
+        document: DocumentSnapshot
+    ) {
         val habitosData = document.get("habitos") as? List<Map<String, Any>> ?: emptyList()
         val habitos = habitosData.map { habitoMap: Map<String, Any> ->
             Habito(
@@ -374,7 +418,8 @@ class TodayFragment : Fragment() {
             setCardBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
             isClickable = true
             isFocusable = true
-            foreground = ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
+            foreground =
+                ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
             setOnClickListener {
                 navegarADetalleDesafio(desafio.id)
             }
@@ -430,7 +475,11 @@ class TodayFragment : Fragment() {
                     if (!diaCompletado) {
                         toggleHabito(desafio, habito, this)
                     } else {
-                        Toast.makeText(context, getString(R.string.day_already_completed), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            getString(R.string.day_already_completed),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -474,7 +523,11 @@ class TodayFragment : Fragment() {
             }
             findNavController().navigate(R.id.itemDetailFragment, bundle)
         } catch (e: Exception) {
-            Toast.makeText(context, getString(R.string.error_navigating_to_detail), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                getString(R.string.error_navigating_to_detail),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -554,10 +607,18 @@ class TodayFragment : Fragment() {
             .document("dia_${desafio.diaActual}")
             .update(updates)
             .addOnSuccessListener {
-                Toast.makeText(context, getString(R.string.day_completed_celebration), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.day_completed_celebration),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(context, getString(R.string.error_marking_day_completed, e.message), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_marking_day_completed, e.message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -576,10 +637,14 @@ class TodayFragment : Fragment() {
             .document("dia_${desafio.diaActual}")
             .update(updates)
             .addOnSuccessListener {
-                // Success handled silently
+
             }
             .addOnFailureListener { e ->
-                Toast.makeText(context, getString(R.string.error_unmarking_day, e.message), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_unmarking_day, e.message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -641,7 +706,8 @@ class TodayFragment : Fragment() {
                 visibility = View.GONE
                 isClickable = true
                 isFocusable = true
-                foreground = ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
+                foreground =
+                    ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
             }
 
             fotoContainer.addView(imageContainer)
@@ -666,7 +732,12 @@ class TodayFragment : Fragment() {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-                setBackgroundColor(ContextCompat.getColor(context, android.R.color.background_light))
+                setBackgroundColor(
+                    ContextCompat.getColor(
+                        context,
+                        android.R.color.background_light
+                    )
+                )
                 setPadding(24, 24, 24, 24)
             }
 
@@ -683,7 +754,12 @@ class TodayFragment : Fragment() {
         return extraLayout
     }
 
-    private fun cargarImagenEnMiniatura(url: String, imageView: ImageView, loadingText: TextView, deleteButton: ImageView) {
+    private fun cargarImagenEnMiniatura(
+        url: String,
+        imageView: ImageView,
+        loadingText: TextView,
+        deleteButton: ImageView
+    ) {
         Thread {
             try {
                 val connection = java.net.URL(url).openConnection()
@@ -700,7 +776,10 @@ class TodayFragment : Fragment() {
                         deleteButton.visibility = View.VISIBLE
                     } else {
                         imageView.setImageDrawable(
-                            ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete)
+                            ContextCompat.getDrawable(
+                                requireContext(),
+                                android.R.drawable.ic_delete
+                            )
                         )
                         loadingText.text = getString(R.string.error_text)
                         loadingText.visibility = View.VISIBLE
@@ -736,7 +815,8 @@ class TodayFragment : Fragment() {
             desafio.habitos.any { it.nombre == habito.nombre }
         } ?: return
 
-        Toast.makeText(requireContext(), getString(R.string.deleting_image), Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.deleting_image), Toast.LENGTH_SHORT)
+            .show()
 
         habito.fotoUrl = null
 
@@ -744,7 +824,8 @@ class TodayFragment : Fragment() {
 
         actualizarInterfaz()
 
-        Toast.makeText(requireContext(), getString(R.string.image_deleted), Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.image_deleted), Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun mostrarImagenEnDialogo(url: String) {
@@ -765,7 +846,12 @@ class TodayFragment : Fragment() {
                 }
                 .create()
 
-            imageView.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_menu_gallery))
+            imageView.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    android.R.drawable.ic_menu_gallery
+                )
+            )
 
             dialog.show()
 
@@ -782,20 +868,42 @@ class TodayFragment : Fragment() {
                         if (bitmap != null) {
                             imageView.setImageBitmap(bitmap)
                         } else {
-                            imageView.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete))
-                            Toast.makeText(context, getString(R.string.error_loading_image_dialog_message), Toast.LENGTH_SHORT).show()
+                            imageView.setImageDrawable(
+                                ContextCompat.getDrawable(
+                                    requireContext(),
+                                    android.R.drawable.ic_delete
+                                )
+                            )
+                            Toast.makeText(
+                                context,
+                                getString(R.string.error_loading_image_dialog_message),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 } catch (e: Exception) {
                     requireActivity().runOnUiThread {
-                        imageView.setImageDrawable(ContextCompat.getDrawable(requireContext(), android.R.drawable.ic_delete))
-                        Toast.makeText(context, getString(R.string.error_loading_image_with_message, e.message), Toast.LENGTH_SHORT).show()
+                        imageView.setImageDrawable(
+                            ContextCompat.getDrawable(
+                                requireContext(),
+                                android.R.drawable.ic_delete
+                            )
+                        )
+                        Toast.makeText(
+                            context,
+                            getString(R.string.error_loading_image_with_message, e.message),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }.start()
 
         } catch (e: Exception) {
-            Toast.makeText(context, getString(R.string.error_showing_image_dialog), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                getString(R.string.error_showing_image_dialog),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -835,7 +943,11 @@ class TodayFragment : Fragment() {
             .document("dia_${desafio.diaActual}")
             .update("habitos", habitosData)
             .addOnFailureListener { e ->
-                Toast.makeText(context, getString(R.string.error_saving_progress, e.message), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_saving_progress, e.message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -845,7 +957,8 @@ class TodayFragment : Fragment() {
             val habitosCompletados = desafiosActivos.sumOf { desafio ->
                 desafio.habitos.count { it.completado }
             }
-            progressTextView.text = getString(R.string.progress_format, habitosCompletados, totalHabitos)
+            progressTextView.text =
+                getString(R.string.progress_format, habitosCompletados, totalHabitos)
         }
     }
 
@@ -857,6 +970,7 @@ class TodayFragment : Fragment() {
             ) == PackageManager.PERMISSION_GRANTED -> {
                 abrirCamara()
             }
+
             else -> {
                 requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
@@ -871,9 +985,13 @@ class TodayFragment : Fragment() {
         }
 
         when {
-            ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED -> {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                permission
+            ) == PackageManager.PERMISSION_GRANTED -> {
                 abrirGaleria()
             }
+
             else -> {
                 requestStoragePermissionLauncher.launch(permission)
             }
@@ -885,7 +1003,11 @@ class TodayFragment : Fragment() {
         try {
             takePictureLauncher.launch(takePictureIntent)
         } catch (e: Exception) {
-            Toast.makeText(context, getString(R.string.error_accessing_camera, e.message), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                getString(R.string.error_accessing_camera, e.message),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -905,12 +1027,24 @@ class TodayFragment : Fragment() {
                 val resizedBitmap = resizeBitmap(bitmap, MAX_IMAGE_SIZE)
                 mostrarDialogoComentario(resizedBitmap)
             } else {
-                Toast.makeText(requireContext(), getString(R.string.error_loading_image), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.error_loading_image),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         } catch (e: FileNotFoundException) {
-            Toast.makeText(requireContext(), getString(R.string.error_loading_image), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.error_loading_image),
+                Toast.LENGTH_SHORT
+            ).show()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), getString(R.string.error_processing_image, e.message), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.error_processing_image, e.message),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -958,20 +1092,37 @@ class TodayFragment : Fragment() {
         val (desafioId, habitoNombre) = habitoInfo
 
         requireActivity().runOnUiThread {
-            Toast.makeText(requireContext(), getString(R.string.uploading_image_text), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.uploading_image_text),
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         imgBBUploader.uploadImage(bitmap, object : ImgBBUploader.UploadCallback {
             override fun onSuccess(imageUrl: String, deleteUrl: String) {
                 requireActivity().runOnUiThread {
-                    actualizarHabitoConFotoYComentario(desafioId, habitoNombre, imageUrl, comentario)
-                    Toast.makeText(requireContext(), getString(R.string.photo_saved_successfully_celebration), Toast.LENGTH_SHORT).show()
+                    actualizarHabitoConFotoYComentario(
+                        desafioId,
+                        habitoNombre,
+                        imageUrl,
+                        comentario
+                    )
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.photo_saved_successfully_celebration),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onError(error: String) {
                 requireActivity().runOnUiThread {
-                    Toast.makeText(requireContext(), getString(R.string.error_uploading_image_habit, error), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.error_uploading_image_habit, error),
+                        Toast.LENGTH_LONG
+                    ).show()
                     mostrarDialogoErrorSubida(bitmap, comentario)
                 }
             }
@@ -979,7 +1130,7 @@ class TodayFragment : Fragment() {
             override fun onProgress(progress: Int) {
                 if (progress == 100) {
                     requireActivity().runOnUiThread {
-                        // Progress completed
+
                     }
                 }
             }
@@ -998,14 +1149,23 @@ class TodayFragment : Fragment() {
                 val (desafioId, habitoNombre) = habitoInfo
                 if (comentario.isNotEmpty()) {
                     actualizarHabitoConFotoYComentario(desafioId, habitoNombre, null, comentario)
-                    Toast.makeText(requireContext(), getString(R.string.comment_saved_without_image_habit), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.comment_saved_without_image_habit),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .setNeutralButton(getString(R.string.cancel), null)
             .show()
     }
 
-    private fun actualizarHabitoConFotoYComentario(desafioId: String, habitoNombre: String, fotoUrl: String?, comentario: String) {
+    private fun actualizarHabitoConFotoYComentario(
+        desafioId: String,
+        habitoNombre: String,
+        fotoUrl: String?,
+        comentario: String
+    ) {
         val desafio = desafiosActivos.find { it.id == desafioId } ?: return
         val habito = desafio.habitos.find { it.nombre == habitoNombre } ?: return
 
@@ -1029,7 +1189,11 @@ class TodayFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.itemListFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, getString(R.string.error_navigating_home), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_navigating_home),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -1043,7 +1207,7 @@ class TodayFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.publicChallengeFragment)
             } catch (e: Exception) {
-                // Error handling without logging
+
             }
         }
 
@@ -1052,7 +1216,11 @@ class TodayFragment : Fragment() {
             try {
                 findNavController().navigate(R.id.profileFragment)
             } catch (e: Exception) {
-                Toast.makeText(context, getString(R.string.error_navigating_profile), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    getString(R.string.error_navigating_profile),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -1086,6 +1254,7 @@ class TodayFragment : Fragment() {
                 profileIcon?.setColorFilter(inactiveColor)
                 profileText?.setTextColor(inactiveColor)
             }
+
             "today" -> {
                 homeIcon?.setColorFilter(inactiveColor)
                 homeText?.setTextColor(inactiveColor)
@@ -1094,6 +1263,7 @@ class TodayFragment : Fragment() {
                 profileIcon?.setColorFilter(inactiveColor)
                 profileText?.setTextColor(inactiveColor)
             }
+
             "profile" -> {
                 homeIcon?.setColorFilter(inactiveColor)
                 homeText?.setTextColor(inactiveColor)

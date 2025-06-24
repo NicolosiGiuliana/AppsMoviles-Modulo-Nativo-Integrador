@@ -826,7 +826,6 @@
     <!-- Time intervals -->
     <string name="date_check_interval">30000</string>
 
-    <!-- Missing strings identified in compilation errors -->
     <string name="error_verifying_finalization">Error verifying finalization</string>
     <string name="user_prefs">user_prefs</string>
     <string name="desafio_id">challenge_id</string>

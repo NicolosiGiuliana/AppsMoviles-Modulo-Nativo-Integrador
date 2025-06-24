@@ -56,7 +56,8 @@ class ChallengePreviewFragment : Fragment() {
     private fun initializeViews() {
         challengeTitlePreview = view?.findViewById(R.id.challenge_title_preview) ?: return
         challengeAuthorPreview = view?.findViewById(R.id.challenge_author_preview) ?: return
-        challengeDescriptionPreview = view?.findViewById(R.id.challenge_description_preview) ?: return
+        challengeDescriptionPreview =
+            view?.findViewById(R.id.challenge_description_preview) ?: return
         challengeDurationPreview = view?.findViewById(R.id.challenge_duration_preview) ?: return
         habitsContainerPreview = view?.findViewById(R.id.habits_container_preview) ?: return
         tagsContainerPreview = view?.findViewById(R.id.tags_container_preview) ?: return
@@ -99,12 +100,13 @@ class ChallengePreviewFragment : Fragment() {
                     if (document.exists()) {
                         val data = document.data
                         if (data != null) {
-                            val habitos = (data["habitos"] as? List<Map<String, Any>>)?.map { habitMap ->
-                                Habito(
-                                    completado = habitMap["completado"] as? Boolean ?: false,
-                                    nombre = habitMap["nombre"] as? String ?: ""
-                                )
-                            } ?: emptyList()
+                            val habitos =
+                                (data["habitos"] as? List<Map<String, Any>>)?.map { habitMap ->
+                                    Habito(
+                                        completado = habitMap["completado"] as? Boolean ?: false,
+                                        nombre = habitMap["nombre"] as? String ?: ""
+                                    )
+                                } ?: emptyList()
 
                             val challenge = DesafioPublico(
                                 id = document.id,
@@ -120,18 +122,30 @@ class ChallengePreviewFragment : Fragment() {
                             displayChallengeData()
                         }
                     } else {
-                        Toast.makeText(requireContext(), getString(R.string.challenge_not_found), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.challenge_not_found),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         findNavController().popBackStack()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(requireContext(), getString(R.string.error_loading_challenge), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.error_loading_challenge),
+                        Toast.LENGTH_SHORT
+                    ).show()
                     findNavController().popBackStack()
                 }
             }
             .addOnFailureListener { exception ->
                 exception.printStackTrace()
-                Toast.makeText(requireContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.connection_error),
+                    Toast.LENGTH_SHORT
+                ).show()
                 findNavController().popBackStack()
             }
     }
@@ -209,7 +223,8 @@ class ChallengePreviewFragment : Fragment() {
     private fun displayChallengeData() {
         currentChallenge?.let { challenge ->
             challengeTitlePreview.text = challenge.nombre
-            challengeAuthorPreview.text = getString(R.string.author_prefix_at, challenge.autorNombre)
+            challengeAuthorPreview.text =
+                getString(R.string.author_prefix_at, challenge.autorNombre)
             challengeDescriptionPreview.text = challenge.descripcion
             challengeDurationPreview.text = getString(R.string.days_format, challenge.dias)
             displayHabits(challenge.habitos)
@@ -313,7 +328,11 @@ class ChallengePreviewFragment : Fragment() {
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
 
         if (currentUser == null) {
-            Toast.makeText(requireContext(), getString(R.string.must_login_to_use_challenge), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.must_login_to_use_challenge),
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
 
@@ -335,7 +354,8 @@ class ChallengePreviewFragment : Fragment() {
     }
 
     private fun createDefaultChallengeForUser() {
-        Toast.makeText(requireContext(), getString(R.string.creating_challenge), Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.creating_challenge), Toast.LENGTH_SHORT)
+            .show()
 
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         val userId = currentUser?.uid ?: return
@@ -357,7 +377,8 @@ class ChallengePreviewFragment : Fragment() {
                 }
 
                 val fechaInicio = java.util.Calendar.getInstance()
-                val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                val dateFormat =
+                    java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
 
                 for (i in 1..dias) {
                     val diaRef = documentRef.collection("dias").document("dia_$i")
@@ -381,7 +402,10 @@ class ChallengePreviewFragment : Fragment() {
                     .addOnSuccessListener {
                         Toast.makeText(
                             requireContext(),
-                            getString(R.string.challenge_created_successfully, challengeData["nombre"]),
+                            getString(
+                                R.string.challenge_created_successfully,
+                                challengeData["nombre"]
+                            ),
                             Toast.LENGTH_LONG
                         ).show()
                         findNavController().popBackStack()
@@ -409,7 +433,7 @@ class ChallengePreviewFragment : Fragment() {
         val currentTime = com.google.firebase.Timestamp.now()
 
         val normalizedObjective = when (objective.lowercase()) {
-            "fitness", "ejercicio"  -> TYPE_FITNESS
+            "fitness", "ejercicio" -> TYPE_FITNESS
             "reading", "lectura", "leitura" -> TYPE_READING
             "mindfulness", "atencion plena" -> TYPE_MINDFULNESS
             "hydration", "hidratacion", "hidratación", "hidratação" -> TYPE_HYDRATION
@@ -431,12 +455,25 @@ class ChallengePreviewFragment : Fragment() {
                 "estado" to STATUS_ACTIVE,
                 "habitos" to listOf(
                     mapOf("nombre" to getString(R.string.walk_30_min_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.stretch_15_min_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.drink_2l_water_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.sleep_7_8_hours_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.eat_vegetables_habit), "completado" to false)
+                    mapOf(
+                        "nombre" to getString(R.string.stretch_15_min_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.drink_2l_water_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.sleep_7_8_hours_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.eat_vegetables_habit),
+                        "completado" to false
+                    )
                 )
             )
+
             TYPE_READING -> hashMapOf(
                 "nombre" to getString(R.string.initial_reading_challenge_name),
                 "descripcion" to getString(R.string.reading_challenge_description_text),
@@ -450,12 +487,25 @@ class ChallengePreviewFragment : Fragment() {
                 "totalHabitos" to 4,
                 "estado" to STATUS_ACTIVE,
                 "habitos" to listOf(
-                    mapOf("nombre" to getString(R.string.read_20_pages_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.take_reading_notes_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.reflect_on_reading_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.read_quiet_place_habit), "completado" to false)
+                    mapOf(
+                        "nombre" to getString(R.string.read_20_pages_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.take_reading_notes_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.reflect_on_reading_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.read_quiet_place_habit),
+                        "completado" to false
+                    )
                 )
             )
+
             TYPE_MINDFULNESS -> hashMapOf(
                 "nombre" to getString(R.string.mindfulness_challenge_name),
                 "descripcion" to getString(R.string.mindfulness_challenge_description_text),
@@ -469,13 +519,29 @@ class ChallengePreviewFragment : Fragment() {
                 "totalHabitos" to 5,
                 "estado" to STATUS_ACTIVE,
                 "habitos" to listOf(
-                    mapOf("nombre" to getString(R.string.meditate_10_min_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.conscious_breathing_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.gratitude_journal_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.conscious_pause_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.mindful_observation_habit), "completado" to false)
+                    mapOf(
+                        "nombre" to getString(R.string.meditate_10_min_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.conscious_breathing_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.gratitude_journal_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.conscious_pause_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.mindful_observation_habit),
+                        "completado" to false
+                    )
                 )
             )
+
             TYPE_HYDRATION -> hashMapOf(
                 "nombre" to getString(R.string.hydration_challenge_name),
                 "descripcion" to getString(R.string.hydration_challenge_description_text),
@@ -489,13 +555,29 @@ class ChallengePreviewFragment : Fragment() {
                 "totalHabitos" to 5,
                 "estado" to STATUS_ACTIVE,
                 "habitos" to listOf(
-                    mapOf("nombre" to getString(R.string.drink_2l_water_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.carry_water_bottle_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.drink_water_before_meals_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.avoid_sugary_drinks_habit), "completado" to false),
-                    mapOf("nombre" to getString(R.string.drink_water_on_wake_habit), "completado" to false)
+                    mapOf(
+                        "nombre" to getString(R.string.drink_2l_water_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.carry_water_bottle_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.drink_water_before_meals_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.avoid_sugary_drinks_habit),
+                        "completado" to false
+                    ),
+                    mapOf(
+                        "nombre" to getString(R.string.drink_water_on_wake_habit),
+                        "completado" to false
+                    )
                 )
             )
+
             else -> hashMapOf(
                 "nombre" to getString(R.string.custom_challenge_name),
                 "descripcion" to getString(R.string.custom_challenge_description_text),
@@ -541,7 +623,8 @@ class ChallengePreviewFragment : Fragment() {
     }
 
     private fun savePersonalChallenge(challenge: DesafioPublico) {
-        Toast.makeText(requireContext(), getString(R.string.saving_challenge), Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.saving_challenge), Toast.LENGTH_SHORT)
+            .show()
 
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         val userId = currentUser?.uid ?: return
@@ -588,7 +671,11 @@ class ChallengePreviewFragment : Fragment() {
             }
     }
 
-    private fun createDaysForChallenge(desafioId: String, duracionDias: Int, habitos: List<Habito>) {
+    private fun createDaysForChallenge(
+        desafioId: String,
+        duracionDias: Int,
+        habitos: List<Habito>
+    ) {
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         val userId = currentUser?.uid ?: return
 

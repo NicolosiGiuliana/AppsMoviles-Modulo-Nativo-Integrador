@@ -48,14 +48,21 @@ class LocationHelper(private val context: Context) {
             override fun onProviderDisabled(provider: String) {
                 callback.onLocationError(context.getString(R.string.location_provider_disabled))
             }
+
             override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
         }
 
         try {
-            val lastKnownLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            val lastKnownLocation =
+                locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             if (lastKnownLocation != null) {
-                val address = getAddressFromLocation(lastKnownLocation.latitude, lastKnownLocation.longitude)
-                callback.onLocationReceived(lastKnownLocation.latitude, lastKnownLocation.longitude, address)
+                val address =
+                    getAddressFromLocation(lastKnownLocation.latitude, lastKnownLocation.longitude)
+                callback.onLocationReceived(
+                    lastKnownLocation.latitude,
+                    lastKnownLocation.longitude,
+                    address
+                )
                 return
             }
 

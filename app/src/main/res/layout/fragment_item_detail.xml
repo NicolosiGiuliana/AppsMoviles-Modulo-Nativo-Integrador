@@ -16,14 +16,12 @@
         android:paddingTop="24dp"
         android:paddingBottom="100dp">
 
-        <!-- CONTAINER PRINCIPAL AGREGADO -->
         <LinearLayout
             android:id="@+id/main_content_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Título del Desafío -->
             <TextView
                 android:id="@+id/challenge_title"
                 android:layout_width="match_parent"
@@ -36,14 +34,12 @@
                 android:layout_marginBottom="24dp"
                 android:lineSpacingExtra="4dp" />
 
-            <!-- SECCIÓN DE PROGRESO AGREGADA -->
             <LinearLayout
                 android:id="@+id/progress_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Banner circular con contador de días -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/progress_card"
                     android:layout_width="match_parent"
@@ -61,7 +57,6 @@
                         android:gravity="center"
                         android:background="@drawable/progress_card_background">
 
-                        <!-- Círculo de progreso -->
                         <RelativeLayout
                             android:layout_width="140dp"
                             android:layout_height="140dp"
@@ -116,9 +111,7 @@
                 </androidx.cardview.widget.CardView>
 
             </LinearLayout>
-            <!-- FIN SECCIÓN DE PROGRESO -->
 
-            <!-- NUEVA SECCIÓN DE FINALIZACIÓN -->
             <LinearLayout
                 android:id="@+id/finalizacion_container"
                 android:layout_width="match_parent"
@@ -128,7 +121,6 @@
                 android:layout_marginVertical="32dp"
                 android:visibility="gone">
 
-                <!-- Card principal de finalización -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -143,7 +135,6 @@
                         android:padding="32dp"
                         android:gravity="center">
 
-                        <!-- Título de finalización -->
                         <TextView
                             android:id="@+id/titulo_finalizacion"
                             android:layout_width="match_parent"
@@ -155,7 +146,6 @@
                             android:gravity="center"
                             android:layout_marginBottom="24dp" />
 
-                        <!-- Icono de éxito -->
                         <ImageView
                             android:id="@+id/icono_finalizacion"
                             android:layout_width="120dp"
@@ -164,7 +154,6 @@
                             android:layout_marginBottom="24dp"
                             app:tint="#4CAF50" />
 
-                        <!-- Mensaje de felicitación -->
                         <TextView
                             android:id="@+id/mensaje_felicitacion"
                             android:layout_width="match_parent"
@@ -176,7 +165,6 @@
                             android:lineSpacingExtra="4dp"
                             android:layout_marginBottom="24dp" />
 
-                        <!-- Estadísticas finales -->
                         <TextView
                             android:id="@+id/estadisticas_finales"
                             android:layout_width="match_parent"
@@ -188,7 +176,6 @@
                             android:gravity="center"
                             android:layout_marginBottom="32dp" />
 
-                        <!-- Botón finalizar -->
                         <androidx.appcompat.widget.AppCompatButton
                             android:id="@+id/boton_finalizar_desafio"
                             android:layout_width="match_parent"
@@ -206,9 +193,7 @@
                 </androidx.cardview.widget.CardView>
 
             </LinearLayout>
-            <!-- FIN SECCIÓN DE FINALIZACIÓN -->
 
-            <!-- Descripción del Desafío -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -245,7 +230,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Lista de Hábitos -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -276,7 +260,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <!-- Ejemplo de hábito -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -301,15 +284,12 @@
 
                         </LinearLayout>
 
-                        <!-- Agregar más hábitos aquí programáticamente -->
-
                     </LinearLayout>
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Etiquetas del Desafío -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -342,22 +322,18 @@
                         app:flexWrap="wrap"
                         app:justifyContent="flex_start">
 
-                        <!-- Las etiquetas se agregan programáticamente aquí -->
-
                     </com.google.android.flexbox.FlexboxLayout>
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Duración y Estado del Día -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="24dp">
 
-                <!-- Duración -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -404,7 +380,6 @@
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Estado del Día -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -454,7 +429,6 @@
 
             </LinearLayout>
 
-            <!-- MAPA MOVIDO AQUÍ: Después de Duración y Estado del Día -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/location_card"
                 android:layout_width="match_parent"
@@ -516,7 +490,6 @@
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>
-        <!-- FIN CONTAINER PRINCIPAL -->
 
     </androidx.core.widget.NestedScrollView>
 
@@ -535,7 +508,6 @@
         app:elevation="8dp"
         app:pressedTranslationZ="12dp" />
 
-    <!-- Botón Circular de Edición - Flotante REPOSICIONADO -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_edit_challenge"
         android:layout_width="wrap_content"
@@ -551,7 +523,6 @@
         app:elevation="8dp"
         app:pressedTranslationZ="12dp" />
 
-    <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"

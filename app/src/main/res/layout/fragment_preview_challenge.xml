@@ -8,7 +8,6 @@
     android:background="#FFFFFF"
     tools:context=".ChallengePreviewFragment">
 
-    <!-- Botón de cerrar/volver -->
     <androidx.cardview.widget.CardView
         android:id="@+id/btn_close_preview"
         android:layout_width="48dp"
@@ -40,7 +39,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Título del Desafío -->
             <TextView
                 android:id="@+id/challenge_title_preview"
                 android:layout_width="match_parent"
@@ -53,7 +51,6 @@
                 android:layout_marginBottom="16dp"
                 android:lineSpacingExtra="4dp" />
 
-            <!-- Autor del desafío -->
             <TextView
                 android:id="@+id/challenge_author_preview"
                 android:layout_width="match_parent"
@@ -64,7 +61,6 @@
                 android:gravity="center"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Descripción del Desafío -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +96,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Lista de Hábitos (solo lectura) -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -130,15 +125,12 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <!-- Los hábitos se agregan programáticamente aquí -->
-
                     </LinearLayout>
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Etiquetas del Desafío -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -170,15 +162,12 @@
                         app:alignItems="center"
                         app:justifyContent="flex_start">
 
-                        <!-- Las etiquetas se agregan programáticamente aquí -->
-
                     </com.google.android.flexbox.FlexboxLayout>
 
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Duración -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -227,7 +216,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Botón "Usar Desafío" - Fijo en la parte inferior -->
     <androidx.cardview.widget.CardView
         android:id="@+id/btn_use_challenge"
         android:layout_width="match_parent"

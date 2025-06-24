@@ -479,7 +479,6 @@
     <string name="general_type">geral</string>
     <string name="active_status">ativo</string>
 
-    <!-- Strings adicionais para CreateChallengeFragment.kt -->
     <string name="write_tag">Escreva uma etiqueta</string>
     <string name="tag_max_length">A etiqueta não pode exceder 20 caracteres</string>
     <string name="tag_already_added">Esta etiqueta já foi adicionada</string>
@@ -761,7 +760,6 @@
     <string name="edit_text_max_lines">3</string>
     <string name="date_check_interval">30000</string>
 
-    <!-- Strings faltantes identificadas -->
     <string name="error_verifying_finalization">Erro verificando finalização</string>
     <string name="user_prefs">user_prefs</string>
     <string name="desafio_id">desafio_id</string>
@@ -875,7 +873,6 @@
     <string name="challenge_state_unknown">Estado desconhecido</string>
 
     <string name="use_boton">Usar Desafio</string>
-    <!-- Add these strings to your Portuguese strings.xml file -->
     <string name="public_challenges_title">Desafios Públicos</string>
     <string name="discover_community_challenges">Descubra novos desafios criados pela comunidade</string>
     <string name="search_challenges_hint">Buscar desafios por nome ou etiqueta</string>

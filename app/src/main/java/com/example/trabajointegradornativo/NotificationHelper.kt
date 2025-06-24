@@ -126,9 +126,16 @@ class NotificationHelper(private val context: Context) {
                 )
             }
 
-            android.util.Log.d("NotificationHelper", context.getString(R.string.log_notification_scheduled, calendar.time.toString()))
+            android.util.Log.d(
+                "NotificationHelper",
+                context.getString(R.string.log_notification_scheduled, calendar.time.toString())
+            )
         } catch (e: Exception) {
-            android.util.Log.e("NotificationHelper", context.getString(R.string.log_notification_error), e)
+            android.util.Log.e(
+                "NotificationHelper",
+                context.getString(R.string.log_notification_error),
+                e
+            )
             throw e
         }
     }

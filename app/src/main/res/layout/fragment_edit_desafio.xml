@@ -11,7 +11,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Título -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,7 +21,6 @@
             android:layout_marginBottom="24dp"
             android:textColor="@color/primary_green" />
 
-        <!-- Descripción -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -45,7 +43,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Sección de Etiquetas -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -73,7 +70,6 @@
 
         </LinearLayout>
 
-        <!-- ChipGroup para mostrar etiquetas -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chip_group_etiquetas"
             android:layout_width="match_parent"
@@ -82,7 +78,6 @@
             app:chipSpacingHorizontal="8dp"
             app:chipSpacingVertical="4dp" />
 
-        <!-- Sección de Hábitos -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -110,7 +105,6 @@
 
         </LinearLayout>
 
-        <!-- Container de Hábitos -->
         <LinearLayout
             android:id="@+id/habitos_container"
             android:layout_width="match_parent"
@@ -118,7 +112,6 @@
             android:orientation="vertical"
             android:layout_marginBottom="32dp" />
 
-        <!-- Botones de Acción -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
