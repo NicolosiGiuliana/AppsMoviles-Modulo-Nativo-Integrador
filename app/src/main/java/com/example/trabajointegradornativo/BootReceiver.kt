@@ -6,6 +6,7 @@ import android.content.Intent
 
 class BootReceiver : BroadcastReceiver() {
 
+    // Recibe eventos del sistema al actualizar la app y reprograma las notificaciones si es necesario.
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
 
@@ -18,6 +19,7 @@ class BootReceiver : BroadcastReceiver() {
         }
     }
 
+    // Restaura la programación de notificaciones si estaban activas.
     private fun reprogramarNotificaciones(context: Context) {
         val prefs = context.getSharedPreferences("desafio_prefs", Context.MODE_PRIVATE)
 

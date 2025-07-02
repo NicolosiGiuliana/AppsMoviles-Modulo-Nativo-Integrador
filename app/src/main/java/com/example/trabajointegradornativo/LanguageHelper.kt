@@ -51,19 +51,4 @@ object LanguageHelper {
             context
         }
     }
-
-    fun getLanguageDisplayName(languageCode: String, context: Context): String {
-        return when (languageCode) {
-            "es" -> context.getString(R.string.language_spanish)
-            "en" -> context.getString(R.string.language_english)
-            "pt" -> context.getString(R.string.language_portuguese)
-            else -> context.getString(R.string.language_spanish)
-        }
-    }
-
-
-    fun changeLanguageWithoutRecreate(context: Context, languageCode: String) {
-        saveLanguagePreference(context, languageCode)
-        setAppLanguage(context, languageCode)
-    }
 }

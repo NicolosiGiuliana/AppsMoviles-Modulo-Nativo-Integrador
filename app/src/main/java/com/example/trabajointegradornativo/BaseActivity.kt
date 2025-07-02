@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 abstract class BaseActivity : AppCompatActivity() {
 
+    // Esta clase sirve como base para todas las actividades de la aplicacion
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -14,10 +15,12 @@ abstract class BaseActivity : AppCompatActivity() {
         LanguageHelper.setAppLanguage(this, LanguageHelper.getAppLanguage(this))
     }
 
+    // Sobreescribimos el metodo attachBaseContext para aplicar el idioma seleccionado
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase?.let { LanguageHelper.applyLanguageContext(it) })
     }
 
+    // Sobreescribimos el metodo onResume para ocultar la barra de accion
     override fun onResume() {
         super.onResume()
 

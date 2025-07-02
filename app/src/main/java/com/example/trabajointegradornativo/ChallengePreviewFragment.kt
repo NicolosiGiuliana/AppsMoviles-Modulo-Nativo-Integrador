@@ -37,6 +37,7 @@ class ChallengePreviewFragment : Fragment() {
         private const val STATUS_ACTIVE = "activo"
     }
 
+    // Infla el layout del fragmento
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,6 +45,7 @@ class ChallengePreviewFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_preview_challenge, container, false)
     }
 
+    // Inicializa vistas y carga datos al crear la vista
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -53,6 +55,7 @@ class ChallengePreviewFragment : Fragment() {
         loadChallengeData()
     }
 
+    // Inicializa las vistas del fragmento
     private fun initializeViews() {
         challengeTitlePreview = view?.findViewById(R.id.challenge_title_preview) ?: return
         challengeAuthorPreview = view?.findViewById(R.id.challenge_author_preview) ?: return
@@ -65,6 +68,7 @@ class ChallengePreviewFragment : Fragment() {
         btnUseChallenge = view?.findViewById(R.id.btn_use_challenge) ?: return
     }
 
+    // Configura los listeners de los botones
     private fun setupButtons() {
         btnClosePreview.setOnClickListener {
             findNavController().popBackStack()
@@ -77,6 +81,7 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
+    // Carga los datos del desafío desde los argumentos o Firestore
     private fun loadChallengeData() {
         arguments?.let { bundle ->
             val challengeId = bundle.getString("challengeId")
@@ -91,6 +96,7 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
+    // Obtiene el desafío completo desde Firestore por ID
     private fun loadFullChallengeFromFirestore(challengeId: String) {
         db.collection("desafiosPublicos")
             .document(challengeId)
@@ -150,6 +156,7 @@ class ChallengePreviewFragment : Fragment() {
             }
     }
 
+    // Muestra la lista de hábitos en el contenedor
     private fun displayHabits(habitos: List<Habito>) {
         habitsContainerPreview.removeAllViews()
 
@@ -169,6 +176,7 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
+    // Crea la vista de un hábito para el preview
     private fun createHabitPreviewItem(habito: Habito): View {
         val habitLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -198,6 +206,7 @@ class ChallengePreviewFragment : Fragment() {
         return habitLayout
     }
 
+    // Carga los datos del desafío desde los argumentos del bundle
     private fun loadChallengeFromArguments(bundle: Bundle) {
         val challengeName = bundle.getString("challengeName")
         val challengeAuthor = bundle.getString("challengeAuthor")
@@ -220,6 +229,7 @@ class ChallengePreviewFragment : Fragment() {
         displayChallengeData()
     }
 
+    // Muestra los datos del desafío en la interfaz
     private fun displayChallengeData() {
         currentChallenge?.let { challenge ->
             challengeTitlePreview.text = challenge.nombre
@@ -232,67 +242,7 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
-    private fun displayHabitNames(habitos: List<String>) {
-        habitsContainerPreview.removeAllViews()
-
-        if (habitos.isEmpty()) {
-            val noHabitsText = TextView(requireContext()).apply {
-                text = getString(R.string.no_specific_habits)
-                textSize = 14f
-                setTextColor(resources.getColor(R.color.gray_text, null))
-                setPadding(16.dpToPx(), 12.dpToPx(), 16.dpToPx(), 12.dpToPx())
-            }
-            habitsContainerPreview.addView(noHabitsText)
-        } else {
-            for (habito in habitos) {
-                val habitView = createHabitPreviewItem(habito)
-                habitsContainerPreview.addView(habitView)
-            }
-        }
-    }
-
-    private fun createHabitPreviewItem(habitText: String): View {
-        val inflater = LayoutInflater.from(requireContext())
-
-        val habitLayout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(12.dpToPx(), 12.dpToPx(), 12.dpToPx(), 12.dpToPx())
-            background = resources.getDrawable(R.drawable.habit_item_background, null)
-
-            val layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            layoutParams.setMargins(0, 0, 0, 8.dpToPx())
-            this.layoutParams = layoutParams
-        }
-
-        val iconView = android.widget.ImageView(requireContext()).apply {
-            setImageResource(R.drawable.ic_circle_empty)
-            setColorFilter(resources.getColor(R.color.gray_text, null))
-            layoutParams = LinearLayout.LayoutParams(
-                24.dpToPx(),
-                24.dpToPx()
-            ).apply {
-                setMargins(0, 0, 12.dpToPx(), 0)
-            }
-        }
-
-        val textView = TextView(requireContext()).apply {
-            text = habitText
-            textSize = 16f
-            setTextColor(resources.getColor(R.color.dark_text, null))
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            )
-        }
-        habitLayout.addView(iconView)
-        habitLayout.addView(textView)
-        return habitLayout
-    }
-
+    // Muestra las etiquetas del desafío
     private fun displayTags(etiquetas: List<String>) {
         tagsContainerPreview.removeAllViews()
 
@@ -307,6 +257,7 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
+    // Crea la vista de una etiqueta para el preview
     private fun createTagPreviewView(tagText: String): View {
         val inflater = LayoutInflater.from(requireContext())
         val tagView = inflater.inflate(R.layout.item_tag_public, null, false)
@@ -324,6 +275,7 @@ class ChallengePreviewFragment : Fragment() {
         return tagView
     }
 
+    // Usa el desafío como plantilla para el usuario actual
     private fun useChallengeAsTemplate(challenge: DesafioPublico) {
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
 
@@ -353,6 +305,7 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
+    // Crea un desafío predeterminado para el usuario
     private fun createDefaultChallengeForUser() {
         Toast.makeText(requireContext(), getString(R.string.creating_challenge), Toast.LENGTH_SHORT)
             .show()
@@ -403,9 +356,7 @@ class ChallengePreviewFragment : Fragment() {
                         Toast.makeText(
                             requireContext(),
                             getString(
-                                R.string.challenge_created_successfully,
-                                challengeData["nombre"]
-                            ),
+                                R.string.challenge_created_successfully),
                             Toast.LENGTH_LONG
                         ).show()
                         findNavController().popBackStack()
@@ -429,6 +380,7 @@ class ChallengePreviewFragment : Fragment() {
             }
     }
 
+    // Obtiene los datos iniciales de un desafío según el objetivo
     private fun getInitialChallengeForObjective(objective: String): HashMap<String, Any> {
         val currentTime = com.google.firebase.Timestamp.now()
 
@@ -599,6 +551,7 @@ class ChallengePreviewFragment : Fragment() {
         }
     }
 
+    // Verifica si el usuario ya tiene un desafío con el mismo nombre
     private fun checkIfChallengeExists(challenge: DesafioPublico, onResult: (Boolean) -> Unit) {
         val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
 
@@ -622,6 +575,7 @@ class ChallengePreviewFragment : Fragment() {
             }
     }
 
+    // Guarda un desafío personalizado para el usuario
     private fun savePersonalChallenge(challenge: DesafioPublico) {
         Toast.makeText(requireContext(), getString(R.string.saving_challenge), Toast.LENGTH_SHORT)
             .show()
@@ -671,6 +625,7 @@ class ChallengePreviewFragment : Fragment() {
             }
     }
 
+    // Crea los días del desafío en la base de datos
     private fun createDaysForChallenge(
         desafioId: String,
         duracionDias: Int,
@@ -735,6 +690,7 @@ class ChallengePreviewFragment : Fragment() {
             }
     }
 
+    // Convierte dp a píxeles
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
     }

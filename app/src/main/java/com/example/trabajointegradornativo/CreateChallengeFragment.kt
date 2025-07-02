@@ -89,6 +89,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         }
     }
 
+    // Infla el layout del fragmento y configura vistas/eventos
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -103,6 +104,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         return view
     }
 
+    // Inicializa las vistas del fragmento
     private fun inicializarViews(view: View) {
         nombreInput = view.findViewById(R.id.inputChallengeName)
         descripcionInput = view.findViewById(R.id.inputChallengeDescription)
@@ -140,6 +142,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         }
     }
 
+    // Configura los listeners y eventos de los componentes
     private fun configurarEventos() {
         option30Days.setOnClickListener { seleccionarDuracion(option30Days, 30) }
         option45Days.setOnClickListener { seleccionarDuracion(option45Days, 45) }
@@ -180,6 +183,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         cancelarButton.setOnClickListener { cancelarCreacion() }
     }
 
+    // Agrega una nueva etiqueta a la lista y la muestra
     private fun agregarEtiqueta() {
         val nuevaEtiqueta = inputNewTag.text.toString().trim()
 
@@ -213,6 +217,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         inputNewTag.text.clear()
     }
 
+    // Crea la vista visual de una etiqueta agregada
     private fun crearVistaEtiqueta(etiqueta: String) {
         val etiquetaView = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -255,11 +260,13 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         tagsContainer.addView(etiquetaView)
     }
 
+    // Elimina una etiqueta de la lista y de la vista
     private fun eliminarEtiqueta(etiqueta: String, vista: View) {
         etiquetasAgregadas.remove(etiqueta)
         tagsContainer.removeView(vista)
     }
 
+    // Selecciona la duración del desafío y actualiza el estilo
     private fun seleccionarDuracion(opcionSeleccionada: TextView, dias: Int) {
         resetearOpcionesDuracion()
 
@@ -269,6 +276,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         duracionSeleccionada = dias
     }
 
+    // Restaura el estilo de las opciones de duración
     private fun resetearOpcionesDuracion() {
         val opciones = listOf(option30Days, option45Days, option75Days)
         opciones.forEach { opcion ->
@@ -277,6 +285,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         }
     }
 
+    // Agrega un nuevo campo de hábito adicional
     private fun agregarNuevoHabito() {
         val containerPadre = view?.findViewById<LinearLayout>(R.id.habitosContainer)
 
@@ -310,6 +319,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         }
     }
 
+    // Solicita la ubicación actual del usuario
     private fun solicitarUbicacion() {
         if (tienePermisosUbicacion()) {
             obtenerUbicacionActual()
@@ -318,6 +328,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         }
     }
 
+    // Verifica si los permisos de ubicación están concedidos
     private fun tienePermisosUbicacion(): Boolean {
         return ActivityCompat.checkSelfPermission(
             requireContext(),
@@ -329,6 +340,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
                 ) == PackageManager.PERMISSION_GRANTED
     }
 
+    // Solicita permisos de ubicación al usuario
     private fun solicitarPermisosUbicacion() {
         locationPermissionRequest.launch(
             arrayOf(
@@ -338,6 +350,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         )
     }
 
+    // Obtiene la ubicación actual usando LocationHelper
     private fun obtenerUbicacionActual() {
         buttonObtenerUbicacion.text = getString(R.string.getting_location)
         buttonObtenerUbicacion.isEnabled = false
@@ -345,6 +358,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         locationHelper.getCurrentLocation(this)
     }
 
+    // Callback: se recibe la ubicación correctamente
     override fun onLocationReceived(latitude: Double, longitude: Double, address: String) {
         latitudSeleccionada = latitude
         longitudSeleccionada = longitude
@@ -363,6 +377,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         ).show()
     }
 
+    // Callback: ocurre un error al obtener la ubicación
     override fun onLocationError(error: String) {
         Toast.makeText(context, getString(R.string.error_format, error), Toast.LENGTH_LONG).show()
 
@@ -370,6 +385,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         buttonObtenerUbicacion.isEnabled = true
     }
 
+    // Limpia la ubicación seleccionada
     private fun limpiarUbicacion() {
         ubicacionSeleccionada = null
         latitudSeleccionada = null
@@ -378,6 +394,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         actualizarEstadoUbicacion()
     }
 
+    // Actualiza el estado visual de la sección de ubicación
     private fun actualizarEstadoUbicacion() {
         val tieneUbicacion = ubicacionSeleccionada != null
 
@@ -387,6 +404,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             if (tieneUbicacion) getString(R.string.change_location) else getString(R.string.get_my_location)
     }
 
+    // Recopila todos los hábitos ingresados por el usuario
     private fun recopilarHabitos(): List<String> {
         val habitos = mutableListOf<String>()
 
@@ -406,6 +424,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         return habitos
     }
 
+    // Valida los datos del formulario antes de guardar
     private fun validarFormulario(): Boolean {
         val nombre = nombreInput.text.toString().trim()
         val descripcion = descripcionInput.text.toString().trim()
@@ -473,6 +492,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         return true
     }
 
+    // Guarda el desafío en Firestore y crea los días correspondientes
     private fun guardarDesafio() {
         if (!validarFormulario()) return
 
@@ -610,6 +630,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
             }
     }
 
+    // Cancela la creación del desafío y muestra confirmación si hay datos
     private fun cancelarCreacion() {
         locationHelper.stopLocationUpdates()
 
@@ -632,6 +653,7 @@ class CreateChallengeFragment : Fragment(), LocationHelper.LocationCallback {
         }
     }
 
+    // Detiene las actualizaciones de ubicación al destruir el fragmento
     override fun onDestroy() {
         super.onDestroy()
         locationHelper.stopLocationUpdates()

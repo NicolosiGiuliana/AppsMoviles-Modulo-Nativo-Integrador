@@ -36,6 +36,7 @@ class ItemListFragment : Fragment() {
     private var defaultChallenges = mutableListOf<DefaultChallenge>()
     private var filteredActiveChallenges = mutableListOf<Desafio>()
 
+    // Infla el layout y oculta la ActionBar
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,6 +47,7 @@ class ItemListFragment : Fragment() {
         return binding.root
     }
 
+    // Inicializa componentes UI, RecyclerViews, búsqueda y navegación
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -62,7 +64,6 @@ class ItemListFragment : Fragment() {
 
         cargarDesafios()
         cargarDesafiosPorDefecto()
-        setupCurrentDayCard()
         setupBottomNavigation()
 
         binding.fab?.setOnClickListener {
@@ -70,6 +71,7 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    // Verifica si el fragment está activo y vinculado antes de ejecutar actualizaciones de UI para prevenir crashes por referencias nulas
     private fun safeUpdateUI(action: () -> Unit) {
         if (isAdded && _binding != null && !isDetached) {
             try {
@@ -80,6 +82,7 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    // Carga los datos del usuario desde Firestore y actualiza el texto de bienvenida
     private fun loadUserData() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -117,6 +120,7 @@ class ItemListFragment : Fragment() {
             }
     }
 
+    // Actualiza el texto de bienvenida con el nombre del usuario
     private fun updateWelcomeText(userName: String) {
         safeUpdateUI {
             val helloText = getString(R.string.hello_user)
@@ -130,6 +134,7 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    // Configura los RecyclerViews para mostrar desafíos activos y desafíos por defecto
     private fun setupRecyclerViews() {
         binding.activeChallengesList?.layoutManager = LinearLayoutManager(requireContext())
         binding.activeChallengesList?.adapter = ActiveChallengesAdapter(filteredActiveChallenges)
@@ -138,6 +143,7 @@ class ItemListFragment : Fragment() {
         binding.defaultChallengesGrid?.adapter = DefaultChallengesAdapter(defaultChallenges)
     }
 
+    // Configura la barra de búsqueda para filtrar desafíos activos
     private fun setupSearchBar() {
         binding.searchBar?.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -148,6 +154,7 @@ class ItemListFragment : Fragment() {
         })
     }
 
+    // Filtra los desafíos activos según la consulta de búsqueda
     private fun filterChallenges(query: String) {
         filteredActiveChallenges.clear()
         if (query.isEmpty()) {
@@ -165,15 +172,6 @@ class ItemListFragment : Fragment() {
 
         safeUpdateUI {
             binding.activeChallengesList?.adapter?.notifyDataSetChanged()
-        }
-    }
-
-    private fun setupCurrentDayCard() {
-        val dateFormat = SimpleDateFormat("EEEE d MMM", Locale.getDefault())
-        val currentDate = dateFormat.format(Date())
-
-        binding.currentDayCard?.setOnClickListener {
-            findNavController().navigate(R.id.action_itemListFragment_to_todayFragment)
         }
     }
 
@@ -199,6 +197,7 @@ class ItemListFragment : Fragment() {
         val type: String
     )
 
+    // Carga los desafíos del usuario desde Firestore y actualiza la lista de desafíos activos
     private fun cargarDesafios() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -330,6 +329,7 @@ class ItemListFragment : Fragment() {
             }
     }
 
+    // Calcula el día actual basado en la fecha de inicio del desafío
     private fun calcularDiaActualPorFecha(fechaInicio: com.google.firebase.Timestamp?): Int {
         if (fechaInicio == null) return 1
 
@@ -342,26 +342,32 @@ class ItemListFragment : Fragment() {
         return maxOf(1, diferenciaDias + 1)
     }
 
+    // Adaptador para mostrar etiquetas en los desafíos activos
     inner class TagsAdapter(private val tags: List<String>) :
         RecyclerView.Adapter<TagsAdapter.TagViewHolder>() {
 
+        // ViewHolder para cadaetiqueta
         inner class TagViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val tagText: TextView = view.findViewById(R.id.tag_text)
         }
 
+        // Crea una vista para cada etiqueta
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TagViewHolder {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_tag, parent, false)
             return TagViewHolder(view)
         }
 
+        // Vincula el texto de la etiqueta a la vista
         override fun onBindViewHolder(holder: TagViewHolder, position: Int) {
             holder.tagText.text = "#${tags[position]}"
         }
 
+        // Devuelve el número total de etiquetas
         override fun getItemCount() = tags.size
     }
 
+    // Carga desafíos por defecto para mostrar en la pantalla principal
     private fun cargarDesafiosPorDefecto() {
         defaultChallenges.clear()
         defaultChallenges.addAll(
@@ -398,9 +404,11 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    // Adaptador para mostrar desafíos activos en una lista
     inner class ActiveChallengesAdapter(private val challenges: List<Desafio>) :
         RecyclerView.Adapter<ActiveChallengesAdapter.ViewHolder>() {
 
+        // ViewHolder para cada desafío activo
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val challengeName: TextView = view.findViewById(R.id.challenge_name)
             val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
@@ -409,12 +417,14 @@ class ItemListFragment : Fragment() {
             val tagsRecycler: RecyclerView = view.findViewById(R.id.tags_recycler)
         }
 
+        // Crea una vista para cada desafío activo
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_active_challenge, parent, false)
             return ViewHolder(view)
         }
 
+        // Vincula los datos del desafío activo a la vista
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val challenge = challenges[position]
             holder.challengeName.text = challenge.nombre
@@ -447,9 +457,11 @@ class ItemListFragment : Fragment() {
             }
         }
 
+        // Devuelve el número total de desafíos activos
         override fun getItemCount() = challenges.size
     }
 
+    // Obtiene el desafío inicial para un objetivo específico
     private fun getInitialChallengeForObjective(objective: String): HashMap<String, Any> {
         val currentTime = com.google.firebase.Timestamp.now()
         return when (objective) {
@@ -605,6 +617,7 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    // Adaptador para mostrar desafíos por defecto en una cuadrícula
     inner class DefaultChallengesAdapter(private val challenges: List<DefaultChallenge>) :
         RecyclerView.Adapter<DefaultChallengesAdapter.ViewHolder>() {
 
@@ -634,6 +647,7 @@ class ItemListFragment : Fragment() {
         override fun getItemCount() = challenges.size
     }
 
+    // Abre una vista previa del desafío por defecto seleccionado
     private fun openDefaultChallengePreview(defaultChallenge: DefaultChallenge) {
         val challengeData = getInitialChallengeForObjective(defaultChallenge.type)
 
@@ -675,37 +689,7 @@ class ItemListFragment : Fragment() {
         )
     }
 
-    override fun onCreateContextMenu(
-        menu: ContextMenu,
-        v: View,
-        menuInfo: ContextMenu.ContextMenuInfo?
-    ) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-        requireActivity().menuInflater.inflate(R.menu.challenge_context_menu, menu)
-    }
-
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_edit -> {
-                Toast.makeText(context, getString(R.string.options), Toast.LENGTH_SHORT).show()
-                true
-            }
-
-            R.id.action_delete -> {
-                Toast.makeText(context, getString(R.string.remove), Toast.LENGTH_SHORT).show()
-                true
-            }
-
-            R.id.action_share -> {
-                Toast.makeText(context, getString(R.string.share_challenge), Toast.LENGTH_SHORT)
-                    .show()
-                true
-            }
-
-            else -> super.onContextItemSelected(item)
-        }
-    }
-
+    // Configura la navegación por la barra inferior
     private fun setupBottomNavigation() {
         val homeLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(0) as? LinearLayout
@@ -736,6 +720,7 @@ class ItemListFragment : Fragment() {
         updateBottomNavigationColors(getString(R.string.home))
     }
 
+    // Navega a la pantalla de hoy con el día actual
     private fun navigateToToday() {
         try {
             val bundle = Bundle().apply {
@@ -751,6 +736,7 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    // Obtiene el número del día actual
     private fun getCurrentDayNumber(): Int {
         return if (activeChallenges.isNotEmpty()) {
             activeChallenges.first().diaActual
@@ -759,6 +745,7 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    // Actualiza los colores de la barra de navegación inferior según la pestaña activa
     private fun updateBottomNavigationColors(activeTab: String) {
         val bottomNav = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
 
@@ -807,12 +794,14 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    // Metodo de inicialización del fragmento
     override fun onResume() {
         super.onResume()
         cargarDesafios()
         loadUserData()
     }
 
+    // Metodo de creación de la vista del fragmento
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
