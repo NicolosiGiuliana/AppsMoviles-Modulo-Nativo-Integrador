@@ -19,6 +19,7 @@ class LocationHelper(private val context: Context) {
         fun onLocationError(error: String)
     }
 
+    // Obtiene la ubicación actual del usuario y retorna la dirección mediante el callback.
     fun getCurrentLocation(callback: LocationCallback) {
         if (!hasLocationPermission()) {
             callback.onLocationError(context.getString(R.string.location_permissions_denied))
@@ -78,6 +79,7 @@ class LocationHelper(private val context: Context) {
         }
     }
 
+    // Verifica si la app tiene permisos de ubicación.
     private fun hasLocationPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
             context,
@@ -89,10 +91,12 @@ class LocationHelper(private val context: Context) {
                 ) == PackageManager.PERMISSION_GRANTED
     }
 
+    // Verifica si el GPS está habilitado en el dispositivo.
     private fun isGPSEnabled(): Boolean {
         return locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
     }
 
+    // Convierte las coordenadas de latitud y longitud en una dirección legible.
     private fun getAddressFromLocation(latitude: Double, longitude: Double): String {
         return try {
             val geocoder = android.location.Geocoder(context, java.util.Locale.getDefault())
@@ -108,6 +112,7 @@ class LocationHelper(private val context: Context) {
         }
     }
 
+    // Detiene las actualizaciones de ubicación y libera el listener.
     fun stopLocationUpdates() {
         locationListener?.let { listener ->
             locationManager?.removeUpdates(listener)

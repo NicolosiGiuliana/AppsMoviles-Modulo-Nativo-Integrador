@@ -700,7 +700,8 @@ class ItemListFragment : Fragment() {
         val todayLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
             ?.getChildAt(1) as? LinearLayout
         todayLayout?.setOnClickListener {
-            navigateToToday()
+            findNavController().navigate(R.id.action_itemListFragment_to_todayFragment)
+            updateBottomNavigationColors(getString(R.string.today))
         }
 
         val exploreLayout = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)
@@ -720,31 +721,7 @@ class ItemListFragment : Fragment() {
         updateBottomNavigationColors(getString(R.string.home))
     }
 
-    // Navega a la pantalla de hoy con el día actual
-    private fun navigateToToday() {
-        try {
-            val bundle = Bundle().apply {
-                putInt(DayDetailFragment.ARG_DAY_NUMBER, getCurrentDayNumber())
-            }
-            findNavController().navigate(R.id.action_itemListFragment_to_todayFragment, bundle)
-        } catch (e: Exception) {
-            Toast.makeText(
-                context,
-                getString(R.string.error_navigating_today, e.message),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    // Obtiene el número del día actual
-    private fun getCurrentDayNumber(): Int {
-        return if (activeChallenges.isNotEmpty()) {
-            activeChallenges.first().diaActual
-        } else {
-            1
-        }
-    }
-
+    
     // Actualiza los colores de la barra de navegación inferior según la pestaña activa
     private fun updateBottomNavigationColors(activeTab: String) {
         val bottomNav = binding.root.findViewById<LinearLayout>(R.id.bottom_navigation)

@@ -21,12 +21,14 @@ class NotificationReceiver : BroadcastReceiver() {
         private const val TAG = "NotificationReceiver"
     }
 
+    // Metodo principal que se ejecuta al recibir la alarma de notificación.
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "RECORDATORIO_HABITOS") {
             verificarHabitosYNotificar(context)
         }
     }
 
+    // Verifica los hábitos del día y envía una notificación si hay hábitos pendientes.
     private fun verificarHabitosYNotificar(context: Context) {
         val auth = FirebaseAuth.getInstance()
         val userId = auth.currentUser?.uid ?: return
@@ -44,6 +46,7 @@ class NotificationReceiver : BroadcastReceiver() {
         }
     }
 
+    // Obtiene la cantidad total de hábitos y los completados para el día actual.
     private fun obtenerHabitosDelDia(
         context: Context,
         userId: String,
@@ -128,6 +131,7 @@ class NotificationReceiver : BroadcastReceiver() {
             }
     }
 
+    // Genera los datos de la notificación según la cantidad de hábitos faltantes.
     private fun generarNotificacion(context: Context, habitosFaltantes: Int): NotificacionData {
         val fraseMotivacional = NotificationHelper.obtenerFraseMotivacional(context)
 
@@ -175,6 +179,7 @@ class NotificationReceiver : BroadcastReceiver() {
         }
     }
 
+    // Envía una notificación genérica si ocurre un error al obtener los desafíos.
     private fun enviarNotificacionGenerica(context: Context) {
         enviarNotificacion(
             context,
@@ -183,6 +188,7 @@ class NotificationReceiver : BroadcastReceiver() {
         )
     }
 
+    // Construye y muestra la notificación al usuario.
     private fun enviarNotificacion(context: Context, titulo: String, mensaje: String) {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -217,6 +223,7 @@ class NotificationReceiver : BroadcastReceiver() {
         reprogramarNotificacion(context)
     }
 
+    // Reprograma la notificación diaria para el siguiente día.
     private fun reprogramarNotificacion(context: Context) {
         val prefs = context.getSharedPreferences("desafio_prefs", Context.MODE_PRIVATE)
         if (!prefs.getBoolean("notificaciones_habilitadas", false)) return
@@ -263,6 +270,7 @@ class NotificationReceiver : BroadcastReceiver() {
         }
     }
 
+    // Estructura de datos para la notificación.
     data class NotificacionData(
         val titulo: String,
         val mensaje: String

@@ -71,6 +71,7 @@ class ProfileFragment : Fragment() {
     private var selectedNotificationHour = 9
     private var selectedNotificationMinute = 0
 
+    // Infla el layout del fragmento de perfil.
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -78,6 +79,7 @@ class ProfileFragment : Fragment() {
         return inflater.inflate(R.layout.profile_fragment, container, false)
     }
 
+    // Inicializa vistas, datos y listeners al crear la vista.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -92,6 +94,7 @@ class ProfileFragment : Fragment() {
         loadProfileImage()
     }
 
+    // Inicializa el array de idiomas disponibles.
     private fun initLanguageArray() {
         languages = arrayOf(
             getString(R.string.language_spanish),
@@ -100,6 +103,7 @@ class ProfileFragment : Fragment() {
         )
     }
 
+    // Configura la navegación inferior del fragmento.
     private fun setupBottomNavigation() {
         val bottomNavigation = view?.findViewById<LinearLayout>(R.id.bottom_navigation)
 
@@ -135,6 +139,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Inicializa las instancias de Firebase y preferencias.
     private fun initFirebase() {
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
@@ -143,6 +148,7 @@ class ProfileFragment : Fragment() {
         imgBBUploader = ImgBBUploader()
     }
 
+    // Inicializa las vistas del layout.
     private fun initViews(view: View) {
         profileImage = view.findViewById(R.id.profileImage)
         profileInitials = view.findViewById(R.id.profileInitials)
@@ -159,6 +165,7 @@ class ProfileFragment : Fragment() {
         logoutLayout = view.findViewById(R.id.logoutLayout)
     }
 
+    // Carga los datos del usuario en la UI.
     private fun loadUserData() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -181,6 +188,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Obtiene las iniciales del nombre del usuario.
     private fun getInitials(name: String): String {
         val words = name.trim().split(" ")
         return when {
@@ -191,6 +199,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Carga las preferencias y configuraciones guardadas.
     private fun loadSettings() {
         val notificationsEnabled = sharedPreferences.getBoolean("daily_notifications", true)
         dailyNotificationsSwitch.isChecked = notificationsEnabled
@@ -211,6 +220,7 @@ class ProfileFragment : Fragment() {
         selectedLanguageText.text = languages[selectedLanguageIndex]
     }
 
+    // Obtiene el índice del idioma actual.
     private fun getCurrentLanguageIndex(): Int {
         val currentLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             resources.configuration.locales[0].language
@@ -232,6 +242,7 @@ class ProfileFragment : Fragment() {
         return index
     }
 
+    // Actualiza el texto que muestra la hora de notificación.
     private fun updateNotificationTimeDisplay() {
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val calendar = Calendar.getInstance()
@@ -240,6 +251,7 @@ class ProfileFragment : Fragment() {
         notificationTimeText.text = timeFormat.format(calendar.time)
     }
 
+    // Asigna los listeners a los elementos interactivos de la UI.
     private fun setupClickListeners() {
         cameraIcon.setOnClickListener { showImagePickerDialog() }
         profileImage.setOnClickListener { showImagePickerDialog() }
@@ -249,6 +261,7 @@ class ProfileFragment : Fragment() {
         profileImage.setOnClickListener { mostrarImagenPerfilEnDialogo() }
     }
 
+    // Configura los switches de notificaciones y frases motivacionales.
     private fun setupSwitches() {
         dailyNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -276,6 +289,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Verifica y solicita permisos necesarios para notificaciones.
     private fun checkNotificationPermissions(callback: (Boolean) -> Unit) {
         var permissionsNeeded = mutableListOf<String>()
 
@@ -309,19 +323,7 @@ class ProfileFragment : Fragment() {
         callback(true)
     }
 
-    private fun showNotificationSettingsDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.notification_permissions_title))
-            .setMessage(getString(R.string.notification_permissions_message))
-            .setPositiveButton(getString(R.string.go_to_settings)) { _, _ ->
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:${requireContext().packageName}")
-                startActivity(intent)
-            }
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show()
-    }
-
+    // Muestra un diálogo para solicitar permiso de alarmas exactas.
     private fun showExactAlarmPermissionDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.alarm_permissions_title))
@@ -336,6 +338,7 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
+    // Carga la imagen de perfil del usuario.
     private fun loadProfileImage() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -358,6 +361,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Obtiene la URL de la imagen de perfil desde Firestore.
     private fun loadImageUrlFromFirestore(userId: String) {
         firestore.collection("usuarios").document(userId)
             .get()
@@ -390,6 +394,7 @@ class ProfileFragment : Fragment() {
             }
     }
 
+    // Descarga y muestra la imagen de perfil desde una URL.
     private fun loadImageFromUrl(imageUrl: String) {
         Thread {
             try {
@@ -409,6 +414,7 @@ class ProfileFragment : Fragment() {
         }.start()
     }
 
+    // Muestra la imagen de perfil por defecto (iniciales).
     private fun setDefaultProfileImage() {
         try {
             val currentUser = auth.currentUser
@@ -428,6 +434,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Muestra un diálogo para elegir cómo cambiar la foto de perfil.
     private fun showImagePickerDialog() {
         val options = arrayOf(
             getString(R.string.take_photo),
@@ -453,6 +460,7 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
+    // Limpia las URLs guardadas de la imagen de perfil.
     private fun clearSavedImageUrls() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -477,6 +485,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Verifica permisos de cámara y toma una foto.
     private fun checkCameraPermissionAndTakePhoto() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED
@@ -490,6 +499,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Verifica permisos de galería y abre la galería.
     private fun checkGalleryPermissionAndOpenGallery() {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_IMAGES
@@ -506,16 +516,19 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Lanza la intención para tomar una foto.
     private fun takePhoto() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(intent, CAMERA_REQUEST)
     }
 
+    // Lanza la intención para seleccionar una imagen de la galería.
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
+    // Maneja el resultado de las solicitudes de permisos.
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -551,6 +564,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Maneja el resultado de las actividades de selección/captura de imagen.
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -567,6 +581,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Procesa la imagen seleccionada de la galería.
     private fun handleSelectedImage(uri: Uri) {
         try {
             val inputStream = requireContext().contentResolver.openInputStream(uri)
@@ -578,11 +593,13 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Procesa la imagen capturada con la cámara.
     private fun handleCapturedImage(bitmap: Bitmap) {
         val resizedBitmap = resizeBitmap(bitmap, MAX_IMAGE_SIZE)
         uploadProfileImage(resizedBitmap)
     }
 
+    // Redimensiona el bitmap a un tamaño máximo.
     private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
@@ -603,6 +620,7 @@ class ProfileFragment : Fragment() {
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
+    // Sube la imagen de perfil a ImgBB y actualiza la UI y Firestore.
     private fun uploadProfileImage(bitmap: Bitmap) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -650,6 +668,7 @@ class ProfileFragment : Fragment() {
         })
     }
 
+    // Guarda la URL de la imagen de perfil en Firestore.
     private fun saveImageUrlToFirestore(userId: String, imageUrl: String, deleteUrl: String) {
         val userRef = firestore.collection("usuarios").document(userId)
         val imageData = mapOf(
@@ -666,6 +685,7 @@ class ProfileFragment : Fragment() {
             }
     }
 
+    // Muestra un diálogo de progreso durante la subida de imagen.
     private fun showUploadProgressDialog() {
         val dialogView = LayoutInflater.from(requireContext()).inflate(android.R.layout.simple_list_item_1, null)
         val textView = dialogView.findViewById<TextView>(android.R.id.text1)
@@ -680,6 +700,7 @@ class ProfileFragment : Fragment() {
         uploadProgressDialog?.show()
     }
 
+    // Actualiza el progreso mostrado en el diálogo de subida.
     private fun updateUploadProgress(progress: Int) {
         uploadProgressDialog?.let { dialog ->
             val textView = dialog.findViewById<TextView>(android.R.id.text1)
@@ -687,11 +708,13 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Oculta el diálogo de progreso de subida.
     private fun hideUploadProgressDialog() {
         uploadProgressDialog?.dismiss()
         uploadProgressDialog = null
     }
 
+    // Muestra un diálogo de error si falla la subida de imagen.
     private fun showUploadErrorDialog(bitmap: Bitmap) {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.error_uploading_image_title))
@@ -707,6 +730,7 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
+    // Muestra un selector de hora para configurar la notificación diaria.
     private fun showTimePickerDialog() {
         TimePickerDialog(
             requireContext(),
@@ -725,6 +749,7 @@ class ProfileFragment : Fragment() {
         ).show()
     }
 
+    // Guarda la hora seleccionada para la notificación diaria.
     private fun saveNotificationTime() {
         sharedPreferences.edit()
             .putInt("notification_hour", selectedNotificationHour)
@@ -732,6 +757,7 @@ class ProfileFragment : Fragment() {
             .apply()
     }
 
+    // Programa la notificación diaria con la hora seleccionada.
     private fun scheduleNotifications() {
         val context = requireContext()
         val hour = selectedNotificationHour
@@ -746,6 +772,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Muestra un diálogo para seleccionar el idioma de la app.
     private fun showLanguageDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.select_language))
@@ -768,15 +795,18 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
+    // Guarda la preferencia de idioma seleccionada.
     private fun saveLanguagePreference() {
         LanguageHelper.setAppLanguage(requireContext(), languageCodes[selectedLanguageIndex])
     }
 
+    // Cambia el idioma de la aplicación y reinicia la actividad.
     private fun changeAppLanguage(languageCode: String) {
         LanguageHelper.setAppLanguage(requireContext(), languageCode)
         requireActivity().recreate()
     }
 
+    // Muestra un diálogo de confirmación para cerrar sesión.
     private fun showLogoutDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.logout))
@@ -786,6 +816,7 @@ class ProfileFragment : Fragment() {
             .show()
     }
 
+    // Realiza el cierre de sesión y limpia las preferencias.
     private fun performLogout() {
         FirebaseAuth.getInstance().signOut()
 
@@ -802,6 +833,7 @@ class ProfileFragment : Fragment() {
         requireActivity().finish()
     }
 
+    // Muestra la imagen de perfil en un diálogo ampliado.
     private fun mostrarImagenPerfilEnDialogo() {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -820,6 +852,7 @@ class ProfileFragment : Fragment() {
         mostrarImagenEnDialogo(savedImageUrl)
     }
 
+    // Descarga y muestra una imagen en un diálogo a partir de una URL.
     private fun mostrarImagenEnDialogo(url: String) {
         try {
             val imageView = ImageView(requireContext()).apply {

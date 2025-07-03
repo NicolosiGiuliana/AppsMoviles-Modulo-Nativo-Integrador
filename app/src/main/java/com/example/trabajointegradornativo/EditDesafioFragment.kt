@@ -76,6 +76,7 @@ class EditDesafioFragment : Fragment() {
         }
     }
 
+    // Inflamos el layout del fragmento y configuramos las vistas.
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -90,6 +91,7 @@ class EditDesafioFragment : Fragment() {
         return view
     }
 
+    // Inicializa las vistas del fragmento.
     private fun initializeViews(view: View) {
         etDescripcion = view.findViewById(R.id.et_descripcion)
         habitosContainer = view.findViewById(R.id.habitos_container)
@@ -101,6 +103,7 @@ class EditDesafioFragment : Fragment() {
         btnAgregarEtiqueta = view.findViewById(R.id.btn_agregar_etiqueta)
     }
 
+    // Configura los listeners de los botones y acciones de UI.
     private fun setupListeners() {
         btnAgregarHabito.setOnClickListener {
             mostrarDialogoAgregarHabito()
@@ -122,6 +125,7 @@ class EditDesafioFragment : Fragment() {
         }
     }
 
+    // Revierte los cambios realizados en los hábitos a su estado original.
     private fun revertirCambios() {
         for (i in habitos.indices) {
             if (i < habitosOriginales.size) {
@@ -134,6 +138,7 @@ class EditDesafioFragment : Fragment() {
         actualizarUIHabitos()
     }
 
+    // Carga los datos del desafío desde Firestore y los muestra en la UI.
     private fun cargarDatosDesafio() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -184,6 +189,7 @@ class EditDesafioFragment : Fragment() {
             }
     }
 
+    // Carga el estado de los hábitos para el día actual desde Firestore.
     private fun cargarEstadoHabitosDelDiaActual() {
         val uid = auth.currentUser?.uid ?: return
         val fechaHoy = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -220,6 +226,7 @@ class EditDesafioFragment : Fragment() {
             }
     }
 
+    // Actualiza la UI para mostrar la lista de hábitos actuales.
     private fun actualizarUIHabitos() {
         habitosContainer.removeAllViews()
         val inflater = LayoutInflater.from(requireContext())
@@ -263,6 +270,7 @@ class EditDesafioFragment : Fragment() {
         }
     }
 
+    // Actualiza la UI para mostrar las etiquetas actuales.
     private fun actualizarUIEtiquetas() {
         chipGroupEtiquetas.removeAllViews()
 
@@ -284,6 +292,7 @@ class EditDesafioFragment : Fragment() {
         }
     }
 
+    // Muestra un diálogo para agregar un nuevo hábito.
     private fun mostrarDialogoAgregarHabito() {
         val builder = AlertDialog.Builder(requireContext())
         val dialogView =
@@ -310,6 +319,7 @@ class EditDesafioFragment : Fragment() {
             .show()
     }
 
+    // Muestra un diálogo para agregar una nueva etiqueta.
     private fun mostrarDialogoAgregarEtiqueta() {
         val builder = AlertDialog.Builder(requireContext())
         val dialogView =
@@ -344,6 +354,7 @@ class EditDesafioFragment : Fragment() {
             .show()
     }
 
+    // Muestra un diálogo de confirmación para eliminar un hábito.
     private fun mostrarDialogoEliminarHabito(index: Int) {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.delete_habit))
@@ -356,6 +367,7 @@ class EditDesafioFragment : Fragment() {
             .show()
     }
 
+    // Valida los datos ingresados antes de guardar los cambios.
     private fun validarDatos(): Boolean {
         val descripcion = etDescripcion.text.toString().trim()
         if (descripcion.isEmpty()) {
@@ -386,6 +398,7 @@ class EditDesafioFragment : Fragment() {
         return true
     }
 
+    // Guarda los cambios realizados en el desafío y sus hábitos en Firestore.
     private fun guardarCambios() {
         val uid = auth.currentUser?.uid ?: return
         val descripcion = etDescripcion.text.toString().trim()
@@ -444,6 +457,7 @@ class EditDesafioFragment : Fragment() {
             }
     }
 
+    // Guarda los cambios de estado de los hábitos para el día actual en Firestore.
     private fun guardarCambiosHabitosDelDia(callback: () -> Unit) {
         if (cambiosPendientes.isEmpty()) {
             callback()
@@ -501,6 +515,7 @@ class EditDesafioFragment : Fragment() {
             }
     }
 
+    // Actualiza todos los días del desafío con la nueva lista de hábitos.
     private fun actualizarDiasConNuevosHabitos(uid: String, callback: () -> Unit) {
         firestore.collection(COLLECTION_USUARIOS)
             .document(uid)
@@ -562,6 +577,7 @@ class EditDesafioFragment : Fragment() {
             }
     }
 
+    // Notifica si se realizaron cambios al destruir la vista.
     override fun onDestroyView() {
         super.onDestroyView()
 

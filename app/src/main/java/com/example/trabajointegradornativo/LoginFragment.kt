@@ -46,6 +46,7 @@ class LoginFragment : Fragment() {
 
     private var selectedDate: String = ""
 
+    // Infla la vista del fragmento y configura la autenticación y la UI.
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,6 +65,7 @@ class LoginFragment : Fragment() {
         return view
     }
 
+    // Inicializa las vistas del layout.
     private fun initViews(view: View) {
         tvTitle = view.findViewById(R.id.tvTitle)
 
@@ -89,6 +91,7 @@ class LoginFragment : Fragment() {
         toggleModeButton = view.findViewById(R.id.toggleModeButton)
     }
 
+    // Configura los elementos de la UI y su comportamiento inicial.
     private fun setupUI() {
         setupObjectiveSpinner()
         setupDatePicker()
@@ -96,6 +99,7 @@ class LoginFragment : Fragment() {
         updateUIMode()
     }
 
+    // Configura el selector de fecha de nacimiento.
     private fun setupDatePicker() {
         dateInput.setOnClickListener {
             showDatePicker()
@@ -104,6 +108,7 @@ class LoginFragment : Fragment() {
         dateInput.isClickable = true
     }
 
+    // Configura la protección para el campo de confirmación de contraseña.
     private fun setupPasswordConfirmation() {
         confirmPasswordInput.setOnLongClickListener { true }
         confirmPasswordInput.setTextIsSelectable(false)
@@ -128,6 +133,7 @@ class LoginFragment : Fragment() {
             }
     }
 
+    // Configura el spinner de objetivos con opciones localizadas.
     private fun setupObjectiveSpinner() {
         val localizedObjectives = arrayOf(
             getString(R.string.fitness),
@@ -145,6 +151,7 @@ class LoginFragment : Fragment() {
         objectiveSpinner.setOnClickListener { objectiveSpinner.showDropDown() }
     }
 
+    // Asigna los listeners a los botones principales de acción y cambio de modo.
     private fun setupClickListeners() {
         actionButton.setOnClickListener {
             val email = emailInput.text.toString().trim()
@@ -177,6 +184,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // Muestra el diálogo para seleccionar la fecha de nacimiento.
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -200,6 +208,7 @@ class LoginFragment : Fragment() {
         datePickerDialog.show()
     }
 
+    // Actualiza la UI según el modo (login o registro).
     private fun updateUIMode() {
         if (isLoginMode) {
             tvTitle.text = getString(R.string.login)
@@ -231,6 +240,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // Valida los campos del formulario antes de enviar.
     private fun validateInputs(
         email: String,
         password: String,
@@ -294,6 +304,7 @@ class LoginFragment : Fragment() {
         return isValid
     }
 
+    // Verifica si la edad ingresada cumple con el mínimo requerido.
     private fun isValidAge(birthDate: String): Boolean {
         return try {
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -314,6 +325,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // Limpia los mensajes de error de los campos.
     private fun clearErrors() {
         emailInput.error = null
         passwordInput.error = null
@@ -323,6 +335,7 @@ class LoginFragment : Fragment() {
         confirmPasswordInput.error = null
     }
 
+    // Limpia los campos de entrada y errores.
     private fun clearInputs() {
         emailInput.setText("")
         passwordInput.setText("")
@@ -334,6 +347,7 @@ class LoginFragment : Fragment() {
         clearErrors()
     }
 
+    // Realiza el inicio de sesión con Firebase Authentication.
     private fun loginUser(email: String, password: String) {
         actionButton.isEnabled = false
 
@@ -367,6 +381,7 @@ class LoginFragment : Fragment() {
 
     }
 
+    // Registra un nuevo usuario en Firebase Authentication y Firestore.
     private fun registerUser(
         email: String,
         password: String,
@@ -422,6 +437,7 @@ class LoginFragment : Fragment() {
             }
     }
 
+    // Guarda los datos del usuario en las preferencias locales.
     private fun saveUserToPreferences(
         email: String,
         username: String,
@@ -439,6 +455,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // Navega a la actividad principal de la aplicación.
     private fun navigateToMainApp() {
         try {
             val intent = Intent(requireContext(), MainActivity::class.java)
@@ -450,6 +467,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // Guarda los datos del usuario en Firestore y crea un desafío inicial si corresponde.
     private fun saveUserToFirestore(
         email: String,
         username: String,
@@ -481,6 +499,7 @@ class LoginFragment : Fragment() {
             .addOnFailureListener { e -> onError(e) }
     }
 
+    // Crea un desafío inicial para el usuario según el objetivo seleccionado.
     private fun createInitialChallenge(
         db: com.google.firebase.firestore.FirebaseFirestore,
         userId: String,
@@ -529,6 +548,7 @@ class LoginFragment : Fragment() {
             }
     }
 
+    // Devuelve la estructura del desafío inicial según el objetivo.
     private fun getInitialChallengeForObjective(objective: String): Map<String, Any> {
         return when (objective) {
             getString(R.string.fitness) -> mapOf(

@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var sharedPreferences: SharedPreferences
 
+    // Metodo principal que se llama al crear la actividad. Inicializa la navegación y verifica el estado del usuario.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         checkUserStatus()
     }
 
+    // Verifica si el usuario está autenticado y navega a la pantalla correspondiente.
     private fun checkUserStatus() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val isLoggedInPrefs = sharedPreferences.getBoolean("is_logged_in", false)
@@ -40,18 +42,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Navega a la actividad principal de la aplicación si el usuario está autenticado.
     private fun navigateToMainApp() {
         val intent = Intent(this, ItemDetailHostActivity::class.java)
         startActivity(intent)
         finish()
     }
 
+    // Al reanudar la actividad, vuelve a verificar el estado del usuario.
     override fun onResume() {
         super.onResume()
         checkUserStatus()
     }
 
+    // Clase Application para obtener el contexto global de la app.
     class App : Application() {
+        // Inicializa la instancia de la aplicación.
         override fun onCreate() {
             super.onCreate()
             instance = this
@@ -59,6 +65,7 @@ class MainActivity : AppCompatActivity() {
 
         companion object {
             private var instance: App? = null
+            // Proporciona el contexto de la aplicación de forma global.
             val context: Context
                 get() = instance?.applicationContext
                     ?: throw IllegalStateException("Application is not initialized.")

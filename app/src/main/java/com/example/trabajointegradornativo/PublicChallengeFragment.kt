@@ -29,6 +29,7 @@ class PublicChallengeFragment : Fragment() {
     private var allChallenges = mutableListOf<DesafioPublico>()
     private var filteredChallenges = mutableListOf<DesafioPublico>()
 
+    // Infla el layout del fragmento de desafíos públicos.
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,6 +37,7 @@ class PublicChallengeFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_public_challenge, container, false)
     }
 
+    // Inicializa vistas, Firestore, navegación y carga los desafíos públicos.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -46,6 +48,7 @@ class PublicChallengeFragment : Fragment() {
         loadPublicChallenges()
     }
 
+    // Inicializa las vistas del layout.
     private fun initializeViews() {
         view?.let { v ->
             challengesContainer = v.findViewById(R.id.challenges_container)
@@ -55,10 +58,12 @@ class PublicChallengeFragment : Fragment() {
         }
     }
 
+    // Inicializa la instancia de Firestore.
     private fun setupFirestore() {
         db = FirebaseFirestore.getInstance()
     }
 
+    // Configura la funcionalidad de búsqueda en la lista de desafíos.
     private fun setupSearchFunctionality() {
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -71,6 +76,7 @@ class PublicChallengeFragment : Fragment() {
         })
     }
 
+    // Filtra los desafíos según el texto ingresado en búsqueda.
     private fun filterChallenges(query: String) {
         filteredChallenges.clear()
 
@@ -89,10 +95,10 @@ class PublicChallengeFragment : Fragment() {
                 }
             )
         }
-
         displayChallenges()
     }
 
+    // Carga los desafíos públicos desde Firestore.
     private fun loadPublicChallenges() {
         showLoading(true)
 
@@ -132,6 +138,7 @@ class PublicChallengeFragment : Fragment() {
             }
     }
 
+    // Muestra los desafíos filtrados en la UI.
     private fun displayChallenges() {
         challengesContainer.removeAllViews()
 
@@ -148,6 +155,7 @@ class PublicChallengeFragment : Fragment() {
         }
     }
 
+    // Crea la vista de una tarjeta de desafío público.
     private fun createChallengeCard(challenge: DesafioPublico): View {
         val inflater = LayoutInflater.from(requireContext())
         val cardView = inflater.inflate(R.layout.item_challenge_card, challengesContainer, false)
@@ -191,6 +199,7 @@ class PublicChallengeFragment : Fragment() {
         return cardView
     }
 
+    // Crea la vista de una etiqueta para un desafío.
     private fun createTagView(tagText: String): View {
         val inflater = LayoutInflater.from(requireContext())
         val tagView = inflater.inflate(R.layout.item_tag_public, null, false)
@@ -208,10 +217,12 @@ class PublicChallengeFragment : Fragment() {
         return tagView
     }
 
+    // Convierte dp a píxeles.
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
     }
 
+    // Navega a la previsualización del desafío seleccionado.
     private fun onJoinChallenge(challenge: DesafioPublico) {
         val bundle = Bundle().apply {
             putString("challengeId", challenge.id)
@@ -232,16 +243,19 @@ class PublicChallengeFragment : Fragment() {
         }
     }
 
+    // Muestra u oculta el indicador de carga.
     private fun showLoading(show: Boolean) {
         loadingProgress.visibility = if (show) View.VISIBLE else View.GONE
         challengesContainer.visibility = if (show) View.GONE else View.VISIBLE
     }
 
+    // Muestra u oculta el estado vacío si no hay desafíos.
     private fun showEmptyState(show: Boolean) {
         emptyState.visibility = if (show) View.VISIBLE else View.GONE
         challengesContainer.visibility = if (show) View.GONE else View.VISIBLE
     }
 
+    // Configura la navegación inferior del fragmento.
     private fun setupBottomNavigation() {
         val bottomNavigation = view?.findViewById<LinearLayout>(R.id.bottom_navigation)
 

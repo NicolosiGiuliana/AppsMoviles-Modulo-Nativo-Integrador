@@ -30,6 +30,7 @@ class NotificationHelper(private val context: Context) {
             R.string.frase_motivacional_10
         )
 
+        // Devuelve una frase motivacional aleatoria de los recursos.
         fun obtenerFraseMotivacional(context: Context): String {
             val randomIndex = Random.nextInt(FRASES_MOTIVACIONALES_IDS.size)
             return context.getString(FRASES_MOTIVACIONALES_IDS[randomIndex])
@@ -46,6 +47,7 @@ class NotificationHelper(private val context: Context) {
         createNotificationChannel()
     }
 
+    // Crea el canal de notificaciones para los recordatorios diarios.
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -61,6 +63,7 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
+    // Programa una notificación diaria a la hora y minuto especificados.
     fun programarNotificacionDiaria(hour: Int, minute: Int) {
 
         with(sharedPreferences.edit()) {
@@ -140,6 +143,7 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
+    // Cancela la notificación diaria programada y actualiza las preferencias.
     fun cancelarNotificacionDiaria() {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, NotificationReceiver::class.java).apply {

@@ -85,6 +85,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Convierte un objeto Desafio recibido por argumentos a la estructura local.
     private fun convertirDesafio(desafioFromArgs: ItemListFragment.Desafio) {
         desafio = Desafio(
             id = desafioFromArgs.id,
@@ -101,6 +102,7 @@ class ItemDetailFragment : Fragment() {
         )
     }
 
+    // Carga un desafío desde Firestore usando su ID.
     private fun cargarDesafioPorId(desafioId: String) {
         val uid = auth.currentUser?.uid ?: return
 
@@ -150,6 +152,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Calcula el día actual del desafío según la fecha de inicio.
     private fun calcularDiaActual(fechaInicio: String): Int {
         return try {
             val fechaInicioDate =
@@ -169,6 +172,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Infla la vista del fragmento y configura los componentes principales.
     @SuppressLint("UseRequireInsteadOfGet")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -184,6 +188,7 @@ class ItemDetailFragment : Fragment() {
         return rootView
     }
 
+    // Configura los botones flotantes de editar, eliminar y finalizar desafío.
     private fun setupFloatingButtons() {
          
         binding.btnEditChallenge?.setOnClickListener {
@@ -228,6 +233,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Inicializa las vistas relacionadas con el mapa y la ubicación.
     private fun initializeMapViews() {
         try {
             challengeMap = binding.root.findViewById(R.id.challenge_map)
@@ -244,6 +250,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Carga los días completados y la información de ubicación del desafío.
     private fun cargarDiasCompletados() {
         val uid = auth.currentUser?.uid ?: return
 
@@ -305,6 +312,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Configura y muestra el mapa con la ubicación del desafío.
     private fun setupMap() {
         val latitude = challengeLatitude ?: return
         val longitude = challengeLongitude ?: return
@@ -333,6 +341,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Actualiza la dirección de la ubicación mostrada en la UI.
     private fun updateLocationAddress(latitude: Double, longitude: Double) {
         if (challengeLocationName != null) {
             locationAddress?.text = challengeLocationName
@@ -341,6 +350,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Actualiza la información básica del desafío en la UI.
     private fun updateBasicInfo() {
         binding.root.findViewById<TextView>(R.id.challenge_title)?.text = desafio.nombre
         binding.root.findViewById<TextView>(R.id.challenge_description)?.text = desafio.descripcion
@@ -348,6 +358,7 @@ class ItemDetailFragment : Fragment() {
             "${desafio.dias} ${getString(R.string.firestore_field_dias)}"
     }
 
+    // Actualiza el contenido principal del fragmento según el estado del desafío.
     private fun updateContent() {
         if (isUpdatingContent) {
             return
@@ -440,6 +451,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Actualiza la información general del desafío en la UI.
     private fun actualizarInformacionGeneral(
         nombre: String,
         descripcion: String,
@@ -466,6 +478,7 @@ class ItemDetailFragment : Fragment() {
         binding.root.findViewById<TextView>(R.id.progress_text)?.text = "$porcentaje%"
     }
 
+    // Obtiene el ID del día actual del desafío.
     private fun obtenerDiaActual(uid: String, desafioId: String, callback: (String?) -> Unit) {
         val fechaHoy = LocalDate.now().toString()
 
@@ -489,6 +502,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Verifica si todos los hábitos del día están completados y actualiza el estado.
     private fun verificarEstadoDia(
         uid: String,
         desafioId: String,
@@ -528,6 +542,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Actualiza el estado visual del día en la UI.
     private fun actualizarEstadoUI(diaCompletado: Boolean) {
         val estadoText = binding.root.findViewById<TextView>(R.id.day_status_text)
         val estadoIcon = binding.root.findViewById<ImageView>(R.id.day_status_icon)
@@ -541,6 +556,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Actualiza el estado de un hábito específico del día en Firestore y la UI.
     private fun actualizarEstadoHabitoDelDia(
         uid: String,
         desafioId: String,
@@ -588,6 +604,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Actualiza el icono de un hábito en la UI según su estado.
     private fun actualizarHabitoEnUI(habitIndex: Int, completado: Boolean) {
         val habitsContainer = binding.root.findViewById<LinearLayout>(R.id.habits_container)
         if (habitIndex < habitsContainer.childCount) {
@@ -599,6 +616,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Muestra las etiquetas del desafío en la UI.
     private fun mostrarEtiquetas(etiquetas: List<String>) {
         val tagsContainer =
             binding.root.findViewById<com.google.android.flexbox.FlexboxLayout>(R.id.tags_container)
@@ -624,6 +642,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Actualiza la UI con los hábitos del día y permite marcarlos como completados.
     private fun actualizarUI(
         nombre: String,
         descripcion: String,
@@ -696,6 +715,8 @@ class ItemDetailFragment : Fragment() {
             }
         }
     }
+
+    // Verifica si el día está marcado como completado en Firestore.
     private fun verificarSiDiaEstaCompletado(
         uid: String,
         desafioId: String,
@@ -718,6 +739,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Crea un nuevo documento para el día actual si no existe.
     private fun crearDiaActual(
         uid: String,
         desafioId: String,
@@ -776,6 +798,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Obtiene los hábitos del día actual, creando el día si es necesario.
     private fun obtenerHabitosDiaActual(
         uid: String,
         desafioId: String,
@@ -819,6 +842,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Verifica si el desafío ya ha finalizado.
     private fun verificarSiDesafioFinalizado(callback: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: return
 
@@ -859,6 +883,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Muestra la vista de estadísticas finales cuando el desafío termina.
     private fun mostrarVistaDesafioFinalizado() {
         ocultarContenidoNormal()
 
@@ -870,6 +895,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Oculta el contenido normal del fragmento para mostrar la finalización.
     private fun ocultarContenidoNormal() {
         binding.root.findViewById<LinearLayout>(R.id.item_description)?.visibility = View.GONE
         binding.root.findViewById<LinearLayout>(R.id.item_habits)?.visibility = View.GONE
@@ -882,6 +908,7 @@ class ItemDetailFragment : Fragment() {
         binding.btnDeleteChallenge?.visibility = View.GONE
     }
 
+    // Calcula las estadísticas finales del desafío.
     private fun calcularEstadisticasFinales(callback: (Int, Int) -> Unit) {
         val uid = auth.currentUser?.uid ?: return
 
@@ -901,6 +928,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Actualiza la UI con las estadísticas finales del desafío.
     private fun actualizarEstadisticasFinales(diasCompletados: Int, totalDias: Int) {
         val estadisticasView = binding.root.findViewById<TextView>(R.id.estadisticas_finales)
         val porcentaje = if (totalDias > 0) (diasCompletados * 100) / totalDias else 0
@@ -915,6 +943,7 @@ class ItemDetailFragment : Fragment() {
         estadisticasView?.text = estadisticasText
     }
 
+    // Finaliza el desafío eliminando todos sus datos.
     private fun finalizarDesafio() {
         val context = requireContext()
         val uid = auth.currentUser?.uid ?: return
@@ -941,6 +970,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Elimina completamente el desafío y sus días de Firestore.
     private fun eliminarDesafioCompleto(uid: String, desafioId: String, callback: (Boolean) -> Unit) {
         try {
             firestore.collection("usuarios")
@@ -978,6 +1008,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Verifica si se puede crear un nuevo día para el desafío según el límite.
     private fun verificarLimiteDiasDesafio(uid: String, desafioId: String, callback: (Boolean) -> Unit) {
         firestore.collection("usuarios")
             .document(uid)
@@ -1014,6 +1045,7 @@ class ItemDetailFragment : Fragment() {
             }
     }
 
+    // Configura la navegación inferior del fragmento.
     private fun setupBottomNavigation(view: View) {
         val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
@@ -1053,6 +1085,7 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Elimina el desafío actual mostrando un diálogo de confirmación.
     private fun eliminarDesafio(id: String) {
         val context = requireContext()
 
@@ -1078,10 +1111,12 @@ class ItemDetailFragment : Fragment() {
             .show()
     }
 
+    // Muestra un mensaje de error en pantalla.
     private fun mostrarError(mensaje: String) {
         Toast.makeText(context, mensaje, Toast.LENGTH_SHORT).show()
     }
 
+    // Muestra un mensaje de éxito en pantalla.
     private fun mostrarExito(mensaje: String) {
         Toast.makeText(context, mensaje, Toast.LENGTH_LONG).show()
     }
@@ -1105,6 +1140,7 @@ class ItemDetailFragment : Fragment() {
         private const val FIELD_HABITOS = "habitos"
     }
 
+    // Llama a onResume del mapa y recarga los días completados si es necesario.
     override fun onResume() {
         super.onResume()
         challengeMap?.onResume()
@@ -1114,13 +1150,16 @@ class ItemDetailFragment : Fragment() {
         }
     }
 
+    // Llama a onPause del mapa.
     override fun onPause() {
         super.onPause()
         challengeMap?.onPause()
     }
 
+    // Libera el binding al destruir la vista.
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
+
