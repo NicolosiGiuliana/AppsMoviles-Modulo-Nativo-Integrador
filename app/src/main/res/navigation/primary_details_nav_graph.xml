@@ -29,9 +29,6 @@
         <action
             android:id="@+id/action_itemListFragment_to_createDesafioFragment"
             app:destination="@id/createDesafioFragment" />
-        <action
-            android:id="@+id/action_itemListFragment_to_dayDetailFragment"
-            app:destination="@id/dayDetailFragment" />
 
         <!-- Navegación inferior -->
         <action
@@ -58,9 +55,6 @@
             android:name="item_id"
             app:argType="string" />
         <action
-            android:id="@+id/action_itemDetailFragment_to_dayDetailFragment"
-            app:destination="@id/dayDetailFragment" />
-        <action
             android:id="@+id/action_itemDetailFragment_to_todayFragment"
             app:destination="@id/todayFragment" />
         <action
@@ -75,20 +69,6 @@
         <action
             android:id="@+id/action_itemDetailFragment_to_publicChallengeFragment"
             app:destination="@id/publicChallengeFragment" />
-    </fragment>
-
-    <!-- Detalle del día -->
-    <fragment
-        android:id="@+id/dayDetailFragment"
-        android:name="com.example.trabajointegradornativo.DayDetailFragment"
-        android:label="Detalle del día"
-        tools:layout="@layout/fragment_day_detail">
-        <argument
-            android:name="day_number"
-            app:argType="integer" />
-        <action
-            android:id="@+id/action_dayDetailFragment_to_itemListFragment"
-            app:destination="@id/itemListFragment" />
     </fragment>
 
     <!-- Crear desafío -->

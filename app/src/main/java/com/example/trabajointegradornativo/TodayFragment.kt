@@ -154,6 +154,7 @@ class TodayFragment : Fragment() {
         limpiarListeners()
     }
 
+    // Elimina todos los listeners de Firestore para evitar fugas de memoria.
     private fun limpiarListeners() {
         firestoreListeners.forEach { listener ->
             listener.remove()
@@ -161,12 +162,14 @@ class TodayFragment : Fragment() {
         firestoreListeners.clear()
     }
 
+    // Inicializa las vistas principales del fragmento.
     private fun inicializarViews(view: View) {
         dateTextView = view.findViewById(R.id.date_today)
         progressTextView = view.findViewById(R.id.progress_summary)
         activitiesContainer = view.findViewById(R.id.activities_container)
     }
 
+    // Configura y muestra la fecha actual, y carga los desafíos si es necesario.
     private fun configurarFechaActual() {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("EEEE, d 'de' MMMM", Locale.getDefault())
@@ -192,6 +195,7 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Carga los desafíos activos del usuario desde Firestore.
     private fun cargarDesafiosDelUsuario() {
         val uid = auth.currentUser?.uid
         if (uid == null) {
@@ -273,6 +277,7 @@ class TodayFragment : Fragment() {
             }
     }
 
+    // Escucha los cambios en los hábitos del día actual de un desafío.
     private fun cargarHabitosDelDiaConListener(
         desafioId: String,
         nombreDesafio: String,
@@ -318,6 +323,7 @@ class TodayFragment : Fragment() {
         firestoreListeners.add(diaListener)
     }
 
+    // Carga los hábitos del día y los agrega a la lista de desafíos activos.
     private fun cargarHabitosDelDia(
         desafioId: String,
         nombreDesafio: String,
@@ -347,6 +353,7 @@ class TodayFragment : Fragment() {
         actualizarInterfaz()
     }
 
+    // Remueve un desafío de la interfaz si ya no corresponde mostrarlo.
     private fun removerDesafioDeInterfaz(desafioId: String) {
         val posicionDesafio = desafiosActivos.indexOfFirst { it.id == desafioId }
         if (posicionDesafio != -1) {
@@ -355,6 +362,7 @@ class TodayFragment : Fragment() {
         actualizarInterfaz()
     }
 
+    // Inicia la verificación periódica de la fecha para actualizar la pantalla.
     private fun iniciarVerificacionFecha() {
         val handler = android.os.Handler(android.os.Looper.getMainLooper())
         val runnable = object : Runnable {
@@ -369,6 +377,7 @@ class TodayFragment : Fragment() {
         handler.post(runnable)
     }
 
+    // Muestra un mensaje cuando no hay desafíos activos para hoy.
     private fun mostrarMensajeSinDesafios() {
         activitiesContainer.removeAllViews()
 
@@ -390,6 +399,7 @@ class TodayFragment : Fragment() {
         progressTextView.text = getString(R.string.all_challenges_completed)
     }
 
+    // Actualiza la interfaz gráfica con los desafíos y hábitos actuales.
     private fun actualizarInterfaz() {
         activitiesContainer.removeAllViews()
 
@@ -405,6 +415,7 @@ class TodayFragment : Fragment() {
         actualizarResumenProgreso()
     }
 
+    // Agrega un desafío y sus hábitos a la interfaz.
     private fun agregarDesafioALaInterfaz(desafio: Desafio) {
         val cardView = CardView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(
@@ -418,8 +429,7 @@ class TodayFragment : Fragment() {
             setCardBackgroundColor(ContextCompat.getColor(context, android.R.color.white))
             isClickable = true
             isFocusable = true
-            foreground =
-                ContextCompat.getDrawable(context, android.R.drawable.list_selector_background)
+            foreground = null
             setOnClickListener {
                 navegarADetalleDesafio(desafio.id)
             }
@@ -448,6 +458,7 @@ class TodayFragment : Fragment() {
         activitiesContainer.addView(cardView)
     }
 
+    // Crea el layout visual para un hábito individual.
     private fun crearLayoutHabito(desafio: Desafio, habito: Habito): LinearLayout {
         val habitoLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
@@ -516,6 +527,7 @@ class TodayFragment : Fragment() {
         return habitoLayout
     }
 
+    // Navega al detalle del desafío seleccionado.
     private fun navegarADetalleDesafio(desafioId: String) {
         try {
             val bundle = Bundle().apply {
@@ -531,6 +543,7 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Muestra un diálogo para elegir entre tomar foto o seleccionar de galería.
     private fun mostrarOpcionesFoto() {
         val opciones = arrayOf(
             getString(R.string.take_photo),
@@ -550,6 +563,7 @@ class TodayFragment : Fragment() {
             .show()
     }
 
+    // Verifica si el día del desafío ya está completado y ejecuta el callback.
     private fun verificarSiDiaEstaCompletado(desafio: Desafio, callback: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: return
 
@@ -581,6 +595,7 @@ class TodayFragment : Fragment() {
             }
     }
 
+    // Marca o desmarca el día como completado según el estado de los hábitos.
     private fun verificarYMarcarDiaCompletado(desafio: Desafio) {
         val todosCompletados = desafio.habitos.all { it.completado }
 
@@ -591,6 +606,7 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Marca el día como completado en Firestore.
     private fun marcarDiaComoCompletado(desafio: Desafio) {
         val uid = auth.currentUser?.uid ?: return
 
@@ -622,6 +638,7 @@ class TodayFragment : Fragment() {
             }
     }
 
+    // Desmarca el día como completado en Firestore.
     private fun desmarcarDiaComoCompletado(desafio: Desafio) {
         val uid = auth.currentUser?.uid ?: return
 
@@ -648,6 +665,7 @@ class TodayFragment : Fragment() {
             }
     }
 
+    // Crea el layout para mostrar la foto y/o comentario de un hábito.
     private fun crearContenidoExtra(habito: Habito): LinearLayout {
         val extraLayout = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
@@ -754,6 +772,7 @@ class TodayFragment : Fragment() {
         return extraLayout
     }
 
+    // Carga una imagen en miniatura desde una URL y la muestra en un ImageView.
     private fun cargarImagenEnMiniatura(
         url: String,
         imageView: ImageView,
@@ -799,6 +818,7 @@ class TodayFragment : Fragment() {
         }.start()
     }
 
+    // Muestra un diálogo para confirmar la eliminación de una imagen.
     private fun mostrarDialogoEliminarImagen(habito: Habito) {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.delete_image_title))
@@ -810,6 +830,7 @@ class TodayFragment : Fragment() {
             .show()
     }
 
+    // Elimina la imagen asociada a un hábito y actualiza Firestore.
     private fun eliminarImagenDelHabito(habito: Habito) {
         val desafio = desafiosActivos.find { desafio ->
             desafio.habitos.any { it.nombre == habito.nombre }
@@ -828,6 +849,7 @@ class TodayFragment : Fragment() {
             .show()
     }
 
+    // Muestra una imagen en un diálogo a pantalla completa.
     private fun mostrarImagenEnDialogo(url: String) {
         try {
             val imageView = ImageView(requireContext()).apply {
@@ -907,6 +929,7 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Cambia el estado de completado de un hábito y actualiza la interfaz.
     private fun toggleHabito(desafio: Desafio, habito: Habito, checkbox: ImageView) {
         habito.completado = !habito.completado
 
@@ -923,6 +946,7 @@ class TodayFragment : Fragment() {
         actualizarResumenProgreso()
     }
 
+    // Guarda el progreso de un hábito en Firestore.
     private fun guardarProgresoHabito(desafio: Desafio, habito: Habito) {
         val uid = auth.currentUser?.uid ?: return
 
@@ -951,6 +975,7 @@ class TodayFragment : Fragment() {
             }
     }
 
+    // Actualiza el resumen de progreso de hábitos completados.
     private fun actualizarResumenProgreso() {
         if (desafiosActivos.isNotEmpty()) {
             val totalHabitos = desafiosActivos.sumOf { it.habitos.size }
@@ -962,6 +987,7 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Verifica y solicita permisos de cámara si es necesario.
     private fun verificarPermisosCamara() {
         when {
             ContextCompat.checkSelfPermission(
@@ -977,6 +1003,7 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Verifica y solicita permisos de galería si es necesario.
     private fun verificarPermisosGaleria() {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_IMAGES
@@ -998,6 +1025,7 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Abre la cámara para tomar una foto.
     private fun abrirCamara() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         try {
@@ -1011,12 +1039,14 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Abre la galería para seleccionar una imagen.
     private fun abrirGaleria() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         intent.type = "image/*"
         pickImageLauncher.launch(intent)
     }
 
+    // Procesa la imagen seleccionada desde la galería.
     private fun handleSelectedImage(uri: Uri) {
         try {
             val inputStream = requireContext().contentResolver.openInputStream(uri)
@@ -1048,6 +1078,7 @@ class TodayFragment : Fragment() {
         }
     }
 
+    // Redimensiona un bitmap para limitar su tamaño máximo.
     private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
@@ -1068,6 +1099,7 @@ class TodayFragment : Fragment() {
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
+    // Muestra un diálogo para agregar un comentario a la foto.
     private fun mostrarDialogoComentario(bitmap: Bitmap) {
         val editText = EditText(requireContext()).apply {
             hint = getString(R.string.add_comment_optional)
@@ -1087,6 +1119,7 @@ class TodayFragment : Fragment() {
             .show()
     }
 
+    // Sube la foto a ImgBB y guarda el comentario en el hábito.
     private fun subirFotoYGuardarComentario(bitmap: Bitmap, comentario: String) {
         val habitoInfo = habitoSeleccionadoParaFoto ?: return
         val (desafioId, habitoNombre) = habitoInfo
@@ -1130,13 +1163,13 @@ class TodayFragment : Fragment() {
             override fun onProgress(progress: Int) {
                 if (progress == 100) {
                     requireActivity().runOnUiThread {
-
                     }
                 }
             }
         })
     }
 
+    // Muestra un diálogo de error si falla la subida de la imagen.
     private fun mostrarDialogoErrorSubida(bitmap: Bitmap, comentario: String) {
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.error_uploading_image_title))
@@ -1160,6 +1193,7 @@ class TodayFragment : Fragment() {
             .show()
     }
 
+    // Actualiza el hábito con la URL de la foto y el comentario.
     private fun actualizarHabitoConFotoYComentario(
         desafioId: String,
         habitoNombre: String,
@@ -1181,6 +1215,7 @@ class TodayFragment : Fragment() {
         actualizarInterfaz()
     }
 
+    // Configura la navegación inferior y sus acciones.
     private fun setupBottomNavigation(view: View) {
         val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
@@ -1227,6 +1262,7 @@ class TodayFragment : Fragment() {
         updateBottomNavigationColors(view, "today")
     }
 
+    // Actualiza los colores de la barra de navegación inferior según la pestaña activa.
     private fun updateBottomNavigationColors(view: View, activeTab: String) {
         val bottomNav = view.findViewById<LinearLayout>(R.id.bottom_navigation)
 
